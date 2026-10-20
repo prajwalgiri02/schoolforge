@@ -162,7 +162,7 @@ describe('Laravel overlay', () => {
 
         createProject({ directory: dir, configFile, target: 'laravel-inertia-react', theme: 'elegant', skipInstall: true, force: true, log: quiet });
 
-        for (const file of ['routes/web.php', 'app/Support/SchoolSite.php', 'app/Http/Controllers/SchoolPageController.php', 'resources/js/app.tsx', 'resources/js/pages/School/Page.tsx', 'resources/js/school/adapter.tsx', 'resources/school/site.json', 'tests/Feature/SchoolSiteTest.php']) {
+        for (const file of ['routes/web.php', 'app/Support/SchoolSite.php', 'app/Http/Controllers/SchoolPageController.php', 'resources/js/app.tsx', 'resources/js/pages/School/Page.tsx', 'resources/js/school/adapter.tsx', 'resources/school/site.json', 'tests/Feature/SchoolSiteTest.php', 'app/Support/ContentSchema.php', 'app/Http/Controllers/Admin/ContentController.php', 'app/Console/Commands/CreateSchoolAdmin.php', 'resources/js/pages/Admin/Content/Edit.tsx', 'tests/Feature/AdminPanelTest.php']) {
             assert.ok(fs.existsSync(path.join(dir, file)), `${file} exists`);
         }
 

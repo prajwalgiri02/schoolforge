@@ -85,6 +85,7 @@ export default {
 
         if (exists(path.join(projectDir, 'artisan')) && commandExists('php')) {
             run('php', ['artisan', 'migrate', '--force', '--no-interaction'], { cwd: projectDir, log });
+            run('php', ['artisan', 'storage:link', '--no-interaction'], { cwd: projectDir, log });
         }
 
         run('npm', ['install'], { cwd: projectDir, log });
@@ -97,9 +98,10 @@ export default {
     nextSteps(relativeDir, { installed }) {
         return [
             `cd ${relativeDir}`,
-            ...(installed ? [] : ['composer install', 'npm install', 'php artisan migrate']),
+            ...(installed ? [] : ['composer install', 'npm install', 'php artisan migrate', 'php artisan storage:link']),
+            'php artisan school:admin you@school.edu   (creates your admin panel login)',
             'composer run dev   (or: php artisan serve + npm run dev)',
-            'open http://localhost:8000',
+            'open http://localhost:8000 (website) and http://localhost:8000/admin (admin panel)',
         ];
     },
 };

@@ -16,6 +16,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | School Config
+    |--------------------------------------------------------------------------
+    |
+    | The SchoolForge config that `php artisan school:export-content` writes
+    | admin panel edits back into, so they survive the next `schoolforge sync`.
+    |
+    */
+
+    'config_file' => env('SCHOOL_CONFIG_FILE', base_path('school.config.json')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Contact Notifications
     |--------------------------------------------------------------------------
     |

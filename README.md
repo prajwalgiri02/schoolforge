@@ -29,7 +29,25 @@ schoolforge create ../riverside-app --config my-school.json --target laravel-ine
 * **24 section components:** navbar, announcement bar, hero, stats, about, mission & vision, principal's message, programs, facilities, faculty, gallery (filter + lightbox), news, article, events, notices, testimonials, achievements, admissions, FAQ, call to action, contact (form + map), page header, rich text, footer. Most have 2 or 3 visual variants.
 * **A working contact form.** Next.js posts to `/api/contact` and can forward to `CONTACT_WEBHOOK_URL`. Laravel validates with a Form Request, stores enquiries in `contact_messages`, and can email `SCHOOL_CONTACT_RECIPIENT`.
 * **Polish:** SEO titles and descriptions, responsive layouts, an accessible mobile menu, skip link, keyboard-navigable lightbox, and themed image placeholders so a site looks finished before photos arrive.
-* **Laravel extras:** PHPUnit feature tests (`tests/Feature/SchoolSiteTest.php`), a factory, a migration, and a throttled contact route.
+* **Laravel extras:** an admin panel for editing content (see below), PHPUnit feature tests, factories, migrations, and a throttled contact route.
+
+## Admin panel (Laravel target)
+
+Laravel sites include an admin panel at `/admin` where school staff edit content without touching code.
+
+```bash
+php artisan school:admin office@school.edu      # create a login (or reset its password)
+```
+
+* **What it edits:** school profile, about, principal's message, contact details, social links, home banner, announcement bar, admissions, statistics, programs, facilities, faculty, gallery, news, events, notices, testimonials, achievements and FAQs. Lists support add, remove and reorder.
+* **Image uploads** go to `storage/app/public/school` (`php artisan storage:link` runs during `create`).
+* **Enquiries:** contact form messages appear in the panel and can be marked read or deleted.
+* **How edits are applied:** saved sections are stored in the `site_contents` table and override the generated `site.json`, so changes go live immediately. News stories with a full text get their own page automatically. "Reset to original" drops an edit.
+* **Keeping the config in step:** `php artisan school:export-content` writes all admin edits back into `school.config.json`. That way the config stays the source of truth for `schoolforge sync`, theme switches, or regenerating the site. Edits still override the file until they are reset.
+
+Field definitions live in `app/Support/ContentSchema.php`, which drives the forms, validation and storage. Adding a field there adds it to the panel.
+
+Next.js sites have no server-side database, so their content is edited in `school.config.json` followed by `schoolforge sync`.
 
 ## The school config
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\SchoolSite;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -23,6 +24,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
+            'schoolName' => fn () => app(SchoolSite::class)->schoolName(),
+            'auth' => [
+                'user' => fn () => $request->user()?->only('id', 'name', 'email'),
+            ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],
