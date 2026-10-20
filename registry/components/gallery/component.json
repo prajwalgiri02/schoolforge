@@ -1,0 +1,16 @@
+{
+    "name": "gallery",
+    "label": "Gallery",
+    "description": "Photo gallery with category filter and lightbox.",
+    "category": "section",
+    "variants": [
+        "grid",
+        "masonry"
+    ],
+    "requires": [
+        "content.gallery"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

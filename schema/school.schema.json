@@ -1,0 +1,923 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "SchoolForge school config",
+    "type": "object",
+    "required": [
+        "school"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "target": {
+            "enum": [
+                "nextjs",
+                "laravel-inertia-react"
+            ],
+            "default": "nextjs"
+        },
+        "theme": {
+            "type": "string",
+            "default": "classic",
+            "description": "classic | modern | playful | elegant, or any theme in registry/themes"
+        },
+        "project": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "npm package name"
+                }
+            }
+        },
+        "colors": {
+            "type": "object",
+            "description": "Override theme colours with your brand palette. Foregrounds are derived automatically when omitted.",
+            "properties": {
+                "primary": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "primaryForeground": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "secondary": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "secondaryForeground": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "accent": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "accentForeground": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "background": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "foreground": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "muted": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "mutedForeground": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "surface": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                },
+                "border": {
+                    "type": "string",
+                    "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+                }
+            },
+            "additionalProperties": false
+        },
+        "fonts": {
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "Google Font family name"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "family": {
+                                    "type": "string"
+                                },
+                                "fallback": {
+                                    "type": "string"
+                                },
+                                "weights": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "google": {
+                                    "type": "boolean",
+                                    "description": "Set false for self-hosted fonts"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "body": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "Google Font family name"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "family": {
+                                    "type": "string"
+                                },
+                                "fallback": {
+                                    "type": "string"
+                                },
+                                "weights": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "google": {
+                                    "type": "boolean",
+                                    "description": "Set false for self-hosted fonts"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "radius": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "type": "string"
+                },
+                "button": {
+                    "type": "string"
+                }
+            }
+        },
+        "variants": {
+            "type": "object",
+            "description": "Per-component variant overrides, e.g. {\"hero\": \"split\"}",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "school": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "shortName": {
+                    "type": "string"
+                },
+                "tagline": {
+                    "type": "string"
+                },
+                "motto": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "e.g. Co-educational K-12 School"
+                },
+                "established": {
+                    "type": [
+                        "integer",
+                        "string"
+                    ]
+                },
+                "affiliation": {
+                    "type": "string"
+                },
+                "logo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                },
+                "favicon": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                },
+                "about": {
+                    "type": "object",
+                    "properties": {
+                        "summary": {
+                            "type": "string"
+                        },
+                        "body": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "image": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                        },
+                        "mission": {
+                            "type": "string"
+                        },
+                        "vision": {
+                            "type": "string"
+                        },
+                        "values": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "principal": {
+                    "type": "object",
+                    "required": [
+                        "name"
+                    ],
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "photo": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                        },
+                        "message": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "contact": {
+                    "type": "object",
+                    "properties": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "email": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "hours": {
+                            "type": "string"
+                        },
+                        "mapEmbedUrl": {
+                            "type": "string",
+                            "description": "Embeddable map URL (Google Maps or OpenStreetMap embed)"
+                        }
+                    }
+                },
+                "social": {
+                    "type": "object",
+                    "properties": {
+                        "facebook": {
+                            "type": "string"
+                        },
+                        "instagram": {
+                            "type": "string"
+                        },
+                        "youtube": {
+                            "type": "string"
+                        },
+                        "x": {
+                            "type": "string"
+                        },
+                        "linkedin": {
+                            "type": "string"
+                        },
+                        "tiktok": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "hero": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                },
+                "primaryCta": {
+                    "type": "object",
+                    "required": [
+                        "label",
+                        "href"
+                    ],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "href": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "secondaryCta": {
+                    "type": "object",
+                    "required": [
+                        "label",
+                        "href"
+                    ],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "href": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "announcement": {
+            "type": "object",
+            "required": [
+                "text"
+            ],
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "object",
+                    "required": [
+                        "label",
+                        "href"
+                    ],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "href": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "stats": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "label",
+                    "value"
+                ],
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "programs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "level": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    },
+                    "highlights": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "facilities": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "flask, library, computer, trophy, music, bus, health, utensils, book, globe, leaf, ..."
+                    },
+                    "image": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    }
+                }
+            }
+        },
+        "faculty": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    },
+                    "bio": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "gallery": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [],
+                "properties": {
+                    "src": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    },
+                    "caption": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "news": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "slug": {
+                        "type": "string",
+                        "description": "Defaults to a slug of the title"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                        "description": "YYYY-MM-DD"
+                    },
+                    "excerpt": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    },
+                    "body": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Paragraphs. News with a body gets its own article page."
+                    }
+                }
+            }
+        },
+        "events": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "title",
+                    "date"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                        "description": "YYYY-MM-DD"
+                    },
+                    "time": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "notices": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                        "description": "YYYY-MM-DD"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "important": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "testimonials": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "quote",
+                    "name"
+                ],
+                "properties": {
+                    "quote": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Image URL or path under /public (e.g. /images/campus.jpg). Leave null to use a themed placeholder."
+                    }
+                }
+            }
+        },
+        "achievements": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": [
+                            "integer",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "admissions": {
+            "type": "object",
+            "properties": {
+                "open": {
+                    "type": "boolean"
+                },
+                "intro": {
+                    "type": "string"
+                },
+                "deadline": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                    "description": "YYYY-MM-DD"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "title"
+                        ],
+                        "properties": {
+                            "title": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "requirements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "cta": {
+                    "type": "object",
+                    "required": [
+                        "label",
+                        "href"
+                    ],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "href": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "feeStructureUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "faqs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "question",
+                    "answer"
+                ],
+                "properties": {
+                    "question": {
+                        "type": "string"
+                    },
+                    "answer": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "navigation": {
+            "type": "array",
+            "description": "Custom main menu. Defaults to pages with showInNav.",
+            "items": {
+                "type": "object",
+                "required": [
+                    "label",
+                    "href"
+                ],
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "href": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "layout": {
+            "type": "object",
+            "properties": {
+                "header": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Component name, see `schoolforge list components`"
+                            },
+                            "variant": {
+                                "type": "string",
+                                "description": "Component variant; defaults to the theme's choice"
+                            },
+                            "title": {
+                                "type": "string"
+                            },
+                            "subtitle": {
+                                "type": "string"
+                            },
+                            "eyebrow": {
+                                "type": "string"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "additionalProperties": true
+                    }
+                },
+                "footer": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Component name, see `schoolforge list components`"
+                            },
+                            "variant": {
+                                "type": "string",
+                                "description": "Component variant; defaults to the theme's choice"
+                            },
+                            "title": {
+                                "type": "string"
+                            },
+                            "subtitle": {
+                                "type": "string"
+                            },
+                            "eyebrow": {
+                                "type": "string"
+                            },
+                            "limit": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        },
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "pages": {
+            "type": "array",
+            "description": "Custom site map. Omit to use the default pages (home, about, academics, admissions, faculty, facilities, gallery, news, contact).",
+            "items": {
+                "type": "object",
+                "required": [
+                    "slug",
+                    "title",
+                    "sections"
+                ],
+                "properties": {
+                    "slug": {
+                        "type": "string",
+                        "pattern": "^/([a-z0-9-]+(/[a-z0-9-]+)*)?$"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "navLabel": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "showInNav": {
+                        "type": "boolean"
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "description": "Component name, see `schoolforge list components`"
+                                },
+                                "variant": {
+                                    "type": "string",
+                                    "description": "Component variant; defaults to the theme's choice"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "subtitle": {
+                                    "type": "string"
+                                },
+                                "eyebrow": {
+                                    "type": "string"
+                                },
+                                "limit": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            },
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,210 @@
+{
+    "$schema": "../schema/school.schema.json",
+    "target": "nextjs",
+    "theme": "classic",
+    "school": {
+        "name": "Riverside Heights School",
+        "shortName": "Riverside Heights",
+        "tagline": "Inspiring curious minds since 1998",
+        "motto": "Knowledge · Character · Service",
+        "type": "Co-educational K–12 School",
+        "established": 1998,
+        "affiliation": "Affiliated to the National Examination Board",
+        "logo": null,
+        "about": {
+            "summary": "Riverside Heights is a co-educational day school where 1,200 learners from nursery to grade 12 grow into confident, compassionate and capable young people.",
+            "body": [
+                "Founded by a group of parents and educators in 1998, Riverside Heights began with 60 students in a rented house by the river. Today our 8-acre green campus is home to modern science labs, a 20,000-book library, sports grounds and a performing arts centre.",
+                "Our teaching blends a rigorous national curriculum with project-based learning, so students learn to ask good questions, work in teams and apply what they know. Small class sizes mean every learner is known, challenged and supported.",
+                "Beyond academics, we believe character is built on the playing field, the stage and in service to the community. Every student takes part in clubs, sports and an annual service project."
+            ],
+            "mission": "To nurture lifelong learners who think critically, act with integrity and serve their communities.",
+            "vision": "To be a leading school where every child discovers their potential and the confidence to pursue it.",
+            "values": [
+                { "title": "Curiosity", "description": "We ask questions and love to learn." },
+                { "title": "Integrity", "description": "We are honest and take responsibility." },
+                { "title": "Respect", "description": "We value every person and perspective." },
+                { "title": "Service", "description": "We use our learning to help others." }
+            ]
+        },
+        "principal": {
+            "name": "Dr. Meera Joshi",
+            "title": "Principal, M.Ed., Ph.D.",
+            "photo": null,
+            "message": [
+                "Welcome to Riverside Heights. For over two decades our school has been a place where children feel safe to be curious, to make mistakes and to discover what they love.",
+                "Our dedicated teachers combine academic excellence with genuine care. We measure success not only by examination results, of which we are proud, but by the kindness, resilience and leadership our students show.",
+                "I warmly invite you to visit our campus, meet our community and see learning in action."
+            ]
+        },
+        "contact": {
+            "address": "Riverside Road 12, Green Valley, Kathmandu 44600",
+            "phone": ["+977 1 4567890", "+977 9801234567"],
+            "email": ["info@riversideheights.edu.np", "admissions@riversideheights.edu.np"],
+            "hours": "Sun–Fri, 8:00 AM – 4:00 PM",
+            "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=85.30%2C27.69%2C85.34%2C27.72&layer=mapnik"
+        },
+        "social": {
+            "facebook": "https://facebook.com/",
+            "instagram": "https://instagram.com/",
+            "youtube": "https://youtube.com/"
+        }
+    },
+    "announcement": {
+        "text": "Admissions for the 2027 academic session are now open.",
+        "link": { "label": "Apply today", "href": "/admissions" }
+    },
+    "hero": {
+        "title": "Where curious minds grow into confident leaders",
+        "subtitle": "A caring K–12 school combining academic excellence, character education and a vibrant campus life.",
+        "image": null,
+        "primaryCta": { "label": "Apply for admission", "href": "/admissions" },
+        "secondaryCta": { "label": "Book a campus tour", "href": "/contact" }
+    },
+    "stats": [
+        { "label": "Students", "value": "1,200+" },
+        { "label": "Qualified teachers", "value": "85" },
+        { "label": "Board exam pass rate", "value": "99%" },
+        { "label": "Clubs & activities", "value": "30+" }
+    ],
+    "programs": [
+        {
+            "name": "Early Years",
+            "level": "Nursery – KG",
+            "description": "Play-based learning that builds language, numeracy, social skills and a joyful start to school.",
+            "highlights": ["Montessori-inspired classrooms", "1:12 teacher ratio", "Daily outdoor play"]
+        },
+        {
+            "name": "Primary School",
+            "level": "Grades 1 – 5",
+            "description": "Strong foundations in literacy, mathematics and science through hands-on, inquiry-led lessons.",
+            "highlights": ["Reading programme", "STEM projects", "Music & art every week"]
+        },
+        {
+            "name": "Middle School",
+            "level": "Grades 6 – 8",
+            "description": "Students explore subjects in depth, learn to manage their time and discover new passions.",
+            "highlights": ["Computer science", "Second language", "Leadership council"]
+        },
+        {
+            "name": "Secondary School",
+            "level": "Grades 9 – 10",
+            "description": "Focused preparation for board examinations with mentoring, revision clinics and career guidance.",
+            "highlights": ["Board exam preparation", "Science & math olympiads", "Career counselling"]
+        },
+        {
+            "name": "Higher Secondary — Science",
+            "level": "Grades 11 – 12",
+            "description": "Physics, chemistry, biology and mathematics with extensive lab work for future doctors and engineers.",
+            "highlights": ["Advanced labs", "Entrance exam coaching", "Research projects"]
+        },
+        {
+            "name": "Higher Secondary — Management",
+            "level": "Grades 11 – 12",
+            "description": "Accounting, economics, business studies and computing with internships and enterprise projects.",
+            "highlights": ["Business incubator", "Internships", "Model United Nations"]
+        }
+    ],
+    "facilities": [
+        { "name": "Science Laboratories", "icon": "flask", "description": "Separate physics, chemistry and biology labs equipped for every practical in the curriculum." },
+        { "name": "Library & Learning Commons", "icon": "library", "description": "20,000 books, e-resources and quiet study spaces open until 6 PM." },
+        { "name": "Computer & Robotics Lab", "icon": "computer", "description": "60 workstations, robotics kits and high-speed internet for coding and design." },
+        { "name": "Sports Complex", "icon": "trophy", "description": "Football ground, basketball and badminton courts, and a fully equipped gym." },
+        { "name": "Performing Arts Centre", "icon": "music", "description": "A 400-seat auditorium, music rooms and dance studio for concerts and drama." },
+        { "name": "Safe Transport", "icon": "bus", "description": "GPS-tracked buses with trained attendants covering 25 routes across the valley." },
+        { "name": "Health Clinic", "icon": "health", "description": "A full-time nurse and visiting doctor, with regular health check-ups for every child." },
+        { "name": "Cafeteria", "icon": "utensils", "description": "Freshly cooked, nutritious vegetarian and non-vegetarian meals every day." }
+    ],
+    "faculty": [
+        { "name": "Dr. Meera Joshi", "role": "Principal", "department": "Leadership", "bio": "25 years in education, Ph.D. in curriculum studies." },
+        { "name": "Rajesh Thapa", "role": "Vice Principal", "department": "Leadership", "bio": "Leads academics and teacher development." },
+        { "name": "Sunita Karki", "role": "Head of Science", "department": "Science", "bio": "M.Sc. Chemistry; coaches the olympiad team." },
+        { "name": "Anil Shrestha", "role": "Physics Teacher", "department": "Science" },
+        { "name": "Priya Gurung", "role": "Head of Languages", "department": "Languages", "bio": "Runs the reading programme and school magazine." },
+        { "name": "David Rai", "role": "Mathematics Teacher", "department": "Mathematics" },
+        { "name": "Kabita Adhikari", "role": "Early Years Coordinator", "department": "Early Years" },
+        { "name": "Bikash Tamang", "role": "Sports Director", "department": "Sports & Arts" }
+    ],
+    "gallery": [
+        { "caption": "Annual science fair", "category": "Academics" },
+        { "caption": "Inter-school football final", "category": "Sports" },
+        { "caption": "Grade 5 art exhibition", "category": "Arts" },
+        { "caption": "Robotics club build day", "category": "Academics" },
+        { "caption": "Annual day performance", "category": "Arts" },
+        { "caption": "Sports week relay", "category": "Sports" },
+        { "caption": "Library reading week", "category": "Academics" },
+        { "caption": "Community clean-up drive", "category": "Community" }
+    ],
+    "news": [
+        {
+            "title": "Riverside students win national science olympiad",
+            "date": "2026-09-12",
+            "excerpt": "Our grade 10 team took gold in chemistry and silver in physics at the National Science Olympiad.",
+            "body": [
+                "We are thrilled to share that our grade 10 olympiad team won gold in chemistry and silver in physics at this year's National Science Olympiad, competing against 140 schools.",
+                "The team trained after school for six months under the guidance of Ms. Sunita Karki and Mr. Anil Shrestha. Congratulations to every student who took part."
+            ]
+        },
+        {
+            "title": "New robotics and innovation lab opens",
+            "date": "2026-08-20",
+            "excerpt": "A new lab with 3D printers, robotics kits and maker space opened for students in grades 4 to 12.",
+            "body": [
+                "Our new robotics and innovation lab opened this month with 3D printers, laser cutters and 40 robotics kits.",
+                "Students from grades 4 to 12 will use the space for coding classes, the robotics club and independent projects."
+            ]
+        },
+        {
+            "title": "Admissions open for the 2027 session",
+            "date": "2026-07-01",
+            "excerpt": "Applications for nursery to grade 11 are now open. Campus tours run every Saturday."
+        }
+    ],
+    "events": [
+        { "title": "Parent–Teacher Conference", "date": "2026-11-07", "time": "9:00 AM – 1:00 PM", "location": "Main Building", "description": "Meet teachers to discuss term one progress." },
+        { "title": "Annual Sports Week", "date": "2026-11-23", "time": "All day", "location": "Sports Complex", "description": "Five days of athletics, football, basketball and house competitions." },
+        { "title": "Winter Concert", "date": "2026-12-18", "time": "4:00 PM", "location": "Performing Arts Centre", "description": "Choir, orchestra and dance performances by students of all ages." },
+        { "title": "Admission Entrance Test", "date": "2027-01-10", "time": "10:00 AM", "location": "Exam Hall", "description": "Entrance test for grades 6 to 11." }
+    ],
+    "notices": [
+        { "title": "Term one examination schedule published", "date": "2026-10-01", "important": true },
+        { "title": "School closed for Dashain holidays (Oct 10 – 20)", "date": "2026-09-28", "important": true },
+        { "title": "Bus route 7 timing changes from November", "date": "2026-09-25" },
+        { "title": "Uniform shop open on Saturdays", "date": "2026-09-15" }
+    ],
+    "testimonials": [
+        { "quote": "Our daughter has grown so much in confidence. The teachers know her as a person, not just a student.", "name": "Anita Sharma", "role": "Parent, Grade 4" },
+        { "quote": "Riverside gave me the lab experience and mentoring that got me into medical school.", "name": "Rohan K.C.", "role": "Alumnus, Class of 2022" },
+        { "quote": "From robotics club to the debate team, there is always something new to try here.", "name": "Sneha Basnet", "role": "Student, Grade 11" }
+    ],
+    "achievements": [
+        { "year": 2026, "title": "National Science Olympiad — Gold", "description": "Chemistry gold and physics silver for our grade 10 team." },
+        { "year": 2025, "title": "Green School Award", "description": "Recognised for solar power, rainwater harvesting and zero-plastic campus." },
+        { "year": 2024, "title": "Inter-school Football Champions", "description": "Under-16 team won the valley championship for the third time." },
+        { "year": 2023, "title": "100% Board Exam Distinction Rate", "description": "Every grade 10 student passed with distinction." }
+    ],
+    "admissions": {
+        "open": true,
+        "intro": "We welcome applications for nursery to grade 11. Our admissions team is happy to guide you through every step.",
+        "deadline": "2027-01-31",
+        "steps": [
+            { "title": "Enquire or visit", "description": "Fill in the enquiry form or join a Saturday campus tour." },
+            { "title": "Submit the application", "description": "Complete the application form with the required documents." },
+            { "title": "Assessment & interview", "description": "Age-appropriate assessment for grades 1 and above, and a friendly family interview." },
+            { "title": "Offer & enrolment", "description": "Receive your offer letter and confirm the seat by paying the admission fee." }
+        ],
+        "requirements": [
+            "Birth certificate (copy)",
+            "Previous school report card and transfer certificate",
+            "Four passport-size photographs",
+            "Parents' citizenship or ID (copy)"
+        ],
+        "cta": { "label": "Start your application", "href": "/contact" }
+    },
+    "faqs": [
+        { "question": "What is the student–teacher ratio?", "answer": "1:12 in the early years and an average of 1:20 from grade 1 upwards." },
+        { "question": "Do you provide school transport?", "answer": "Yes. GPS-tracked buses cover 25 routes across the valley, each with a trained attendant." },
+        { "question": "Are scholarships available?", "answer": "We offer merit and need-based scholarships covering up to 100% of tuition for grades 6 to 12." },
+        { "question": "What are the school hours?", "answer": "Classes run from 8:30 AM to 3:30 PM, Sunday to Friday. Clubs run until 4:30 PM." }
+    ]
+}

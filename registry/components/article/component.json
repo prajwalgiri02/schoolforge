@@ -1,0 +1,15 @@
+{
+    "name": "article",
+    "label": "Article",
+    "description": "News article detail page body (generated automatically for news with a body).",
+    "category": "section",
+    "variants": [
+        "default"
+    ],
+    "requires": [
+        "content.news"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

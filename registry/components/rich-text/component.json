@@ -1,0 +1,13 @@
+{
+    "name": "rich-text",
+    "label": "Rich text",
+    "description": "Free-form heading and paragraphs for custom content.",
+    "category": "section",
+    "variants": [
+        "default"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

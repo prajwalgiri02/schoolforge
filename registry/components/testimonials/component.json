@@ -1,0 +1,16 @@
+{
+    "name": "testimonials",
+    "label": "Testimonials",
+    "description": "Quotes from parents, students and alumni.",
+    "category": "section",
+    "variants": [
+        "grid",
+        "carousel"
+    ],
+    "requires": [
+        "content.testimonials"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "name": "facilities",
+    "label": "Facilities",
+    "description": "Campus facilities with icons or images.",
+    "category": "section",
+    "variants": [
+        "icons",
+        "cards"
+    ],
+    "requires": [
+        "content.facilities"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

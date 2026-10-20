@@ -1,0 +1,11 @@
+/* Elegant Ivy: hairline rules and small-caps style buttons. */
+.theme-elegant .school-rule {
+    width: 4rem;
+    height: 1px;
+}
+
+.theme-elegant .school-button {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}

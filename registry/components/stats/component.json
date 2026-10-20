@@ -1,0 +1,16 @@
+{
+    "name": "stats",
+    "label": "Statistics",
+    "description": "Key numbers such as students, teachers and pass rate.",
+    "category": "section",
+    "variants": [
+        "band",
+        "cards"
+    ],
+    "requires": [
+        "content.stats"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

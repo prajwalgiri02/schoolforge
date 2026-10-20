@@ -1,0 +1,44 @@
+{
+    "label": "Playful Sprout",
+    "description": "Warm violet and sunshine yellow with soft, rounded type. Made for preschools, kindergartens and primary schools.",
+    "tokens": {
+        "colors": {
+            "primary": "#6d28d9",
+            "primaryForeground": "#ffffff",
+            "secondary": "#2e1065",
+            "secondaryForeground": "#f5f3ff",
+            "accent": "#fbbf24",
+            "accentForeground": "#2e1065",
+            "background": "#fffaf3",
+            "foreground": "#2b2340",
+            "muted": "#fdf0de",
+            "mutedForeground": "#6b6280",
+            "surface": "#ffffff",
+            "border": "#f1e2cc"
+        },
+        "fonts": {
+            "heading": { "family": "Baloo 2", "fallback": "system-ui, sans-serif", "weights": [700, 800] },
+            "body": { "family": "Nunito", "fallback": "system-ui, sans-serif", "weights": [400, 600, 700] }
+        },
+        "radius": { "card": "1.75rem", "button": "999px" },
+        "shadow": { "card": "0 14px 0 -8px rgb(109 40 217 / 0.12)" },
+        "heading": { "weight": 800, "tracking": "0" }
+    },
+    "variants": {
+        "navbar": "minimal",
+        "hero": "centered",
+        "stats": "cards",
+        "about": "split",
+        "principal-message": "split",
+        "programs": "cards",
+        "facilities": "icons",
+        "faculty": "grid",
+        "gallery": "grid",
+        "news": "cards",
+        "testimonials": "grid",
+        "achievements": "grid",
+        "cta": "card",
+        "page-header": "band",
+        "footer": "columns"
+    }
+}

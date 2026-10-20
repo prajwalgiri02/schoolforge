@@ -1,0 +1,14 @@
+{
+    "name": "cta",
+    "label": "Call to action",
+    "description": "Admissions call to action banner.",
+    "category": "section",
+    "variants": [
+        "banner",
+        "card"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

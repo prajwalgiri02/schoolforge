@@ -1,0 +1,16 @@
+{
+    "name": "programs",
+    "label": "Programs",
+    "description": "Academic programs and levels offered.",
+    "category": "section",
+    "variants": [
+        "cards",
+        "list"
+    ],
+    "requires": [
+        "content.programs"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

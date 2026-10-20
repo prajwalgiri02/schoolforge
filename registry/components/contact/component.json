@@ -1,0 +1,13 @@
+{
+    "name": "contact",
+    "label": "Contact",
+    "description": "Contact details, map and enquiry form.",
+    "category": "section",
+    "variants": [
+        "split"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

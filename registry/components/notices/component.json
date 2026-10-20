@@ -1,0 +1,15 @@
+{
+    "name": "notices",
+    "label": "Notices",
+    "description": "Notice board with important circulars pinned.",
+    "category": "section",
+    "variants": [
+        "board"
+    ],
+    "requires": [
+        "content.notices"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

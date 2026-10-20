@@ -1,0 +1,71 @@
+/*
+ * Base styles shared by every SchoolForge theme. Theme personality comes from the
+ * tokens in theme.css (generated) plus an optional theme extra.css.
+ */
+
+.school-site {
+    font-family: var(--font-body);
+}
+
+.school-heading {
+    font-family: var(--font-heading);
+    font-weight: var(--school-heading-weight, 700);
+    letter-spacing: var(--school-heading-tracking, -0.01em);
+    line-height: 1.15;
+    text-wrap: balance;
+}
+
+.school-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.school-rule {
+    display: var(--school-rule-display, block);
+    width: 3.5rem;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--color-accent);
+}
+
+.school-button {
+    border-radius: var(--radius-button);
+}
+
+.school-card {
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+}
+
+.school-placeholder {
+    background:
+        radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--color-accent) 45%, transparent) 0, transparent 45%),
+        radial-gradient(circle at 85% 80%, color-mix(in oklab, var(--color-secondary) 55%, transparent) 0, transparent 50%),
+        linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 70%, black));
+}
+
+.school-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in oklab, white 22%, transparent) 1px, transparent 1px);
+    background-size: 18px 18px;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+.school-avatar {
+    background: color-mix(in oklab, var(--color-primary) 12%, var(--color-surface));
+    color: var(--color-primary);
+}
+
+.school-prose p + p {
+    margin-top: 1.1em;
+}
+
+.school-section:where([data-flush]) {
+    padding-block: 0;
+}

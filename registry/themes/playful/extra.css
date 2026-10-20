@@ -1,0 +1,15 @@
+/* Playful Sprout: bouncy cards and a dotted underline accent. */
+.theme-playful .school-card {
+    border-width: 2px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.theme-playful .school-card:hover {
+    transform: translateY(-4px) rotate(-0.4deg);
+}
+
+.theme-playful .school-rule {
+    width: 5rem;
+    height: 6px;
+    background: radial-gradient(circle, var(--color-accent) 3px, transparent 3.5px) 0 0 / 12px 6px repeat-x;
+}

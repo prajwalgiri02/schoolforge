@@ -1,0 +1,15 @@
+{
+    "name": "page-header",
+    "label": "Page header",
+    "description": "Title banner with breadcrumb for inner pages.",
+    "category": "section",
+    "variants": [
+        "band",
+        "image",
+        "plain"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

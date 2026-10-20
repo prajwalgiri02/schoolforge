@@ -1,0 +1,44 @@
+{
+    "label": "Elegant Ivy",
+    "description": "Forest green, brass and ivory with an editorial serif and square corners. Understated and prestigious, ideal for boarding and international schools.",
+    "tokens": {
+        "colors": {
+            "primary": "#1f3d2b",
+            "primaryForeground": "#f8f6f1",
+            "secondary": "#14281c",
+            "secondaryForeground": "#ece6d9",
+            "accent": "#b08d57",
+            "accentForeground": "#14281c",
+            "background": "#f8f6f1",
+            "foreground": "#1d1d1b",
+            "muted": "#efebe3",
+            "mutedForeground": "#5f5d57",
+            "surface": "#fffdf9",
+            "border": "#ddd6c8"
+        },
+        "fonts": {
+            "heading": { "family": "Cormorant Garamond", "fallback": "Georgia, serif", "weights": [500, 600, 700] },
+            "body": { "family": "Inter", "fallback": "system-ui, sans-serif", "weights": [400, 500, 600] }
+        },
+        "radius": { "card": "0", "button": "0" },
+        "shadow": { "card": "none" },
+        "heading": { "weight": 600, "tracking": "0" }
+    },
+    "variants": {
+        "navbar": "centered",
+        "hero": "centered",
+        "stats": "band",
+        "about": "stacked",
+        "principal-message": "quote",
+        "programs": "list",
+        "facilities": "icons",
+        "faculty": "compact",
+        "gallery": "masonry",
+        "news": "list",
+        "testimonials": "carousel",
+        "achievements": "timeline",
+        "cta": "banner",
+        "page-header": "plain",
+        "footer": "simple"
+    }
+}

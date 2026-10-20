@@ -1,0 +1,15 @@
+{
+    "name": "events",
+    "label": "Events",
+    "description": "Upcoming events calendar list.",
+    "category": "section",
+    "variants": [
+        "list"
+    ],
+    "requires": [
+        "content.events"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

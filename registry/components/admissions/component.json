@@ -1,0 +1,15 @@
+{
+    "name": "admissions",
+    "label": "Admissions",
+    "description": "Admission steps, required documents and apply button.",
+    "category": "section",
+    "variants": [
+        "steps"
+    ],
+    "requires": [
+        "content.admissions"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

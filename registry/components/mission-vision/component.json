@@ -1,0 +1,15 @@
+{
+    "name": "mission-vision",
+    "label": "Mission & vision",
+    "description": "Mission, vision and values cards.",
+    "category": "section",
+    "variants": [
+        "cards"
+    ],
+    "requires": [
+        "school.about"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

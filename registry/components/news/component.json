@@ -1,0 +1,16 @@
+{
+    "name": "news",
+    "label": "News",
+    "description": "Latest news cards linking to article pages.",
+    "category": "section",
+    "variants": [
+        "cards",
+        "list"
+    ],
+    "requires": [
+        "content.news"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

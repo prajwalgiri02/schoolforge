@@ -1,0 +1,15 @@
+{
+    "name": "hero",
+    "label": "Hero",
+    "description": "Large introductory banner for the home page.",
+    "category": "section",
+    "variants": [
+        "overlay",
+        "split",
+        "centered"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import '../js/school/theme.css';
+@import '../js/school/runtime/school.css';
+
+@source '../js';
+@source '../views';
+
+html {
+    scroll-behavior: smooth;
+}

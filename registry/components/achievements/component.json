@@ -1,0 +1,16 @@
+{
+    "name": "achievements",
+    "label": "Achievements",
+    "description": "Awards and milestones.",
+    "category": "section",
+    "variants": [
+        "grid",
+        "timeline"
+    ],
+    "requires": [
+        "content.achievements"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

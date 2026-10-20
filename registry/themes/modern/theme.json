@@ -1,0 +1,44 @@
+{
+    "label": "Modern Horizon",
+    "description": "Bright blue with cyan highlights, rounded shapes and a single geometric sans. Feels current and tech-forward.",
+    "tokens": {
+        "colors": {
+            "primary": "#1d4ed8",
+            "primaryForeground": "#ffffff",
+            "secondary": "#0b1b3f",
+            "secondaryForeground": "#e2e8f0",
+            "accent": "#22d3ee",
+            "accentForeground": "#0b1b3f",
+            "background": "#ffffff",
+            "foreground": "#0f172a",
+            "muted": "#f1f5f9",
+            "mutedForeground": "#475569",
+            "surface": "#ffffff",
+            "border": "#e2e8f0"
+        },
+        "fonts": {
+            "heading": { "family": "Plus Jakarta Sans", "fallback": "system-ui, sans-serif", "weights": [700, 800] },
+            "body": { "family": "Plus Jakarta Sans", "fallback": "system-ui, sans-serif", "weights": [400, 500, 600] }
+        },
+        "radius": { "card": "1.25rem", "button": "999px" },
+        "shadow": { "card": "0 20px 45px -24px rgb(15 23 42 / 0.28)" },
+        "heading": { "weight": 800, "tracking": "-0.025em" }
+    },
+    "variants": {
+        "navbar": "minimal",
+        "hero": "split",
+        "stats": "cards",
+        "about": "split-reverse",
+        "principal-message": "quote",
+        "programs": "cards",
+        "facilities": "cards",
+        "faculty": "grid",
+        "gallery": "masonry",
+        "news": "cards",
+        "testimonials": "carousel",
+        "achievements": "grid",
+        "cta": "card",
+        "page-header": "band",
+        "footer": "columns"
+    }
+}

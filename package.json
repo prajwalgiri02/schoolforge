@@ -1,0 +1,26 @@
+{
+    "name": "schoolforge",
+    "version": "0.1.0",
+    "description": "Generate professional, themeable school profile websites (Next.js or Laravel + Inertia + React) from a single school config.",
+    "type": "module",
+    "private": true,
+    "bin": {
+        "schoolforge": "bin/schoolforge.js"
+    },
+    "files": [
+        "bin",
+        "src",
+        "registry",
+        "targets",
+        "schema",
+        "examples"
+    ],
+    "engines": {
+        "node": ">=20.11"
+    },
+    "scripts": {
+        "test": "node --test \"test/**/*.test.js\"",
+        "demo": "node bin/schoolforge.js create .demo/next-site --config examples/school.config.json --force"
+    },
+    "license": "MIT"
+}

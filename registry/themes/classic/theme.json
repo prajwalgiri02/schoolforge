@@ -1,0 +1,44 @@
+{
+    "label": "Classic Heritage",
+    "description": "Navy and gold with serif headings. Traditional, trustworthy, suits established secondary schools and colleges.",
+    "tokens": {
+        "colors": {
+            "primary": "#1b365d",
+            "primaryForeground": "#ffffff",
+            "secondary": "#0f2440",
+            "secondaryForeground": "#f3efe4",
+            "accent": "#c9a227",
+            "accentForeground": "#1b1b1b",
+            "background": "#fbf9f4",
+            "foreground": "#1c2433",
+            "muted": "#f2eee4",
+            "mutedForeground": "#5b6475",
+            "surface": "#ffffff",
+            "border": "#e4ddcc"
+        },
+        "fonts": {
+            "heading": { "family": "Playfair Display", "fallback": "Georgia, serif", "weights": [600, 700] },
+            "body": { "family": "Source Sans 3", "fallback": "system-ui, sans-serif", "weights": [400, 500, 600, 700] }
+        },
+        "radius": { "card": "0.375rem", "button": "0.25rem" },
+        "shadow": { "card": "0 12px 32px -14px rgb(15 36 64 / 0.22)" },
+        "heading": { "weight": 700, "tracking": "-0.005em" }
+    },
+    "variants": {
+        "navbar": "classic",
+        "hero": "overlay",
+        "stats": "band",
+        "about": "split",
+        "principal-message": "split",
+        "programs": "cards",
+        "facilities": "icons",
+        "faculty": "grid",
+        "gallery": "grid",
+        "news": "cards",
+        "testimonials": "grid",
+        "achievements": "timeline",
+        "cta": "banner",
+        "page-header": "band",
+        "footer": "columns"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "faculty",
+    "label": "Faculty",
+    "description": "Teachers and staff directory.",
+    "category": "section",
+    "variants": [
+        "grid",
+        "compact"
+    ],
+    "requires": [
+        "content.faculty"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

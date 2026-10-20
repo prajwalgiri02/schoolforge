@@ -1,0 +1,14 @@
+{
+    "name": "footer",
+    "label": "Footer",
+    "description": "Site footer with links, contact details and social profiles.",
+    "category": "layout",
+    "variants": [
+        "columns",
+        "simple"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

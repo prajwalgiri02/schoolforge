@@ -1,0 +1,17 @@
+{
+    "name": "about",
+    "label": "About",
+    "description": "School introduction with image, story and core values. Set mode to full for the About page.",
+    "category": "section",
+    "variants": [
+        "split",
+        "split-reverse",
+        "stacked"
+    ],
+    "requires": [
+        "school.about"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

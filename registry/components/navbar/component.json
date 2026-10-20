@@ -1,0 +1,15 @@
+{
+    "name": "navbar",
+    "label": "Navigation bar",
+    "description": "Site header with logo, navigation and call to action.",
+    "category": "layout",
+    "variants": [
+        "classic",
+        "centered",
+        "minimal"
+    ],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

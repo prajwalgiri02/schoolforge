@@ -1,0 +1,15 @@
+{
+    "name": "faq",
+    "label": "FAQ",
+    "description": "Accordion of frequently asked questions.",
+    "category": "section",
+    "variants": [
+        "accordion"
+    ],
+    "requires": [
+        "content.faqs"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

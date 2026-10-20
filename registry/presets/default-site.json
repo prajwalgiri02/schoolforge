@@ -1,0 +1,92 @@
+{
+    "layout": {
+        "header": [{ "type": "announcement-bar" }, { "type": "navbar" }],
+        "footer": [{ "type": "footer" }]
+    },
+    "pages": [
+        {
+            "slug": "/",
+            "title": "Home",
+            "showInNav": true,
+            "sections": [
+                { "type": "hero" },
+                { "type": "stats" },
+                { "type": "about", "mode": "summary" },
+                { "type": "principal-message", "mode": "summary" },
+                { "type": "programs", "limit": 3 },
+                { "type": "facilities", "limit": 6 },
+                { "type": "testimonials", "limit": 3 },
+                { "type": "news", "limit": 3 },
+                { "type": "events", "limit": 3 },
+                { "type": "cta" }
+            ]
+        },
+        {
+            "slug": "/about",
+            "title": "About Us",
+            "navLabel": "About",
+            "description": "Our history, our people and the values that guide everything we do.",
+            "showInNav": true,
+            "sections": [
+                { "type": "page-header" },
+                { "type": "about", "mode": "full", "link": false },
+                { "type": "mission-vision" },
+                { "type": "principal-message" },
+                { "type": "achievements" }
+            ]
+        },
+        {
+            "slug": "/academics",
+            "title": "Academics",
+            "description": "Programs and pathways from the early years to graduation.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "programs", "variant": "list" }, { "type": "cta" }]
+        },
+        {
+            "slug": "/admissions",
+            "title": "Admissions",
+            "description": "Everything you need to know about joining our school.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "admissions" }, { "type": "faq" }]
+        },
+        {
+            "slug": "/faculty",
+            "title": "Our Faculty",
+            "navLabel": "Faculty",
+            "description": "Meet the educators and staff who make our school special.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "faculty" }]
+        },
+        {
+            "slug": "/facilities",
+            "title": "Campus & Facilities",
+            "navLabel": "Facilities",
+            "description": "Take a tour of the spaces where our students learn, create and play.",
+            "showInNav": false,
+            "sections": [{ "type": "page-header" }, { "type": "facilities", "variant": "cards" }, { "type": "gallery", "limit": 8 }]
+        },
+        {
+            "slug": "/gallery",
+            "title": "Gallery",
+            "description": "Moments from classrooms, sports fields, stages and celebrations.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "gallery" }]
+        },
+        {
+            "slug": "/news",
+            "title": "News & Events",
+            "navLabel": "News",
+            "description": "Stories, announcements, notices and upcoming events.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events" }, { "type": "notices" }]
+        },
+        {
+            "slug": "/contact",
+            "title": "Contact Us",
+            "navLabel": "Contact",
+            "description": "Visit, call or write to us. We are happy to help.",
+            "showInNav": true,
+            "sections": [{ "type": "page-header" }, { "type": "contact" }]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "name": "principal-message",
+    "label": "Principal's message",
+    "description": "Welcome message from the principal.",
+    "category": "section",
+    "variants": [
+        "split",
+        "quote"
+    ],
+    "requires": [
+        "school.principal"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

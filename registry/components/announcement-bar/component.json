@@ -1,0 +1,13 @@
+{
+    "name": "announcement-bar",
+    "label": "Announcement bar",
+    "description": "Slim banner above the navigation for urgent news or admissions.",
+    "category": "layout",
+    "variants": [],
+    "requires": [
+        "content.announcement"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}
