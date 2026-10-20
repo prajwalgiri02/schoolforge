@@ -1,0 +1,34 @@
+export type ProjectSummary = {
+    slug: string;
+    name: string;
+    theme: string;
+    themeLabel: string;
+    target: string;
+    colors: Record<string, string>;
+    updatedAt: string | null;
+    outputPath: string | null;
+};
+
+export type ThemeSummary = {
+    name: string;
+    label: string;
+    description: string;
+    extends: string | null;
+    colors: Record<string, string>;
+    fonts: { heading: string; body: string };
+};
+
+export type Target = { name: string; label: string };
+
+export type ComponentSummary = { name: string; label: string; description?: string; variants: string[] };
+
+export type StudioSharedProps = {
+    auth: { user: { id: number; name: string; email: string } | null };
+    flash: { success?: string | null; error?: string | null };
+    errors: Record<string, string>;
+};
+
+export const targetLabels: Record<string, string> = {
+    nextjs: 'Next.js',
+    'laravel-inertia-react': 'Laravel + Inertia',
+};

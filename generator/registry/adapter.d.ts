@@ -1,0 +1,17 @@
+/**
+ * The contract every target's framework adapter implements. Components import
+ * `../../adapter`, which resolves to `<school>/adapter.tsx` in a generated project
+ * (see targets/<target>/adapter.tsx). This declaration lets tools such as
+ * SchoolForge Studio type-check the registry on its own.
+ */
+import type { ReactNode } from 'react';
+
+export declare function Link(props: { href: string; className?: string; children: ReactNode; 'aria-label'?: string }): ReactNode;
+
+export declare function useCurrentPath(): string;
+
+export type ContactPayload = { name: string; email: string; phone?: string; subject?: string; message: string };
+
+export type ContactResult = { ok: boolean; errors?: Record<string, string> };
+
+export declare function submitContact(payload: ContactPayload): Promise<ContactResult>;
