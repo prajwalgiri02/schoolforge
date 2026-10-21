@@ -160,6 +160,11 @@ class ContentSchema
                 self::field('image', 'image', 'Photo'),
                 self::field('mapUrl', 'url', 'Map link', help: 'Optional. Defaults to a Google Maps search for the address.'),
             ], 'name'),
+            'fees' => self::section('Fees', 'Fees parents can pay online on the Pay Fees page. Leave the amount empty to let them enter it.', 'list', 'content.fees', [
+                self::field('name', 'text', 'Fee', required: true, help: 'e.g. Admission fee, Monthly tuition (Grade 1–5)'),
+                self::field('amount', 'text', 'Amount (NPR)'),
+                self::field('description', 'text', 'Short description'),
+            ], 'name'),
             'jobs' => self::section('Careers', 'Job openings. Applicants apply on the Careers page and appear under Applications.', 'list', 'content.jobs', [
                 self::field('title', 'text', 'Position', required: true),
                 self::field('type', 'text', 'Type', help: 'e.g. Full-time, Part-time'),
@@ -291,6 +296,10 @@ class ContentSchema
                 $value,
                 array_keys($value),
             );
+        }
+
+        if ($key === 'fees') {
+            $value = array_map(fn (array $item): array => isset($item['amount']) && is_numeric($item['amount']) ? [...$item, 'amount' => (float) $item['amount']] : Arr::except($item, 'amount'), $value);
         }
 
         if ($key === 'school' && isset($value['established']) && ctype_digit((string) $value['established'])) {

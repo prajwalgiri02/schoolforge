@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BellRing, CircleCheck, ExternalLink, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, X } from 'lucide-react';
+import { BellRing, CircleCheck, ExternalLink, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, Wallet, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
 
@@ -26,10 +26,11 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
         return (
             <Link
                 href={href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${active ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
+                title={label}
+                className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${active ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
             >
                 {icon}
-                {label}
+                <span className="sr-only lg:not-sr-only">{label}</span>
             </Link>
         );
     };
@@ -39,15 +40,16 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
             <Head title={`${title} · Admin`} />
             <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur">
                 <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-                    <Link href="/admin" className="flex items-center gap-2 font-semibold">
+                    <Link href="/admin" className="flex shrink-0 items-center gap-2 font-semibold">
                         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-sm text-white">{schoolName.slice(0, 1)}</span>
-                        <span className="hidden sm:inline">{schoolName} admin</span>
+                        <span className="hidden xl:inline">{schoolName} admin</span>
                     </Link>
-                    <nav className="flex items-center gap-1">
+                    <nav className="-mr-2 flex min-w-0 items-center gap-1 overflow-x-auto pr-2">
                         {navItem('/admin', 'Content', <LayoutDashboard className="h-4 w-4" />)}
                         {navItem('/admin/messages', 'Messages', <Mail className="h-4 w-4" />)}
                         {navItem('/admin/submissions', 'Applications', <Inbox className="h-4 w-4" />)}
                         {navItem('/admin/results', 'Results', <GraduationCap className="h-4 w-4" />)}
+                        {navItem('/admin/payments', 'Payments', <Wallet className="h-4 w-4" />)}
                         {navItem('/admin/alerts', 'Alerts', <BellRing className="h-4 w-4" />)}
                         <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">
                             <ExternalLink className="h-4 w-4" /> <span className="hidden sm:inline">View site</span>

@@ -122,10 +122,12 @@ describe('buildSite', () => {
             videos: [{ title: 'Tour' }, { title: 'Tour', url: 'youtube.com/watch?v=1' }],
             news: [{ title: 'Win', tags: 'sports' }],
             campuses: [{ address: 'Baluwatar' }],
+            fees: [{ name: 'Tuition', amount: '5,000' }],
         }).join('\n');
 
         assert.match(errors, /news\[0\]\.tags must be a list of words/);
         assert.match(errors, /campuses\[0\]\.name is required/);
+        assert.match(errors, /fees\[0\]\.amount must be a positive number/);
         assert.match(errors, /albums slug "sports" is used more than once/);
         assert.match(errors, /albums\[2\]\.photos must be a list of photos/);
         assert.match(errors, /videos\[0\]\.url is required/);

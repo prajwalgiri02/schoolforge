@@ -82,6 +82,15 @@
             "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events", "variant": "calendar" }, { "type": "notices" }]
         },
         {
+            "slug": "/pay-fees",
+            "title": "Pay Fees Online",
+            "navLabel": "Pay Fees",
+            "description": "Pay admission, tuition and other fees online with eSewa or Khalti.",
+            "showInNav": false,
+            "showInFooter": true,
+            "sections": [{ "type": "page-header" }, { "type": "fee-payment" }]
+        },
+        {
             "slug": "/results",
             "title": "Exam Results",
             "navLabel": "Results",

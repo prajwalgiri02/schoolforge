@@ -90,3 +90,20 @@ export async function lookupResult(_exam: number, symbol: string, _dob: string):
         subjects: ['English', 'Nepali', 'Mathematics', 'Science', 'Social Studies'].map((subject, index) => ({ subject, grade: ['A+', 'A', 'B+', 'A', 'A+'][index] })),
     };
 }
+
+export type PaymentGateway = { id: string; label: string };
+
+export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
+
+export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
+
+export async function paymentGateways(): Promise<PaymentGateway[]> {
+    return [
+        { id: 'esewa', label: 'eSewa' },
+        { id: 'khalti', label: 'Khalti' },
+    ];
+}
+
+export async function startPayment(_payload: PaymentPayload): Promise<PaymentStart> {
+    return { ok: false, message: 'Payments are simulated in the preview.' };
+}

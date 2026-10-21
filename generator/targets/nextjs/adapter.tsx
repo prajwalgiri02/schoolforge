@@ -91,3 +91,18 @@ export async function listExams(): Promise<ExamSummary[]> {
 export async function lookupResult(_exam: number, _symbol: string, _dob: string): Promise<ResultSheet | null> {
     return null;
 }
+
+export type PaymentGateway = { id: string; label: string };
+
+export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
+
+export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
+
+/** Online payments need a server to verify them, which Next.js sites do not have. */
+export async function paymentGateways(): Promise<PaymentGateway[]> {
+    return [];
+}
+
+export async function startPayment(_payload: PaymentPayload): Promise<PaymentStart> {
+    return { ok: false };
+}

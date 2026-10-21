@@ -39,6 +39,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Online Fee Payments
+    |--------------------------------------------------------------------------
+    |
+    | eSewa (ePay v2) and Khalti (ePayment v2) credentials from each merchant
+    | dashboard. A gateway appears on the Pay Fees page once its key is set.
+    | Leave *_LIVE false to use the gateways' test environments.
+    |
+    */
+
+    'payments' => [
+        'currency' => 'NPR',
+        'esewa' => [
+            'product_code' => env('ESEWA_PRODUCT_CODE'),
+            'secret_key' => env('ESEWA_SECRET_KEY'),
+            'live' => (bool) env('ESEWA_LIVE', false),
+        ],
+        'khalti' => [
+            'secret_key' => env('KHALTI_SECRET_KEY'),
+            'live' => (bool) env('KHALTI_LIVE', false),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | SMS Alerts (Sparrow SMS)
     |--------------------------------------------------------------------------
     |

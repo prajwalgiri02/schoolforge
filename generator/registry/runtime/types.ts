@@ -81,6 +81,7 @@ export type SiteContent = {
     faculty?: { name: string; role?: string; department?: string; photo?: ImageRef; bio?: string }[];
     gallery?: { src?: ImageRef; caption?: string; category?: string }[];
     albums?: { slug: string; title: string; date?: string; description?: string; cover?: ImageRef; photos?: { src?: ImageRef; caption?: string }[] }[];
+    fees?: { name: string; amount?: number; description?: string }[];
     jobs?: { title: string; type?: string; location?: string; deadline?: string; description?: string; requirements?: string[] }[];
     downloads?: { title: string; file: string; category?: string; date?: string; description?: string }[];
     alumni?: { name: string; batch?: string | number; role?: string; photo?: ImageRef; quote?: string }[];

@@ -117,3 +117,52 @@ export async function lookupResult(exam: number, symbol: string, dob: string): P
         return null;
     }
 }
+
+export type PaymentGateway = { id: string; label: string };
+
+export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
+
+export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
+
+export async function paymentGateways(): Promise<PaymentGateway[]> {
+    try {
+        const response = await fetch('/payments/options', { headers: csrfHeaders(), credentials: 'same-origin' });
+
+        return response.ok ? ((await response.json()).gateways as PaymentGateway[]) : [];
+    } catch {
+        return [];
+    }
+}
+
+export async function startPayment(payload: PaymentPayload): Promise<PaymentStart> {
+    try {
+        const response = await fetch('/payments', { method: 'POST', headers: { ...csrfHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'same-origin' });
+        const body = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return { ok: false, message: body.errors ? undefined : body.message, errors: Object.fromEntries(Object.entries((body.errors ?? {}) as Record<string, string[]>).map(([field, messages]) => [field, messages[0]])) };
+        }
+
+        if (body.redirect) {
+            window.location.assign(body.redirect);
+        } else if (body.form) {
+            // eSewa takes a signed form POST.
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = body.form.action;
+            Object.entries(body.form.fields as Record<string, string>).forEach(([name, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        return { ok: true };
+    } catch {
+        return { ok: false };
+    }
+}
