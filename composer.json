@@ -36,7 +36,8 @@
             "generator/targets/laravel-inertia-react/files/app/Support/MediaUpload.php",
             "generator/targets/laravel-inertia-react/files/app/Support/MediaLibrary.php",
             "generator/targets/laravel-inertia-react/files/app/Support/Backup.php",
-            "generator/targets/laravel-inertia-react/files/app/Support/TranslationMerger.php"
+            "generator/targets/laravel-inertia-react/files/app/Support/TranslationMerger.php",
+            "generator/targets/laravel-inertia-react/files/app/Support/Totp.php"
         ]
     },
     "autoload-dev": {

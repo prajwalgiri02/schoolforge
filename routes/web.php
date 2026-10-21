@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CertificateCheckController;
@@ -25,10 +27,19 @@ Route::get('hosting/certificate-check', CertificateCheckController::class)->midd
 Route::middleware('guest')->group(function (): void {
     Route::get('login', [SessionController::class, 'create'])->name('login');
     Route::post('login', [SessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
+    Route::get('two-factor', [SessionController::class, 'twoFactor'])->name('login.two-factor');
+    Route::post('two-factor', [SessionController::class, 'confirmTwoFactor'])->middleware('throttle:5,1')->name('login.two-factor.store');
 });
 
 Route::middleware('auth')->group(function (): void {
     Route::post('logout', [SessionController::class, 'destroy'])->name('logout');
+
+    Route::get('account', [AccountController::class, 'show'])->name('account.show');
+    Route::put('account/password', [AccountController::class, 'updatePassword'])->name('account.password');
+    Route::post('account/two-factor', [AccountController::class, 'enableTwoFactor'])->name('account.two-factor.store');
+    Route::post('account/two-factor/confirm', [AccountController::class, 'confirmTwoFactor'])->middleware('throttle:10,1')->name('account.two-factor.confirm');
+    Route::post('account/two-factor/recovery-codes', [AccountController::class, 'regenerateRecoveryCodes'])->name('account.two-factor.recovery-codes');
+    Route::delete('account/two-factor', [AccountController::class, 'disableTwoFactor'])->name('account.two-factor.destroy');
 
     Route::get('/', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('projects/create', [ProjectController::class, 'create'])->name('projects.create');
@@ -95,6 +106,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('themes/{theme}/edit', [ThemeController::class, 'edit'])->name('themes.edit');
     Route::put('themes/{theme}', [ThemeController::class, 'update'])->name('themes.update')->can('manage-studio');
 
+    Route::get('activity', [ActivityController::class, 'index'])->can('manage-studio')->name('activity.index');
     Route::get('users', [UserController::class, 'index'])->can('manage-studio')->name('users.index');
     Route::post('users', [UserController::class, 'store'])->can('manage-studio')->name('users.store');
     Route::patch('users/{user}', [UserController::class, 'update'])->can('manage-studio')->name('users.update');

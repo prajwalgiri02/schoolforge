@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectVersion;
+use App\Support\Audit;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -73,6 +74,8 @@ class ProjectHistoryController extends Controller
     public function template(Project $project): RedirectResponse
     {
         $project->update(['is_template' => ! $project->is_template]);
+
+        Audit::record('projects.template', $project->is_template ? "Made {$project->name} a template" : "Stopped using {$project->name} as a template", $project);
 
         return back()->with('success', $project->is_template ? "{$project->name} is now a template for new schools." : "{$project->name} is no longer a template.");
     }

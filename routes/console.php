@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AuditEvent;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -19,3 +20,8 @@ Schedule::command('studio:check-sites')->everyFiveMinutes()->withoutOverlapping(
  * Issues hosting invoices before each school's paid period ends.
  */
 Schedule::command('studio:invoices')->dailyAt('06:10')->withoutOverlapping();
+
+/*
+ * Deletes Studio activity log entries older than a year.
+ */
+Schedule::command('model:prune', ['--model' => [AuditEvent::class]])->daily();

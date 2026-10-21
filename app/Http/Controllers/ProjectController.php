@@ -6,6 +6,7 @@ use App\Http\Requests\ImportProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Models\Project;
 use App\Services\Generator;
+use App\Support\Audit;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,6 +95,8 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project): RedirectResponse
     {
+        Audit::record('projects.deleted', "Deleted {$project->name}");
+
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', "{$project->name} was deleted from Studio.");

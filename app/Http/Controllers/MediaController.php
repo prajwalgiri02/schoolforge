@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Support\Audit;
 use App\Support\MediaLibrary;
 use App\Support\ProjectAssets;
 use Illuminate\Http\JsonResponse;
@@ -56,6 +57,8 @@ class MediaController extends Controller
         }
 
         abort_unless(MediaLibrary::delete(ProjectAssets::DIRECTORY, $path), 404);
+
+        Audit::record('media.deleted', 'Deleted '.basename((string) $request->input('path')));
 
         return back()->with('success', 'File deleted.');
     }

@@ -1,5 +1,5 @@
-import { router, useForm, usePage } from '@inertiajs/react';
-import { Trash2, UserPlus } from 'lucide-react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { ScrollText, Trash2, UserPlus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { FieldError, PageHeading, StudioLayout } from '@/studio/StudioLayout';
@@ -70,7 +70,15 @@ export default function UsersIndex({ users, roles, schools }: { users: User[]; r
     return (
         <StudioLayout title="Users">
             <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-                <PageHeading title="Users" description="Who can sign in to Studio and what they may do." />
+                <PageHeading
+                    title="Users"
+                    description="Who can sign in to Studio and what they may do."
+                    actions={
+                        <Link href="/activity" className={buttonClass.secondary}>
+                            <ScrollText className="h-4 w-4" /> Activity log
+                        </Link>
+                    }
+                />
                 <FieldError message={errors.user} />
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
                     <ul className="h-fit divide-y divide-zinc-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">

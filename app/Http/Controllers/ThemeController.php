@@ -6,6 +6,7 @@ use App\Http\Requests\StoreThemeRequest;
 use App\Http\Requests\UpdateThemeRequest;
 use App\Models\Project;
 use App\Services\Generator;
+use App\Support\Audit;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -33,6 +34,8 @@ class ThemeController extends Controller
     public function store(StoreThemeRequest $request, Generator $generator): RedirectResponse
     {
         $generator->newTheme($request->validated('name'), $request->validated('from'), $request->validated('label'));
+
+        Audit::record('themes.created', 'Created theme '.$request->validated('name'));
 
         return redirect()->route('themes.edit', $request->validated('name'))->with('success', 'Theme created. Adjust its colours, fonts and layouts.');
     }
@@ -113,6 +116,8 @@ class ThemeController extends Controller
         File::put($file, json_encode($updated, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
         File::put($generator->registryPath('themes', $theme, 'extra.css'), rtrim((string) $request->validated('extra_css'))."\n");
         $generator->refresh();
+
+        Audit::record('themes.updated', "Changed theme {$updated['label']}");
 
         return back()->with('success', "Theme {$updated['label']} saved.");
     }

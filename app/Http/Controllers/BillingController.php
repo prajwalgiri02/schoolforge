@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Invoice;
 use App\Models\Plan;
 use App\Models\Project;
+use App\Support\Audit;
 use App\Support\Billing;
 use App\Support\HostedSites;
 use Illuminate\Http\RedirectResponse;
@@ -55,12 +56,16 @@ class BillingController extends Controller
     {
         Plan::create($this->validatePlan($request));
 
+        Audit::record('billing.plans', "Added plan {$request->input('name')}");
+
         return back()->with('success', 'Plan added.');
     }
 
     public function updatePlan(Request $request, Plan $plan): RedirectResponse
     {
         $plan->update($this->validatePlan($request));
+
+        Audit::record('billing.plans', "Changed plan {$plan->name} (".Billing::formatAmount($plan->price)." per {$plan->period})");
 
         return back()->with('success', 'Plan saved. New invoices use the new price.');
     }
@@ -72,6 +77,8 @@ class BillingController extends Controller
         }
 
         $plan->delete();
+
+        Audit::record('billing.plans', "Deleted plan {$plan->name}");
 
         return back()->with('success', 'Plan deleted.');
     }
@@ -89,6 +96,8 @@ class BillingController extends Controller
 
         $project->forceFill($validated)->save();
 
+        Audit::record('billing.school', "Changed billing for {$project->name}", $project);
+
         return back()->with('success', "Billing for {$project->name} saved.");
     }
 
@@ -100,6 +109,8 @@ class BillingController extends Controller
 
         $invoice = Billing::issue($project);
 
+        Audit::record('billing.invoice', "Issued {$invoice->number}", $project);
+
         return back()->with('success', "Invoice {$invoice->number} issued".(Billing::billingEmail($project) ? ' and emailed.' : '. The school has no email address to send it to.'));
     }
 
@@ -110,6 +121,8 @@ class BillingController extends Controller
         $validated = $request->validate(['payment_reference' => ['nullable', 'string', 'max:120']]);
         Billing::markPaid($invoice, $validated['payment_reference'] ?? null);
 
+        Audit::record('billing.invoice', "Marked {$invoice->number} paid".($validated['payment_reference'] ?? null ? " ({$validated['payment_reference']})" : ''), $invoice->project);
+
         return back()->with('success', "{$invoice->number} marked paid. {$invoice->project->name} is paid until ".$invoice->project->fresh()->paid_until->format('j M Y').'.');
     }
 
@@ -118,6 +131,8 @@ class BillingController extends Controller
         abort_unless($invoice->status === Invoice::STATUS_UNPAID, 422, 'Only unpaid invoices can be cancelled.');
 
         $invoice->update(['status' => Invoice::STATUS_VOID]);
+
+        Audit::record('billing.invoice', "Cancelled {$invoice->number}", $invoice->project);
 
         return back()->with('success', "{$invoice->number} cancelled.");
     }

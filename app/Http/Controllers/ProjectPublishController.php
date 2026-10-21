@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\SiteSubmission;
 use App\Services\Generator;
+use App\Support\Audit;
 use App\Support\DomainCheck;
 use App\Support\HeadlessContent;
 use App\Support\HostedSites;
@@ -77,6 +78,8 @@ class ProjectPublishController extends Controller
             return back()->with('error', 'The school has problems to fix before it can be published: '.$exception->getMessage());
         }
 
+        Audit::record('projects.published', "Published {$project->name}", $project);
+
         return back()->with('success', implode(' ', array_filter([
             $isHosted ? "{$project->name} is live at ".HostedSites::url($project).'.' : "{$project->name} is published.",
             HeadlessContent::isEnabled($project) ? HeadlessContent::refreshSite($project) : null,
@@ -91,6 +94,8 @@ class ProjectPublishController extends Controller
         $hadToken = HeadlessContent::isEnabled($project);
         HeadlessContent::enable($project);
 
+        Audit::record('projects.headless', $hadToken ? "Issued a new content token for {$project->name}" : "Turned on the content API for {$project->name}", $project);
+
         return back()->with('success', $hadToken ? 'New token issued. Update SCHOOLFORGE_CONTENT_TOKEN on the website; the old token no longer works.' : 'Headless content API turned on.');
     }
 
@@ -98,12 +103,16 @@ class ProjectPublishController extends Controller
     {
         HeadlessContent::disable($project);
 
+        Audit::record('projects.headless', "Turned off the content API for {$project->name}", $project);
+
         return back()->with('success', 'Headless content API turned off. The website keeps the content it was built with.');
     }
 
     public function destroy(Project $project): RedirectResponse
     {
         HostedSites::unpublish($project);
+
+        Audit::record('projects.unpublished', "Unpublished {$project->name}", $project);
 
         return back()->with('success', "{$project->name} is no longer published.");
     }
@@ -131,6 +140,8 @@ class ProjectPublishController extends Controller
 
         $project->forceFill(['domain' => $validated['domain']])->save();
 
+        Audit::record('projects.domain', $validated['domain'] ? "Set {$project->name}'s domain to {$validated['domain']}" : "Removed {$project->name}'s domain", $project);
+
         return back()->with('success', $validated['domain'] ? "Domain set to {$validated['domain']}." : 'Domain removed.');
     }
 
@@ -149,6 +160,8 @@ class ProjectPublishController extends Controller
 
         Storage::disk('local')->delete(array_column($submission->files ?? [], 'path'));
         $submission->delete();
+
+        Audit::record('submissions.deleted', "Deleted {$submission->reference}", $project);
 
         return back()->with('success', "{$submission->reference} deleted.");
     }

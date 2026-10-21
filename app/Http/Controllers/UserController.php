@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\StudioRole;
 use App\Models\Project;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,8 @@ class UserController extends Controller
 
         User::create([...$validated, 'project_id' => $validated['role'] === StudioRole::School->value ? $validated['project_id'] : null]);
 
+        Audit::record('users.created', "Added {$validated['name']} ({$validated['email']}) as ".StudioRole::from($validated['role'])->label());
+
         return back()->with('success', "{$validated['name']} can now sign in.");
     }
 
@@ -56,6 +59,8 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        Audit::record('users.role', "Made {$user->name} ".StudioRole::from($validated['role'])->label().($user->project ? " of {$user->project->name}" : ''));
+
         return back()->with('success', "{$user->name} is now ".StudioRole::from($validated['role'])->label().'.');
     }
 
@@ -67,6 +72,8 @@ class UserController extends Controller
 
         $this->keepAnOwner($user);
         $user->delete();
+
+        Audit::record('users.removed', "Removed {$user->name} ({$user->email})");
 
         return back()->with('success', "{$user->name} can no longer sign in.");
     }

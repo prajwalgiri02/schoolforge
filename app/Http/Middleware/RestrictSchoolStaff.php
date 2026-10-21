@@ -20,6 +20,12 @@ class RestrictSchoolStaff
      */
     public const ALLOWED_ROUTES = [
         'logout',
+        'account.show',
+        'account.password',
+        'account.two-factor.store',
+        'account.two-factor.confirm',
+        'account.two-factor.recovery-codes',
+        'account.two-factor.destroy',
         'projects.index',
         'projects.show',
         'projects.content.index',

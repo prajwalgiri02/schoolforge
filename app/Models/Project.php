@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Audit;
 use App\Support\HostedSites;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -78,6 +79,7 @@ class Project extends Model
     public function recordVersion(string $summary): void
     {
         $this->versions()->create(['user_id' => auth()->id(), 'summary' => $summary, 'config' => $this->config, 'created_at' => now()]);
+        Audit::record('content.changed', "{$this->name}: {$summary}", $this);
 
         $this->versions()->orderByDesc('id')->skip(ProjectVersion::KEEP)->take(PHP_INT_MAX)->pluck('id')
             ->whenNotEmpty(fn ($ids) => ProjectVersion::query()->whereIn('id', $ids)->delete());

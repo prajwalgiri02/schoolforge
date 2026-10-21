@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Activity, CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Receipt, Users, X } from 'lucide-react';
+import { Activity, CircleAlert, CircleCheck, CircleUser, Component, Eye, FolderKanban, Images, LogOut, Palette, Receipt, Users, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { StudioSharedProps } from './types';
 
@@ -78,6 +78,14 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
                                 <span className="hidden xl:inline">{item.label}</span>
                             </Link>
                         ))}
+                        <Link
+                            href="/account"
+                            title={auth.user ? `Your account (${auth.user.email})` : undefined}
+                            className={`flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition sm:px-3 ${url.startsWith('/account') ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
+                        >
+                            <CircleUser className="h-4 w-4" />
+                            <span className="hidden xl:inline">Account</span>
+                        </Link>
                         <button
                             type="button"
                             onClick={() => router.post('/logout')}

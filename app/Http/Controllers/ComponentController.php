@@ -6,6 +6,7 @@ use App\Http\Requests\StoreComponentRequest;
 use App\Http\Requests\UpdateComponentRequest;
 use App\Models\Project;
 use App\Services\Generator;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
@@ -47,6 +48,8 @@ class ComponentController extends Controller
     {
         $generator->newComponent($request->validated('name'), $request->variants(), $request->validated('label'));
 
+        Audit::record('components.created', 'Created component '.$request->validated('name'));
+
         return redirect()->route('components.edit', $request->validated('name'))->with('success', 'Component created. Add it to a page from the Pages editor.');
     }
 
@@ -85,6 +88,8 @@ class ComponentController extends Controller
         }
 
         $generator->refresh();
+
+        Audit::record('components.updated', "Changed component {$manifest['label']}");
 
         return back()->with('success', "{$manifest['label']} saved.");
     }

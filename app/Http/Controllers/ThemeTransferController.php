@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Generator;
+use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -93,6 +94,8 @@ class ThemeTransferController extends Controller
         }
 
         $generator->refresh();
+
+        Audit::record('themes.imported', "Imported theme {$name}");
 
         return redirect()->route('themes.edit', $name)->with('success', 'Theme imported.');
     }
