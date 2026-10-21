@@ -6,7 +6,7 @@ import type { ProjectSummary } from '@/studio/types';
 type SectionSummary = { key: string; label: string; description: string; kind: 'object' | 'list'; count: number | null; filled: boolean };
 
 const groups: { title: string; keys: string[] }[] = [
-    { title: 'School', keys: ['school', 'about', 'principal', 'contact', 'social', 'seo'] },
+    { title: 'School', keys: ['school', 'about', 'principal', 'contact', 'campuses', 'social', 'seo'] },
     { title: 'Home page', keys: ['hero', 'announcement', 'popup', 'stats', 'testimonials'] },
     { title: 'Academics & campus', keys: ['programs', 'facilities', 'faculty', 'achievements'] },
     { title: 'Gallery & media', keys: ['gallery', 'albums', 'videos'] },

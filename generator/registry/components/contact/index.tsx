@@ -99,6 +99,20 @@ export default function Contact({ section, site }: SectionProps) {
                                 {error('subject')}
                             </label>
                         </div>
+                        {(site.content.campuses?.length ?? 0) > 1 && (
+                            <label className="block">
+                                <span className="mb-1.5 block text-sm font-medium">{t(site, 'campus')}</span>
+                                <select name="campus" className={fieldClass} defaultValue="">
+                                    <option value="">{t(site, 'anyCampus')}</option>
+                                    {site.content.campuses!.map((campus) => (
+                                        <option key={campus.name} value={campus.name}>
+                                            {campus.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {error('campus')}
+                            </label>
+                        )}
                         <label className="block">
                             <span className="mb-1.5 block text-sm font-medium">{t(site, 'message')}</span>
                             <textarea name="message" required rows={5} className={fieldClass} />

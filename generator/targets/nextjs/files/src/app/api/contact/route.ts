@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-type ContactInput = { name?: string; email?: string; phone?: string; subject?: string; message?: string };
+type ContactInput = { name?: string; email?: string; phone?: string; subject?: string; campus?: string; message?: string };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,6 +19,10 @@ function validate(input: ContactInput): Record<string, string> {
 
     if (input.phone && input.phone.length > 40) {
         errors.phone = 'Phone number must be 40 characters or fewer.';
+    }
+
+    if (input.campus && input.campus.length > 120) {
+        errors.campus = 'Campus must be 120 characters or fewer.';
     }
 
     if (!input.message?.trim()) {
@@ -43,6 +47,7 @@ export async function POST(request: Request) {
         email: input.email!.trim(),
         phone: input.phone?.trim() || null,
         subject: input.subject?.trim() || 'General question',
+        campus: input.campus?.trim() || null,
         message: input.message!.trim(),
         receivedAt: new Date().toISOString(),
     };

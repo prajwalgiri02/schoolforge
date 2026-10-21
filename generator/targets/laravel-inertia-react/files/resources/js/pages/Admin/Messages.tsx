@@ -2,7 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { Mail, MailOpen, Trash2 } from 'lucide-react';
 import { AdminLayout, buttonClass } from '@/admin/AdminLayout';
 
-type Message = { id: number; name: string; email: string; phone: string | null; subject: string; message: string; read_at: string | null; created_at: string };
+type Message = { id: number; name: string; email: string; phone: string | null; subject: string; campus: string | null; message: string; read_at: string | null; created_at: string };
 
 type Paginated<T> = { data: T[]; links: { url: string | null; label: string; active: boolean }[]; total: number };
 
@@ -38,7 +38,7 @@ export default function Messages({ messages }: { messages: Paginated<Message> })
                                 <div>
                                     <p className="font-semibold">
                                         {!message.read_at && <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-600 align-middle" aria-label="Unread" />}
-                                        {message.name} <span className="font-normal text-zinc-500">· {message.subject}</span>
+                                        {message.name} <span className="font-normal text-zinc-500">· {message.subject}{message.campus && ` · ${message.campus}`}</span>
                                     </p>
                                     <p className="mt-0.5 text-sm text-zinc-500">
                                         <a href={`mailto:${message.email}`} className="hover:underline">

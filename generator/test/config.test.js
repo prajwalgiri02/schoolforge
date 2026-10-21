@@ -121,9 +121,11 @@ describe('buildSite', () => {
             albums: [{ title: 'Sports' }, { title: 'Sports' }, { title: 'Trip', photos: 'many' }],
             videos: [{ title: 'Tour' }, { title: 'Tour', url: 'youtube.com/watch?v=1' }],
             news: [{ title: 'Win', tags: 'sports' }],
+            campuses: [{ address: 'Baluwatar' }],
         }).join('\n');
 
         assert.match(errors, /news\[0\]\.tags must be a list of words/);
+        assert.match(errors, /campuses\[0\]\.name is required/);
         assert.match(errors, /albums slug "sports" is used more than once/);
         assert.match(errors, /albums\[2\]\.photos must be a list of photos/);
         assert.match(errors, /videos\[0\]\.url is required/);

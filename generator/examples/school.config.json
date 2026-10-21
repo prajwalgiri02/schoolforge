@@ -372,6 +372,31 @@
             "url": "https://vimeo.com/76979871"
         }
     ],
+    "campuses": [
+        {
+            "name": "Main Campus, Lalitpur",
+            "address": "Jhamsikhel, Lalitpur",
+            "phone": "+977 1 4567890",
+            "email": "info@riversideheights.edu.np",
+            "hours": "Sun–Fri, 8:00 AM – 4:00 PM",
+            "levels": [
+                "Grades 1–10",
+                "+2 Science & Management"
+            ],
+            "description": "Our original campus with science labs, the robotics lab and the sports complex."
+        },
+        {
+            "name": "Junior Campus, Kathmandu",
+            "address": "Baluwatar, Kathmandu",
+            "phone": "+977 1 4412345",
+            "email": "junior@riversideheights.edu.np",
+            "levels": [
+                "Pre-primary",
+                "Grades 1–3"
+            ],
+            "description": "A calm, play-based campus for our youngest learners."
+        }
+    ],
     "news": [
         {
             "title": "Riverside students win national science olympiad",

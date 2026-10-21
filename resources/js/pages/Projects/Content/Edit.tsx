@@ -24,6 +24,7 @@ const previewPaths: Record<string, string> = {
     principal: '/about',
     achievements: '/about',
     contact: '/contact',
+    campuses: '/contact',
     programs: '/academics',
     admissions: '/admissions',
     faqs: '/admissions',

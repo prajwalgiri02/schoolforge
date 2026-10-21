@@ -148,6 +148,17 @@ class ContentSchema
                 self::field('description', 'textarea', 'Description'),
                 self::field('thumbnail', 'image', 'Thumbnail', help: 'Optional. YouTube videos get one automatically.'),
             ], 'title'),
+            'campuses' => self::section('Campuses', 'Branches of the school. With two or more, visitors can pick a campus on the contact form.', 'list', 'content.campuses', [
+                self::field('name', 'text', 'Campus name', required: true),
+                self::field('address', 'text', 'Address'),
+                self::field('phone', 'text', 'Phone'),
+                self::field('email', 'text', 'Email'),
+                self::field('hours', 'text', 'Office hours'),
+                self::field('levels', 'strings', 'Levels offered', help: 'One per line, e.g. Pre-primary, Grades 1–10'),
+                self::field('description', 'textarea', 'Description'),
+                self::field('image', 'image', 'Photo'),
+                self::field('mapUrl', 'url', 'Map link', help: 'Optional. Defaults to a Google Maps search for the address.'),
+            ], 'name'),
             'news' => self::section('News', 'News stories. Stories with a full text get their own page.', 'list', 'content.news', [
                 self::field('title', 'text', 'Title', required: true),
                 self::field('date', 'date', 'Date'),

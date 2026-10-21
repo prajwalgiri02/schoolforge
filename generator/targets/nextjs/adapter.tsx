@@ -20,7 +20,7 @@ export function useCurrentPath(): string {
     return usePathname() ?? '/';
 }
 
-export type ContactPayload = { name: string; email: string; phone?: string; subject?: string; message: string };
+export type ContactPayload = { name: string; email: string; phone?: string; subject?: string; campus?: string; message: string };
 
 export type ContactResult = { ok: boolean; errors?: Record<string, string> };
 

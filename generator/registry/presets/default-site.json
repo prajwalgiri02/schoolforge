@@ -86,7 +86,7 @@
             "navLabel": "Contact",
             "description": "Visit, call or write to us. We are happy to help.",
             "showInNav": true,
-            "sections": [{ "type": "page-header" }, { "type": "contact" }]
+            "sections": [{ "type": "page-header" }, { "type": "contact" }, { "type": "campuses" }]
         }
     ]
 }

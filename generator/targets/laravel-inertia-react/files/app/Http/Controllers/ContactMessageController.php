@@ -22,7 +22,7 @@ class ContactMessageController extends Controller
 
         if ($recipient = config('school.contact_recipient')) {
             Mail::raw(
-                "New enquiry from {$message->name} <{$message->email}>\nPhone: {$message->phone}\nSubject: {$message->subject}\n\n{$message->message}",
+                "New enquiry from {$message->name} <{$message->email}>\nPhone: {$message->phone}\nSubject: {$message->subject}".($message->campus ? "\nCampus: {$message->campus}" : '')."\n\n{$message->message}",
                 fn ($mail) => $mail->to($recipient)->replyTo($message->email, $message->name)->subject("Website enquiry: {$message->subject}"),
             );
         }

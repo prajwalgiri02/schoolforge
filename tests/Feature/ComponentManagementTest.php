@@ -37,7 +37,7 @@ class ComponentManagementTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Components/Index')
-                ->has('components', 28)
+                ->has('components', 29)
                 ->where('components', fn ($components) => collect($components)->firstWhere('name', 'faq')['customPages'] === 1));
     }
 

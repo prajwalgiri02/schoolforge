@@ -1,0 +1,15 @@
+{
+    "name": "campuses",
+    "label": "Campuses",
+    "description": "Branches of a multi-campus school, with address, levels, phone, email and directions.",
+    "category": "section",
+    "variants": [
+        "cards"
+    ],
+    "requires": [
+        "content.campuses"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}
