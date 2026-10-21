@@ -1,6 +1,6 @@
 import { createInertiaApp } from '@inertiajs/react';
 import type { ComponentType } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'SchoolForge Studio';
 
@@ -17,7 +17,12 @@ createInertiaApp({
         return page().then((module) => module.default);
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        // Published school pages arrive already rendered (see ssr.tsx); take over that HTML.
+        if (el.hasChildNodes()) {
+            hydrateRoot(el, <App {...props} />);
+        } else {
+            createRoot(el).render(<App {...props} />);
+        }
     },
     progress: {
         color: '#4f46e5',

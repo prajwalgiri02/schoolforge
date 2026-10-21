@@ -103,6 +103,66 @@ class HostedSites
             'published_site' => ['languages' => $languages, 'locales' => $locales, 'configHash' => static::configHash($project)],
             'published_at' => now(),
         ])->save();
+
+        static::prerender($project, $languages, $locales);
+    }
+
+    /**
+     * The Inertia page object Studio serves for one page of a published school.
+     *
+     * @param  array{site: array<string, mixed>, tokens: array<string, mixed>, extraCss: string}  $published
+     * @return array{component: string, props: array<string, mixed>, url: string}
+     */
+    public static function inertiaPage(array $published, string $slug, string $url): array
+    {
+        return [
+            'component' => 'Preview',
+            'props' => [
+                'base' => '',
+                'hosted' => true,
+                'slug' => $slug,
+                'site' => $published['site'],
+                'tokens' => $published['tokens'],
+                'extraCss' => $published['extraCss'],
+            ],
+            'url' => $url,
+        ];
+    }
+
+    /**
+     * Saves the HTML of every page in every language, for search engines.
+     *
+     * @param  list<string>  $languages
+     * @param  array<string, array{site: array<string, mixed>, tokens: array<string, mixed>, extraCss: string}>  $locales
+     */
+    protected static function prerender(Project $project, array $languages, array $locales): void
+    {
+        $targets = collect($languages)->flatMap(fn (string $language): array => collect($locales[$language]['site']['pages'])
+            ->map(fn (array $page): array => ['locale' => $language, 'slug' => $page['slug']])
+            ->all());
+
+        $html = PagePrerenderer::render($targets->map(fn (array $target): array => [
+            ...static::inertiaPage($locales[$target['locale']], $target['slug'], static::pagePath($languages, $target['locale'], $target['slug'])),
+            'version' => '',
+        ])->all());
+
+        $project->publishedPages()->delete();
+
+        foreach ($html ?? [] as $index => $pageHtml) {
+            $project->publishedPages()->create([...$targets[$index], 'html' => $pageHtml]);
+        }
+    }
+
+    /**
+     * A page's path on the school's site, e.g. /ne/about.
+     *
+     * @param  list<string>  $languages
+     */
+    public static function pagePath(array $languages, string $locale, string $slug): string
+    {
+        $prefix = $locale === $languages[0] ? '' : "/{$locale}";
+
+        return $slug === '/' ? ($prefix ?: '/') : $prefix.$slug;
     }
 
     /**
@@ -121,5 +181,6 @@ class HostedSites
     public static function unpublish(Project $project): void
     {
         $project->forceFill(['published_site' => null, 'published_at' => null])->save();
+        $project->publishedPages()->delete();
     }
 }

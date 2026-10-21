@@ -65,6 +65,36 @@ class HostedSitesTest extends TestCase
         $this->get('http://studio.test/login')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Auth/Login'));
     }
 
+    public function test_published_pages_are_rendered_to_html_for_search_engines(): void
+    {
+        $project = $this->publishedSchool();
+
+        $this->assertSame(32, $project->publishedPages()->count(), '16 pages in each of two languages');
+
+        $this->get('http://riverside.edu.np/')
+            ->assertOk()
+            ->assertSee('<div id="app"><', false)
+            ->assertSee('Where curious minds grow', false)
+            ->assertSee('<script data-page="app" type="application/json">', false);
+        $this->get('http://riverside.edu.np/about')->assertSee('<h1', false);
+        $this->get('http://riverside.edu.np/ne/about')->assertSee('<html lang="ne"', false)->assertSee('<div id="app"><', false);
+
+        $this->get('http://riverside.edu.np/contact', ['X-Inertia' => 'true'])->assertOk()->assertJsonPath('component', 'Preview')->assertJsonPath('props.slug', '/contact');
+
+        HostedSites::unpublish($project);
+        $this->assertSame(0, $project->publishedPages()->count());
+    }
+
+    public function test_publishing_works_without_the_server_bundle(): void
+    {
+        config(['studio.ssr_bundle' => '/nonexistent/ssr.js']);
+        $project = $this->publishedSchool();
+
+        $this->assertNotNull($project->published_at);
+        $this->assertSame(0, $project->publishedPages()->count());
+        $this->get('http://riverside.edu.np/about')->assertOk()->assertSee('<div id="app"></div>', false);
+    }
+
     public function test_changes_go_live_when_published_again_and_unpublishing_takes_the_site_offline(): void
     {
         $project = $this->publishedSchool();

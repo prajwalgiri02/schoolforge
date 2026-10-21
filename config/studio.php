@@ -17,6 +17,13 @@ return [
     'node_binary' => env('SCHOOLFORGE_NODE_BINARY', 'node'),
 
     /*
+    | Server bundle that renders published schools' pages to HTML, so search
+    | engines can read hosted sites. Built by `npm run build`.
+    */
+
+    'ssr_bundle' => env('SCHOOLFORGE_SSR_BUNDLE', base_path('bootstrap/ssr/ssr.js')),
+
+    /*
     |--------------------------------------------------------------------------
     | Output
     |--------------------------------------------------------------------------

@@ -61,14 +61,8 @@ class HostedSiteController extends Controller
 
         Inertia::setRootView('hosted');
 
-        return Inertia::render('Preview', [
-            'base' => '',
-            'hosted' => true,
-            'slug' => $slug,
-            'site' => $site,
-            'tokens' => $published['tokens'],
-            'extraCss' => $published['extraCss'],
-        ])->withViewData([
+        return Inertia::render('Preview', HostedSites::inertiaPage($published, $slug, $request->getRequestUri())['props'])->withViewData([
+            'prerendered' => $request->header('X-Inertia') ? null : $project->publishedPages()->where('locale', $locale)->where('slug', $slug)->value('html'),
             'locale' => $locale,
             'title' => $title,
             'description' => $page['description'] ?? $site['school']['about']['summary'] ?? $site['school']['tagline'] ?? $site['school']['name'],

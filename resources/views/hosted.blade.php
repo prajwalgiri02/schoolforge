@@ -27,6 +27,11 @@
     @inertiaHead
 </head>
 <body class="antialiased">
-    @inertia
+    @if (! empty($prerendered))
+        {{-- Rendered when the school was published; React takes it over in the browser. --}}
+        <script data-page="app" type="application/json">{!! json_encode($page, JSON_HEX_TAG) !!}</script><div id="app">{!! $prerendered !!}</div>
+    @else
+        @inertia
+    @endif
 </body>
 </html>

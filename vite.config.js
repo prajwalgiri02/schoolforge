@@ -37,6 +37,7 @@ export default defineConfig({
         schoolforgePreviewRuntime(),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            ssr: 'resources/js/ssr.tsx',
             refresh: true,
         }),
         tailwindcss(),
@@ -48,6 +49,10 @@ export default defineConfig({
             '@admin': path.resolve(root, 'generator/targets/laravel-inertia-react/files/resources/js/admin'),
             '@registry': registryDir,
         },
+    },
+    ssr: {
+        // Bundle every dependency into bootstrap/ssr/ssr.js so it runs with node alone.
+        noExternal: true,
     },
     server: {
         watch: {

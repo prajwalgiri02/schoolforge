@@ -152,6 +152,14 @@ class Project extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    /**
+     * @return HasMany<PublishedPage, $this>
+     */
+    public function publishedPages(): HasMany
+    {
+        return $this->hasMany(PublishedPage::class);
+    }
+
     public function isPublished(): bool
     {
         return $this->published_at !== null;
