@@ -70,3 +70,23 @@ export type SubscribePayload = { email?: string; phone?: string; locale?: string
 export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
     return payload.email || payload.phone ? { ok: true } : { ok: false, errors: { email: 'Enter an email address or a mobile number.' } };
 }
+
+export type ExamSummary = { id: number; name: string };
+
+export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
+
+export async function listExams(): Promise<ExamSummary[]> {
+    return [{ id: 1, name: 'Annual Examination (sample)' }];
+}
+
+export async function lookupResult(_exam: number, symbol: string, _dob: string): Promise<ResultSheet | null> {
+    return {
+        exam: 'Annual Examination (sample)',
+        symbolNumber: symbol,
+        studentName: 'Sample Student',
+        class: '10 A',
+        gpa: '3.75',
+        result: 'Passed',
+        subjects: ['English', 'Nepali', 'Mathematics', 'Science', 'Social Studies'].map((subject, index) => ({ subject, grade: ['A+', 'A', 'B+', 'A', 'A+'][index] })),
+    };
+}

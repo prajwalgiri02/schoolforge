@@ -5,10 +5,12 @@ use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageCo
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
+use App\Http\Controllers\Admin\ResultController as AdminResultController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\FormSubmissionController;
+use App\Http\Controllers\ResultController;
 use App\Http\Controllers\SchoolPageController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SubscriberController;
@@ -38,6 +40,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('alerts', [AlertController::class, 'store'])->middleware('throttle:10,1')->name('alerts.store');
         Route::get('alerts/subscribers.csv', [AlertController::class, 'export'])->name('alerts.export');
 
+        Route::get('results', [AdminResultController::class, 'index'])->name('results.index');
+        Route::post('results', [AdminResultController::class, 'store'])->name('results.store');
+        Route::get('results/template.csv', [AdminResultController::class, 'template'])->name('results.template');
+        Route::patch('results/{exam}', [AdminResultController::class, 'update'])->name('results.update');
+        Route::delete('results/{exam}', [AdminResultController::class, 'destroy'])->name('results.destroy');
+
         Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
         Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
         Route::patch('submissions/{submission}', [AdminFormSubmissionController::class, 'update'])->name('submissions.update');
@@ -50,6 +58,8 @@ Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('school.sitem
 Route::get('robots.txt', [SeoController::class, 'robots'])->name('school.robots');
 Route::get('events.ics', [SeoController::class, 'calendar'])->name('school.calendar');
 
+Route::get('results/exams', [ResultController::class, 'exams'])->name('school.results.exams');
+Route::get('results/lookup', [ResultController::class, 'show'])->middleware('throttle:30,1')->name('school.results.show');
 Route::post('subscribe', [SubscriberController::class, 'store'])->middleware('throttle:10,1')->name('school.subscribe');
 Route::get('unsubscribe/{token}', [SubscriberController::class, 'destroy'])->name('school.unsubscribe');
 Route::get('forms/status', [FormSubmissionController::class, 'status'])->middleware('throttle:20,1')->name('school.forms.status');

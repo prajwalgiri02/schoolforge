@@ -30,3 +30,11 @@ export declare function lookupApplication(reference: string, email: string): Pro
 export type SubscribePayload = { email?: string; phone?: string; locale?: string };
 
 export declare function subscribe(payload: SubscribePayload): Promise<ContactResult>;
+
+export type ExamSummary = { id: number; name: string };
+
+export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
+
+export declare function listExams(): Promise<ExamSummary[]>;
+
+export declare function lookupResult(exam: number, symbol: string, dob: string): Promise<ResultSheet | null>;

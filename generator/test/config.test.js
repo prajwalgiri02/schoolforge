@@ -132,6 +132,17 @@ describe('buildSite', () => {
         assert.match(errors, /videos\[1\]\.url must be a full link/);
     });
 
+    it('builds Laravel-only pages such as exam results only for Laravel sites', () => {
+        const slugsFor = (target) => buildSite({ ...minimal(), target, admissions: { open: true } }, getTheme('classic')).site;
+        const laravel = slugsFor('laravel-inertia-react');
+        const nextjs = slugsFor('nextjs');
+
+        assert.ok(laravel.pages.some((page) => page.slug === '/results'));
+        assert.ok(!nextjs.pages.some((page) => page.slug === '/results'));
+        assert.ok(laravel.pages.find((page) => page.slug === '/admissions').sections.some((section) => section.type === 'admission-status'));
+        assert.ok(!nextjs.pages.find((page) => page.slug === '/admissions').sections.some((section) => section.type === 'admission-status'));
+    });
+
     it('drops preset pages and sections that have no content', () => {
         const { site } = buildSite(minimal(), getTheme('classic'));
         const slugs = site.pages.map((page) => page.slug);

@@ -78,3 +78,16 @@ export async function subscribe(payload: SubscribePayload): Promise<ContactResul
         return { ok: false };
     }
 }
+
+export type ExamSummary = { id: number; name: string };
+
+export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
+
+/** Result lookup needs a database, which Next.js sites do not have. */
+export async function listExams(): Promise<ExamSummary[]> {
+    return [];
+}
+
+export async function lookupResult(_exam: number, _symbol: string, _dob: string): Promise<ResultSheet | null> {
+    return null;
+}

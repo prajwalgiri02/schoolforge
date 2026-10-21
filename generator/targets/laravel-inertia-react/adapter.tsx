@@ -93,3 +93,27 @@ export async function subscribe(payload: SubscribePayload): Promise<ContactResul
         return { ok: false };
     }
 }
+
+export type ExamSummary = { id: number; name: string };
+
+export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
+
+export async function listExams(): Promise<ExamSummary[]> {
+    try {
+        const response = await fetch('/results/exams', { headers: csrfHeaders(), credentials: 'same-origin' });
+
+        return response.ok ? ((await response.json()) as ExamSummary[]) : [];
+    } catch {
+        return [];
+    }
+}
+
+export async function lookupResult(exam: number, symbol: string, dob: string): Promise<ResultSheet | null> {
+    try {
+        const response = await fetch(`/results/lookup?${new URLSearchParams({ exam: String(exam), symbol, dob })}`, { headers: csrfHeaders(), credentials: 'same-origin' });
+
+        return response.ok ? ((await response.json()) as ResultSheet) : null;
+    } catch {
+        return null;
+    }
+}

@@ -82,6 +82,15 @@
             "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events", "variant": "calendar" }, { "type": "notices" }]
         },
         {
+            "slug": "/results",
+            "title": "Exam Results",
+            "navLabel": "Results",
+            "description": "Look up exam results with your symbol number.",
+            "showInNav": false,
+            "showInFooter": true,
+            "sections": [{ "type": "page-header" }, { "type": "result-lookup" }]
+        },
+        {
             "slug": "/careers",
             "title": "Careers",
             "description": "Teach, coach and grow with us. See our current openings and apply online.",

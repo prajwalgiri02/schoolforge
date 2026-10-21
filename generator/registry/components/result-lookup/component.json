@@ -1,0 +1,13 @@
+{
+    "name": "result-lookup",
+    "label": "Result lookup",
+    "description": "Students find their exam marksheet by symbol number and date of birth (Laravel sites; results are imported in the admin panel).",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "target=laravel-inertia-react"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

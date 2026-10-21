@@ -418,7 +418,7 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
     }
 
     const school = structuredClone(config.school);
-    const lookup = { school, content };
+    const lookup = { school, content, target: config.target ?? TARGETS[0] };
 
     const resolveSection = (section, where) => {
         const component = resolveComponent(section.type);
@@ -436,7 +436,13 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
         return { section: resolved, component };
     };
 
-    const isSatisfied = (component) => !component || (component.requires ?? []).every((dotted) => hasValue(readPath(lookup, dotted)));
+    // A requirement is a path that must have content ("content.news") or an exact value ("target=laravel-inertia-react").
+    const meetsRequirement = (requirement) => {
+        const [dotted, expected] = requirement.split('=');
+
+        return expected === undefined ? hasValue(readPath(lookup, dotted)) : readPath(lookup, dotted) === expected;
+    };
+    const isSatisfied = (component) => !component || (component.requires ?? []).every(meetsRequirement);
 
     const pages = [];
 
