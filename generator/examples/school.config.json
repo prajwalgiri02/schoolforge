@@ -87,6 +87,14 @@
             "href": "/admissions"
         }
     },
+    "popup": {
+        "title": "Admissions open for 2027",
+        "message": "Applications for nursery to grade 11 close on 15 January. Book a campus tour this Saturday.",
+        "link": {
+            "label": "Apply now",
+            "href": "/admissions"
+        }
+    },
     "hero": {
         "title": "Where curious minds grow into confident leaders",
         "subtitle": "A caring K–12 school combining academic excellence, character education and a vibrant campus life.",

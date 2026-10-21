@@ -8,7 +8,7 @@ type MessageSummary = { id: number; name: string; subject: string; created_at: s
 
 const groups: { title: string; keys: string[] }[] = [
     { title: 'School', keys: ['school', 'about', 'principal', 'contact', 'social', 'seo'] },
-    { title: 'Home page', keys: ['hero', 'announcement', 'stats', 'testimonials'] },
+    { title: 'Home page', keys: ['hero', 'announcement', 'popup', 'stats', 'testimonials'] },
     { title: 'Academics & campus', keys: ['programs', 'facilities', 'faculty', 'achievements'] },
     { title: 'Gallery & media', keys: ['gallery', 'albums', 'videos'] },
     { title: 'News & admissions', keys: ['news', 'events', 'notices', 'admissions', 'faqs'] },

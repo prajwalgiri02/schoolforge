@@ -80,6 +80,15 @@ class ContentSchema
                 self::field('text', 'text', 'Message'),
                 $link('link', 'Link'),
             ]),
+            'popup' => self::section('Popup announcement', 'A popup shown once to each visitor, e.g. for admissions or closures. Clear the title and message to turn it off.', 'object', 'content.popup', [
+                self::field('title', 'text', 'Title'),
+                self::field('message', 'textarea', 'Message'),
+                self::field('image', 'image', 'Image'),
+                $link('link', 'Button'),
+                self::field('startDate', 'date', 'Show from', help: 'Leave empty to start now.'),
+                self::field('endDate', 'date', 'Show until', help: 'Leave empty to keep showing it.'),
+                self::field('everyVisit', 'boolean', 'Show on every visit', help: 'Otherwise each visitor sees it once.'),
+            ]),
             'admissions' => self::section('Admissions', 'Steps, required documents and deadline.', 'object', 'content.admissions', [
                 self::field('open', 'boolean', 'Admissions are open'),
                 self::field('intro', 'textarea', 'Introduction'),

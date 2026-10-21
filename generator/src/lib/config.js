@@ -7,6 +7,7 @@ export const TARGETS = ['nextjs', 'laravel-inertia-react'];
 export const CONTENT_KEYS = [
     'hero',
     'announcement',
+    'popup',
     'stats',
     'programs',
     'facilities',
@@ -144,6 +145,12 @@ export function validateConfig(config, { components = null } = {}) {
                 errors.push(`${key}[${index}].endDate must not be before date.`);
             }
         });
+    }
+
+    for (const field of ['startDate', 'endDate']) {
+        if (config.popup?.[field] !== undefined && !ISO_DATE.test(String(config.popup[field]))) {
+            errors.push(`popup.${field} must use YYYY-MM-DD (got "${config.popup[field]}").`);
+        }
     }
 
     if (config.admissions?.deadline !== undefined && !ISO_DATE.test(String(config.admissions.deadline))) {

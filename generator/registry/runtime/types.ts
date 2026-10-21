@@ -70,6 +70,7 @@ export type SiteContent = {
         secondaryCta?: LinkItem;
     };
     announcement?: { text: string; link?: LinkItem };
+    popup?: { title?: string; message?: string; image?: ImageRef; link?: LinkItem; startDate?: string; endDate?: string; everyVisit?: boolean };
     stats?: { label: string; value: string }[];
     programs?: { name: string; level?: string; description?: string; image?: ImageRef; highlights?: string[] }[];
     facilities?: { name: string; description?: string; icon?: string; image?: ImageRef }[];

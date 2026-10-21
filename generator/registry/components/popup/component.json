@@ -1,0 +1,13 @@
+{
+    "name": "popup",
+    "label": "Popup announcement",
+    "description": "A dismissible popup for urgent notices or admissions, with optional start and end dates.",
+    "category": "layout",
+    "variants": [],
+    "requires": [
+        "content.popup"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

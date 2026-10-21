@@ -1,7 +1,7 @@
 {
     "layout": {
         "header": [{ "type": "announcement-bar" }, { "type": "navbar" }],
-        "footer": [{ "type": "footer" }]
+        "footer": [{ "type": "footer" }, { "type": "popup" }]
     },
     "pages": [
         {
