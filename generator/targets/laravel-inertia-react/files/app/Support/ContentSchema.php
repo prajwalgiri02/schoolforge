@@ -144,6 +144,8 @@ class ContentSchema
                 self::field('date', 'date', 'Date'),
                 self::field('excerpt', 'textarea', 'Excerpt'),
                 self::field('image', 'image', 'Image'),
+                self::field('category', 'text', 'Category', help: 'e.g. Sports, Academics, Announcements'),
+                self::field('tags', 'strings', 'Tags', help: 'One per line. Visitors can filter news by tag.'),
                 self::field('body', 'paragraphs', 'Full text', help: 'Separate paragraphs with a blank line.'),
                 self::field('slug', 'text', 'URL slug', help: 'Leave empty to create it from the title.'),
             ], 'title'),

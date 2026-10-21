@@ -31,6 +31,20 @@ export default function Article({ section, site }: ArticleProps) {
                         <p key={paragraph.slice(0, 32)}>{paragraph}</p>
                     ))}
                 </div>
+                {(article.category || (article.tags?.length ?? 0) > 0) && (
+                    <p className="mt-10 flex flex-wrap gap-2 border-t border-border pt-6 text-sm font-medium">
+                        {article.category && (
+                            <SmartLink href={`/news?category=${encodeURIComponent(article.category)}`} className="rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/20">
+                                {article.category}
+                            </SmartLink>
+                        )}
+                        {article.tags?.map((tag) => (
+                            <SmartLink key={tag} href={`/news?tag=${encodeURIComponent(tag)}`} className="rounded-full bg-muted px-3 py-1 text-muted-foreground hover:text-primary">
+                                #{tag}
+                            </SmartLink>
+                        ))}
+                    </p>
+                )}
             </Container>
         </article>
     );

@@ -203,6 +203,12 @@ export function validateConfig(config, { components = null } = {}) {
         }
     });
 
+    (Array.isArray(config.news) ? config.news : []).forEach((item, index) => {
+        if (item?.tags !== undefined && (!Array.isArray(item.tags) || item.tags.some((tag) => typeof tag !== 'string'))) {
+            errors.push(`news[${index}].tags must be a list of words, e.g. ["sports", "awards"].`);
+        }
+    });
+
     (Array.isArray(config.videos) ? config.videos : []).forEach((video, index) => {
         if (typeof video?.url === 'string' && !/^https?:\/\//.test(video.url)) {
             errors.push(`videos[${index}].url must be a full link such as https://www.youtube.com/watch?v=... (got "${video.url}").`);

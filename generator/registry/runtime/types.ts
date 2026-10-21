@@ -77,7 +77,7 @@ export type SiteContent = {
     gallery?: { src?: ImageRef; caption?: string; category?: string }[];
     albums?: { slug: string; title: string; date?: string; description?: string; cover?: ImageRef; photos?: { src?: ImageRef; caption?: string }[] }[];
     videos?: { title: string; url: string; date?: string; description?: string; thumbnail?: ImageRef }[];
-    news?: { slug: string; title: string; date?: string; excerpt?: string; image?: ImageRef; body?: string[] }[];
+    news?: { slug: string; title: string; date?: string; excerpt?: string; image?: ImageRef; body?: string[]; category?: string; tags?: string[] }[];
     events?: { title: string; date: string; endDate?: string; time?: string; location?: string; description?: string; category?: string }[];
     notices?: { title: string; date?: string; link?: string; important?: boolean }[];
     testimonials?: { quote: string; name: string; role?: string; photo?: ImageRef }[];

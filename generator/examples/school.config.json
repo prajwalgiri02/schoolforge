@@ -369,6 +369,11 @@
             "title": "Riverside students win national science olympiad",
             "date": "2026-09-12",
             "excerpt": "Our grade 10 team took gold in chemistry and silver in physics at the National Science Olympiad.",
+            "category": "Academics",
+            "tags": [
+                "science",
+                "awards"
+            ],
             "body": [
                 "We are thrilled to share that our grade 10 olympiad team won gold in chemistry and silver in physics at this year's National Science Olympiad, competing against 140 schools.",
                 "The team trained after school for six months under the guidance of Ms. Sunita Karki and Mr. Anil Shrestha. Congratulations to every student who took part."
@@ -378,6 +383,11 @@
             "title": "New robotics and innovation lab opens",
             "date": "2026-08-20",
             "excerpt": "A new lab with 3D printers, robotics kits and maker space opened for students in grades 4 to 12.",
+            "category": "Campus",
+            "tags": [
+                "robotics",
+                "technology"
+            ],
             "body": [
                 "Our new robotics and innovation lab opened this month with 3D printers, laser cutters and 40 robotics kits.",
                 "Students from grades 4 to 12 will use the space for coding classes, the robotics club and independent projects."
@@ -386,7 +396,11 @@
         {
             "title": "Admissions open for the 2027 session",
             "date": "2026-07-01",
-            "excerpt": "Applications for nursery to grade 11 are now open. Campus tours run every Saturday."
+            "excerpt": "Applications for nursery to grade 11 are now open. Campus tours run every Saturday.",
+            "category": "Admissions",
+            "tags": [
+                "admissions"
+            ]
         }
     ],
     "events": [
