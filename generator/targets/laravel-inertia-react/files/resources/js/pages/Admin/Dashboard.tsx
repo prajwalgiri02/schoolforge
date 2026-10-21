@@ -21,11 +21,13 @@ function formatDate(value: string): string {
 
 export default function Dashboard({
     sections,
+    stats,
     pageCount,
     unreadMessages,
     recentMessages,
 }: {
     sections: SectionSummary[];
+    stats: { label: string; value: number; href: string }[];
     pageCount: number;
     unreadMessages: number;
     recentMessages: MessageSummary[];
@@ -36,6 +38,14 @@ export default function Dashboard({
 
     return (
         <AdminLayout title="Website content">
+            <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+                {stats.map((stat) => (
+                    <Link key={stat.label} href={stat.href} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-400">
+                        <p className="text-2xl font-semibold tabular-nums">{stat.value.toLocaleString('en-IN')}</p>
+                        <p className="mt-1 text-sm text-zinc-500">{stat.label}</p>
+                    </Link>
+                ))}
+            </div>
             <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
                 <div className="space-y-8">
                     {allGroups.map((group) => (

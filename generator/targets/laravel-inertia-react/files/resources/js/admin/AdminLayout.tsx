@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BellRing, CircleCheck, ExternalLink, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, UserCog, Users, Wallet, X } from 'lucide-react';
+import { BellRing, CircleCheck, ExternalLink, Globe, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, UserCog, Users, Wallet, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
 
@@ -42,10 +42,11 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
                 <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
                     <Link href="/admin" className="flex shrink-0 items-center gap-2 font-semibold">
                         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-sm text-white">{schoolName.slice(0, 1)}</span>
-                        <span className="hidden xl:inline">{schoolName} admin</span>
+                        <span className="hidden 2xl:inline">{schoolName} admin</span>
                     </Link>
                     <nav className="-mr-2 flex min-w-0 items-center gap-1 overflow-x-auto pr-2">
                         {navItem('/admin', 'Content', <LayoutDashboard className="h-4 w-4" />)}
+                        {navItem('/admin/website', 'Website', <Globe className="h-4 w-4" />)}
                         {navItem('/admin/messages', 'Messages', <Mail className="h-4 w-4" />)}
                         {navItem('/admin/submissions', 'Applications', <Inbox className="h-4 w-4" />)}
                         {auth.user?.isAdmin && (

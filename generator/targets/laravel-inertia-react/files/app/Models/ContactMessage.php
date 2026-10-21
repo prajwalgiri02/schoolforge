@@ -25,6 +25,9 @@ class ContactMessage extends Model
         'message',
         'ip_address',
         'read_at',
+        'reply',
+        'replied_at',
+        'replied_by',
     ];
 
     /**
@@ -45,6 +48,7 @@ class ContactMessage extends Model
     {
         return [
             'read_at' => 'datetime',
+            'replied_at' => 'datetime',
         ];
     }
 }

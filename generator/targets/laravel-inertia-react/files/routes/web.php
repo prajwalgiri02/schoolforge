@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UploadController;
+use App\Http\Controllers\Admin\WebsiteController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\FormSubmissionController;
 use App\Http\Controllers\PaymentController;
@@ -46,6 +47,13 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('media', MediaController::class)->name('media.index');
 
         Route::get('messages', [AdminContactMessageController::class, 'index'])->name('messages.index');
+        Route::get('messages/export.csv', [AdminContactMessageController::class, 'export'])->name('messages.export');
+        Route::post('messages/{message}/reply', [AdminContactMessageController::class, 'reply'])->middleware('throttle:30,1')->name('messages.reply');
+
+        Route::get('website', [WebsiteController::class, 'edit'])->name('website.edit');
+        Route::put('website/pages', [WebsiteController::class, 'updatePages'])->name('website.pages');
+        Route::delete('website/pages', [WebsiteController::class, 'resetPages'])->name('website.pages.reset');
+        Route::put('website/design', [WebsiteController::class, 'updateDesign'])->name('website.design');
         Route::patch('messages/{message}', [AdminContactMessageController::class, 'update'])->name('messages.update');
         Route::delete('messages/{message}', [AdminContactMessageController::class, 'destroy'])->name('messages.destroy');
 

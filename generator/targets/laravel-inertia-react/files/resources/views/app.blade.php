@@ -17,6 +17,9 @@
     @endif
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+    @if ($colorOverrides = $schoolSite->colorOverridesCss())
+        <style>{!! $colorOverrides !!}</style>
+    @endif
     @inertiaHead
 </head>
 <body>

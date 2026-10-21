@@ -13,6 +13,12 @@ use RuntimeException;
  */
 class SchoolSite
 {
+    /** SiteContent key for page settings edited under Admin → Website. */
+    public const PAGE_SETTINGS = '_pages';
+
+    /** SiteContent key for brand colours edited under Admin → Website. */
+    public const DESIGN = '_design';
+
     /**
      * Site data per language, after admin edits.
      *
@@ -72,7 +78,7 @@ class SchoolSite
             }
         }
 
-        return $this->withGeneratedPages($site);
+        return $this->withPageSettings($this->withGeneratedPages($site), true);
     }
 
     /**
@@ -88,7 +94,68 @@ class SchoolSite
             $site = ContentSchema::apply($site, $key, $value);
         }
 
-        return $this->withGeneratedPages($site);
+        return $this->withPageSettings($this->withGeneratedPages($site), false);
+    }
+
+    /**
+     * Page titles, menu labels, descriptions, menu visibility and order set under
+     * Admin → Website. Wording applies to the default language; visibility and
+     * order to every language. The menu is rebuilt from the pages when they change.
+     *
+     * @param  array<string, mixed>  $site
+     * @return array<string, mixed>
+     */
+    private function withPageSettings(array $site, bool $isDefaultLanguage): array
+    {
+        $settings = $this->overrides()[self::PAGE_SETTINGS] ?? [];
+
+        if ($settings === []) {
+            return $site;
+        }
+
+        $pages = array_map(function (array $page) use ($settings, $isDefaultLanguage): array {
+            $setting = $settings[$page['slug']] ?? [];
+            $wording = $isDefaultLanguage ? array_filter(array_intersect_key($setting, array_flip(['title', 'navLabel', 'description'])), fn ($value): bool => filled($value)) : [];
+
+            return [...$page, ...$wording, ...(isset($setting['showInNav']) ? ['showInNav' => (bool) $setting['showInNav']] : [])];
+        }, $site['pages']);
+
+        $position = fn (array $page): int => $settings[$page['slug']]['order'] ?? PHP_INT_MAX;
+        usort($pages, fn (array $a, array $b): int => $position($a) <=> $position($b));
+
+        $site['pages'] = $pages;
+        $site['navigation'] = array_values(array_map(
+            fn (array $page): array => ['label' => $page['navLabel'] ?? $page['title'], 'href' => $page['slug']],
+            array_filter($pages, fn (array $page): bool => ($page['showInNav'] ?? false) && ! str_starts_with($page['slug'], '/news/') && ! str_starts_with($page['slug'], '/gallery/')),
+        ));
+
+        return $site;
+    }
+
+    /**
+     * CSS that applies brand colours chosen under Admin → Website on top of the
+     * generated theme, with readable text colours worked out for each.
+     */
+    public function colorOverridesCss(): string
+    {
+        $colors = array_filter($this->overrides()[self::DESIGN]['colors'] ?? [], fn ($value): bool => is_string($value) && preg_match('/^#[0-9a-f]{6}$/i', $value));
+
+        if ($colors === []) {
+            return '';
+        }
+
+        $variables = [];
+
+        foreach ($colors as $name => $hex) {
+            $variables["--color-{$name}"] = $hex;
+            $variables["--color-{$name}-foreground"] = Color::readableOn($hex);
+        }
+
+        if (isset($colors['accent'])) {
+            $variables['--color-accent-strong'] = Color::darkenUntilReadable($colors['accent'], '#ffffff', 4.5);
+        }
+
+        return ':root{'.collect($variables)->map(fn (string $value, string $name): string => "{$name}:{$value}")->implode(';').'}';
     }
 
     /**

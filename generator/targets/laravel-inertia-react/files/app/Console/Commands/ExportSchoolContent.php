@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SiteContent;
 use App\Support\ContentSchema;
+use App\Support\SchoolSite;
 use App\Support\TranslationMerger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -50,6 +51,18 @@ class ExportSchoolContent extends Command
         foreach ($overrides as $override) {
             [$locale, $key] = str_contains($override->key, ':') ? explode(':', $override->key, 2) : [null, $override->key];
 
+            if ($key === SchoolSite::DESIGN) {
+                $config['colors'] = [...($config['colors'] ?? []), ...($override->value['colors'] ?? [])];
+
+                continue;
+            }
+
+            if ($key === SchoolSite::PAGE_SETTINGS) {
+                $config = $this->exportPageSettings($config, $override->value);
+
+                continue;
+            }
+
             if (ContentSchema::find($key) === null) {
                 continue;
             }
@@ -71,5 +84,28 @@ class ExportSchoolContent extends Command
         $this->components->bulletList($overrides->pluck('key')->all());
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Page wording, menu visibility and order go into the config's custom pages.
+     * Sites on the default site map have none, so those edits stay in the admin panel.
+     *
+     * @param  array<string, mixed>  $config
+     * @param  array<string, array<string, mixed>>  $settings
+     * @return array<string, mixed>
+     */
+    private function exportPageSettings(array $config, array $settings): array
+    {
+        if (! isset($config['pages'])) {
+            $this->components->warn('Page and menu edits were not exported: this site uses the default site map. Customise its pages in Studio first.');
+
+            return $config;
+        }
+
+        $pages = array_map(fn (array $page): array => [...$page, ...array_intersect_key($settings[$page['slug']] ?? [], array_flip(['title', 'navLabel', 'description', 'showInNav']))], $config['pages']);
+        usort($pages, fn (array $a, array $b): int => ($settings[$a['slug']]['order'] ?? PHP_INT_MAX) <=> ($settings[$b['slug']]['order'] ?? PHP_INT_MAX));
+        $config['pages'] = $pages;
+
+        return $config;
     }
 }
