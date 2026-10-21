@@ -40,6 +40,7 @@ class ProjectPublishController extends Controller
                 'domain' => $project->domain,
                 'subdomain' => config('studio.hosting_domain') ? $project->slug.'.'.HostedSites::normalizeHost(config('studio.hosting_domain')) : null,
                 'serverHost' => HostedSites::studioHost(),
+                'canSetDomain' => $request->user()->can('set-domain', $project),
             ],
             'headless' => [
                 'enabled' => HeadlessContent::isEnabled($project),

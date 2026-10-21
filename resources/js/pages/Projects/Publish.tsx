@@ -6,7 +6,7 @@ import { ProjectLayout } from '@/studio/ProjectLayout';
 import { FieldError } from '@/studio/StudioLayout';
 import type { ProjectSummary, StudioSharedProps } from '@/studio/types';
 
-type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url: string | null; domain: string | null; subdomain: string | null; serverHost: string };
+type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url: string | null; domain: string | null; subdomain: string | null; serverHost: string; canSetDomain: boolean };
 
 type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean; canManage: boolean };
 
@@ -312,8 +312,8 @@ export default function Publish({
                             School’s own domain
                         </label>
                         <div className="flex flex-wrap gap-3">
-                            <input id="domain" value={domainForm.data.domain} onChange={(event) => domainForm.setData('domain', event.target.value)} placeholder="www.yourschool.edu.np" disabled={!auth.user?.canManage} className={`${inputClass} max-w-md flex-1 font-mono`} />
-                            {auth.user?.canManage && (
+                            <input id="domain" value={domainForm.data.domain} onChange={(event) => domainForm.setData('domain', event.target.value)} placeholder="www.yourschool.edu.np" disabled={!hosting.canSetDomain} className={`${inputClass} max-w-md flex-1 font-mono`} />
+                            {hosting.canSetDomain && (
                                 <button type="submit" disabled={domainForm.processing} className={buttonClass.secondary}>
                                     Save domain
                                 </button>

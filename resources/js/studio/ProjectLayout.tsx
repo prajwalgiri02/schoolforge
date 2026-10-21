@@ -42,7 +42,7 @@ export function ProjectLayout({
     const url = usePage().url;
     const { auth } = usePage<StudioSharedProps>().props;
     /** School staff look after content, pages and publishing only. */
-    const visibleTabs = (auth.user?.role === 'school' ? tabs.filter((tab) => ['content', 'pages', 'publish', 'history', 'package'].includes(tab.key)) : tabs).filter((tab) => tab.key !== 'package' || project.signedUpAt);
+    const visibleTabs = (auth.user?.role === 'school' ? tabs.filter((tab) => ['content', 'design', 'pages', 'publish', 'history', 'package'].includes(tab.key)) : tabs).filter((tab) => tab.key !== 'package' || project.signedUpAt);
     const trialDaysLeft = project.trialEndsAt ? Math.max(0, Math.ceil((new Date(project.trialEndsAt).getTime() - Date.now()) / 86_400_000)) : null;
     const [reloads, setReloads] = useState(0);
     const [device, setDevice] = useState<Device>('desktop');

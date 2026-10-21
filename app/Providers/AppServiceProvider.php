@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Project;
 use App\Models\User;
 use App\Services\Generator;
 use App\Support\FormSchema;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('signup', fn (Request $request): Limit => Limit::perHour(5)->by($request->ip()));
 
         Gate::define('edit-projects', fn (User $user): bool => $user->role->canEditProjects());
+        Gate::define('set-domain', fn (User $user, Project $project): bool => $user->role->canManageStudio() || ($user->isSchoolStaff() && $user->canAccessProject($project)));
         Gate::define('manage-studio', fn (User $user): bool => $user->role->canManageStudio());
 
         FormSchema::$path = config('studio.generator_path').'/registry/runtime/forms.json';

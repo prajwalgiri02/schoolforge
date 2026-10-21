@@ -54,15 +54,30 @@ class SchoolStaffTest extends TestCase
         }
         $this->put("/projects/{$other->slug}/content/hero", ['value' => ['title' => 'Hacked']])->assertForbidden();
 
-        foreach (['/projects/create', "/projects/{$school->slug}/design", "/projects/{$school->slug}/generate", "/projects/{$school->slug}/config.json", '/themes', '/components', '/media', '/status', '/billing', '/users'] as $url) {
+        foreach (['/projects/create', "/projects/{$school->slug}/generate", "/projects/{$school->slug}/config.json", '/themes', '/components', '/media', '/status', '/billing', '/users'] as $url) {
             $this->get($url)->assertForbidden();
         }
 
         $this->post("/projects/{$school->slug}/duplicate")->assertForbidden();
         $this->delete("/projects/{$school->slug}/publish")->assertForbidden();
         $this->post("/projects/{$school->slug}/headless")->assertForbidden();
-        $this->put("/projects/{$school->slug}/domain", ['domain' => 'mine.edu.np'])->assertForbidden();
+        $this->put("/projects/{$other->slug}/domain", ['domain' => 'mine.edu.np'])->assertForbidden();
+        $this->put("/projects/{$other->slug}/design", ['theme' => 'modern'])->assertForbidden();
         $this->delete("/projects/{$school->slug}")->assertForbidden();
+    }
+
+    public function test_school_staff_change_their_own_design_and_domain(): void
+    {
+        $school = Project::factory()->create();
+        $this->actingAs(User::factory()->schoolStaff($school)->create());
+
+        $this->get("/projects/{$school->slug}/design")->assertOk();
+        $this->put("/projects/{$school->slug}/design", ['theme' => 'modern'])->assertSessionHasNoErrors();
+        $this->assertSame('modern', $school->fresh()->theme());
+        $this->get("/projects/{$school->slug}/publish")->assertInertia(fn (Assert $page) => $page->where('hosting.canSetDomain', true));
+        $this->put("/projects/{$school->slug}/domain", ['domain' => 'www.mine.edu.np'])->assertSessionHasNoErrors();
+
+        $this->assertSame('mine.edu.np', $school->fresh()->domain);
     }
 
     public function test_school_staff_see_only_their_enquiries_and_not_the_content_token(): void

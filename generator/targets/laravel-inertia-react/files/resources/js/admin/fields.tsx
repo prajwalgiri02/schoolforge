@@ -277,7 +277,7 @@ export function Field({ field, value, onChange, path, errors, icons }: FieldProp
             return (
                 <fieldset>
                     <legend className="mb-2 text-sm font-medium text-zinc-800">{field.label}</legend>
-                    <ItemList fields={field.fields ?? []} value={Array.isArray(value) ? (value as Item[]) : []} onChange={onChange} path={path} errors={errors} icons={icons} compact />
+                    <ItemList fields={field.fields ?? []} itemLabel={field.fields?.find((child) => child.type === 'text')?.name} value={Array.isArray(value) ? (value as Item[]) : []} onChange={onChange} path={path} errors={errors} icons={icons} compact />
                     <Help field={field} />
                 </fieldset>
             );

@@ -84,7 +84,7 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('projects/{project}/publish', [ProjectPublishController::class, 'destroy'])->name('projects.publish.destroy')->can('edit-projects');
     Route::post('projects/{project}/headless', [ProjectPublishController::class, 'enableHeadless'])->name('projects.headless.store')->can('edit-projects');
     Route::delete('projects/{project}/headless', [ProjectPublishController::class, 'disableHeadless'])->name('projects.headless.destroy')->can('edit-projects');
-    Route::put('projects/{project}/domain', [ProjectPublishController::class, 'updateDomain'])->name('projects.domain.update')->can('manage-studio');
+    Route::put('projects/{project}/domain', [ProjectPublishController::class, 'updateDomain'])->name('projects.domain.update')->can('set-domain', 'project');
     Route::patch('projects/{project}/submissions/{submission}', [ProjectPublishController::class, 'markRead'])->name('projects.submissions.update');
     Route::delete('projects/{project}/submissions/{submission}', [ProjectPublishController::class, 'destroySubmission'])->name('projects.submissions.destroy')->can('edit-projects');
     Route::get('projects/{project}/submissions/{submission}/files/{field}', [ProjectPublishController::class, 'download'])->name('projects.submissions.file');

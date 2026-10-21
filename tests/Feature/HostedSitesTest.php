@@ -122,6 +122,16 @@ class HostedSitesTest extends TestCase
         $this->assertSame("https://{$project->slug}.schools.example.com", HostedSites::url($project->fresh()));
     }
 
+    public function test_unpublished_school_subdomains_are_not_found_rather_than_studio(): void
+    {
+        config(['studio.hosting_domain' => 'schools.example.com', 'app.url' => 'http://studio.schools.example.com']);
+        $project = Project::factory()->example()->create();
+
+        $this->get("http://{$project->slug}.schools.example.com/")->assertNotFound();
+        $this->get('http://nobody.schools.example.com/login')->assertNotFound();
+        $this->get('http://studio.schools.example.com/login')->assertOk();
+    }
+
     public function test_a_school_needs_an_address_and_a_valid_config_to_publish(): void
     {
         $project = Project::factory()->create();
