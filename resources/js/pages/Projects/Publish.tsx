@@ -281,9 +281,15 @@ export default function Publish({
 
                     {auth.user?.canEdit && (
                         <div className="mt-5 flex flex-wrap gap-3">
-                            <button type="button" disabled={!canPublish || publishForm.processing} onClick={() => publishForm.post(`${base}/publish`, { preserveScroll: true })} className={buttonClass.primary}>
-                                {publishForm.processing ? 'Publishing…' : hosting.publishedAt ? 'Publish changes' : 'Publish'}
-                            </button>
+                            {project.needsPackage ? (
+                                <Link href={`${base}/package`} className={buttonClass.primary}>
+                                    Choose a package to publish
+                                </Link>
+                            ) : (
+                                <button type="button" disabled={!canPublish || publishForm.processing} onClick={() => publishForm.post(`${base}/publish`, { preserveScroll: true })} className={buttonClass.primary}>
+                                    {publishForm.processing ? 'Publishing…' : hosting.publishedAt ? 'Publish changes' : 'Publish'}
+                                </button>
+                            )}
                             {hosting.publishedAt && auth.user?.role !== 'school' && (
                                 <button type="button" onClick={unpublish} className={buttonClass.danger}>
                                     Unpublish

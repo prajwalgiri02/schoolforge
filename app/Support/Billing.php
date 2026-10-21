@@ -42,6 +42,24 @@ class Billing
     }
 
     /**
+     * Whether a school that signed itself up still has to buy a plan (or
+     * renew it) before it can publish.
+     */
+    public static function needsPackage(Project $project): bool
+    {
+        return $project->signed_up_at !== null && ($project->paid_until === null || $project->paid_until->lt(today()));
+    }
+
+    /**
+     * Whether a signed-up school's free trial is over and it has no paid plan,
+     * so Studio only lets it buy one.
+     */
+    public static function trialEnded(Project $project): bool
+    {
+        return static::needsPackage($project) && $project->trial_ends_at?->isPast() === true;
+    }
+
+    /**
      * Whether a school on a plan is paid up to a date more than the grace
      * period ago. Schools without a plan are never suspended.
      */

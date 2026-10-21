@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Enums\StudioRole;
 use App\Models\AuditEvent;
-use App\Models\Plan;
 use App\Models\Project;
 use App\Models\User;
 use App\Support\Billing;
@@ -84,13 +83,12 @@ class SignupTest extends TestCase
         $this->get('/')->assertRedirect("/projects/{$project->slug}/welcome");
     }
 
-    public function test_signups_start_from_the_chosen_template_and_plan(): void
+    public function test_signups_start_from_the_chosen_template_with_a_seven_day_trial(): void
     {
         $template = Project::factory()->example()->create(['is_template' => true]);
         $template->update(['config' => [...$template->config, 'theme' => 'modern', 'colors' => ['primary' => '#7f1d1d']]]);
         Project::factory()->create(['is_template' => true, 'name' => 'Other template']);
-        $plan = Plan::factory()->create(['name' => 'Standard']);
-        config(['studio.signup_template' => $template->slug, 'studio.signup_plan' => 'Standard', 'studio.signup_trial_days' => 30]);
+        config(['studio.signup_template' => $template->slug]);
 
         $this->post('/signup', $this->signup(['address' => '', 'phone' => '']))->assertSessionHasNoErrors();
 
@@ -98,9 +96,11 @@ class SignupTest extends TestCase
         $this->assertSame('modern', $project->theme());
         $this->assertSame('#7f1d1d', $project->config['colors']['primary']);
         $this->assertSame(['email' => ['sita@gyanjyoti.edu.np']], $project->config['school']['contact']);
-        $this->assertTrue($project->plan->is($plan));
-        $this->assertTrue($project->paid_until->isSameDay(today()->addDays(30)));
-        $this->assertSame(Billing::STATUS_ACTIVE, Billing::status($project));
+        $this->assertNull($project->plan_id);
+        $this->assertNull($project->paid_until);
+        $this->assertTrue($project->trial_ends_at->isSameDay(now()->addDays(7)));
+        $this->assertTrue(Billing::needsPackage($project));
+        $this->assertFalse(Billing::trialEnded($project));
     }
 
     public function test_signup_validation_and_bots(): void
@@ -187,8 +187,8 @@ class SignupTest extends TestCase
         config(['studio.hosting_domain' => 'schools.test']);
         $this->get("/projects/{$project->slug}/welcome")->assertInertia(fn (Assert $page) => $page->where('websiteUrl', 'https://gyan-jyoti-school.schools.test'));
         $this->get("/preview/{$project->slug}/about")->assertOk();
-        $this->post("/projects/{$project->slug}/publish")->assertSessionHasNoErrors()->assertSessionMissing('error')->assertSessionHas('success');
-        $this->assertNotNull($project->fresh()->published_at);
+        $this->post("/projects/{$project->slug}/publish")->assertRedirect("/projects/{$project->slug}/package");
+        $this->assertNull($project->fresh()->published_at);
     }
 
     public function test_school_staff_cannot_onboard_another_school(): void

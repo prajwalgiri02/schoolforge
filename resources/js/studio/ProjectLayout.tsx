@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Sparkles, Tablet } from 'lucide-react';
+import { CreditCard, ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Sparkles, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
 import { targetLabels, type ProjectSummary, type StudioSharedProps } from './types';
@@ -11,6 +11,7 @@ const tabs = [
     { key: 'generate', label: 'Generate', icon: Rocket },
     { key: 'publish', label: 'Publish', icon: Globe },
     { key: 'history', label: 'History', icon: History },
+    { key: 'package', label: 'Package', icon: CreditCard },
 ] as const;
 
 const devices = [
@@ -41,7 +42,8 @@ export function ProjectLayout({
     const url = usePage().url;
     const { auth } = usePage<StudioSharedProps>().props;
     /** School staff look after content, pages and publishing only. */
-    const visibleTabs = auth.user?.role === 'school' ? tabs.filter((tab) => ['content', 'pages', 'publish', 'history'].includes(tab.key)) : tabs;
+    const visibleTabs = (auth.user?.role === 'school' ? tabs.filter((tab) => ['content', 'pages', 'publish', 'history', 'package'].includes(tab.key)) : tabs).filter((tab) => tab.key !== 'package' || project.signedUpAt);
+    const trialDaysLeft = project.trialEndsAt ? Math.max(0, Math.ceil((new Date(project.trialEndsAt).getTime() - Date.now()) / 86_400_000)) : null;
     const [reloads, setReloads] = useState(0);
     const [device, setDevice] = useState<Device>('desktop');
     const frameWidth = devices.find((item) => item.key === device)?.width;
@@ -84,6 +86,19 @@ export function ProjectLayout({
                     </nav>
                 </div>
             </div>
+            {!project.needsOnboarding && project.needsPackage && (
+                <div className="border-b border-indigo-200 bg-indigo-50">
+                    <div className="mx-auto flex max-w-[110rem] flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm text-indigo-900 sm:px-6">
+                        <span className="flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            {trialDaysLeft === null ? 'Choose a package to publish your website.' : `Free trial: ${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left. Build and preview everything; choose a package when you are ready to publish.`}
+                        </span>
+                        <Link href={`/projects/${project.slug}/package`} className="font-semibold underline underline-offset-2 hover:no-underline">
+                            Choose a package
+                        </Link>
+                    </div>
+                </div>
+            )}
             {project.needsOnboarding && (
                 <div className="border-b border-amber-200 bg-amber-50">
                     <div className="mx-auto flex max-w-[110rem] flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm text-amber-900 sm:px-6">

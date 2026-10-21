@@ -37,6 +37,7 @@ class InvoiceIssued extends Notification
             ->line($invoice->description.', '.$invoice->period_start->format('j M Y').' to '.$invoice->period_end->format('j M Y').'.')
             ->line('Amount: '.Billing::formatAmount($invoice->amount))
             ->line('Due: '.$invoice->due_on->format('j M Y'))
+            ->lineIf(filled(config('studio.payment_instructions')), 'How to pay: '.config('studio.payment_instructions'))
             ->line('If it is not paid within '.config('studio.grace_days').' days of the due date, the website shows a "temporarily unavailable" page until it is paid.')
             ->salutation('Thank you, '.config('studio.billing_from'));
     }

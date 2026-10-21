@@ -127,10 +127,15 @@ theme and colour) leads it to the content editor and the Publish tab.
 
 New schools start from a template so their site already has pages and content to edit:
 mark a school as a template, and name it with `SCHOOLFORGE_SIGNUP_TEMPLATE` (its slug).
-Without one, the newest template is used, else the example school, renamed. To bill
-schools that sign up, set `SCHOOLFORGE_SIGNUP_PLAN` to a plan's name; they get
-`SCHOOLFORGE_SIGNUP_TRIAL_DAYS` (default 30) free first. Sign-ups show in the Activity log
-and with a badge on the Schools page.
+Without one, the newest template is used, else the example school, renamed.
+
+A new school has a free trial of `SCHOOLFORGE_SIGNUP_TRIAL_DAYS` (default 7) to build and
+preview its whole site. To publish, it chooses one of your plans (add monthly and yearly
+plans on the Billing page) on its **Package** tab, which issues and emails an invoice with
+your `SCHOOLFORGE_PAYMENT_INSTRUCTIONS`. Once you mark the invoice paid on the Billing
+page, the school can publish. After the trial, an unpaid school can only open its Package
+tab until it pays; nothing it built is lost. Sign-ups show in the Activity log and with a
+badge on the Schools page.
 
 ## Backups
 

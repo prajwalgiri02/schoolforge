@@ -31,6 +31,8 @@ class ProjectPresenter
             'isTemplate' => (bool) $project->is_template,
             'signedUpAt' => $project->signed_up_at?->toIso8601String(),
             'needsOnboarding' => $project->needsOnboarding(),
+            'needsPackage' => Billing::needsPackage($project),
+            'trialEndsAt' => $project->trial_ends_at?->toIso8601String(),
         ];
     }
 

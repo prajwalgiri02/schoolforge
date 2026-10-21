@@ -10,6 +10,8 @@ export type ProjectSummary = {
     isTemplate: boolean;
     signedUpAt: string | null;
     needsOnboarding: boolean;
+    needsPackage: boolean;
+    trialEndsAt: string | null;
 };
 
 export type ThemeSummary = {

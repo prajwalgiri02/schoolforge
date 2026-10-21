@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectDesignController;
 use App\Http\Controllers\ProjectGenerateController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectOnboardingController;
+use App\Http\Controllers\ProjectPackageController;
 use App\Http\Controllers\ProjectPagesController;
 use App\Http\Controllers\ProjectPublishController;
 use App\Http\Controllers\SignupController;
@@ -55,6 +56,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('projects/{project}/welcome', [ProjectOnboardingController::class, 'show'])->name('projects.onboarding.show');
     Route::put('projects/{project}/welcome', [ProjectOnboardingController::class, 'update'])->name('projects.onboarding.update')->can('edit-projects');
+
+    Route::get('projects/{project}/package', [ProjectPackageController::class, 'show'])->name('projects.package.show');
+    Route::post('projects/{project}/package', [ProjectPackageController::class, 'store'])->middleware('throttle:10,1')->name('projects.package.store')->can('edit-projects');
+    Route::get('projects/{project}/invoices/{invoice}', [ProjectPackageController::class, 'invoice'])->name('projects.invoices.show');
 
     Route::get('projects/{project}/content', [ProjectContentController::class, 'index'])->name('projects.content.index');
     Route::get('projects/{project}/content/{key}', [ProjectContentController::class, 'edit'])->name('projects.content.edit');

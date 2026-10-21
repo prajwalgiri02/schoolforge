@@ -39,6 +39,9 @@
                 <tr class="total"><td>Total</td><td>{{ \App\Support\Billing::formatAmount($invoice->amount) }}</td></tr>
             </tbody>
         </table>
+        @if ($invoice->status === 'unpaid' && filled(config('studio.payment_instructions')))
+            <p><strong>How to pay</strong><br>{{ config('studio.payment_instructions') }}</p>
+        @endif
         @if ($invoice->paid_at)
             <p class="muted">Paid {{ $invoice->paid_at->format('j M Y') }}@if ($invoice->payment_reference) · Reference {{ $invoice->payment_reference }}@endif</p>
         @endif

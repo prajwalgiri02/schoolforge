@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\SiteSubmission;
 use App\Services\Generator;
 use App\Support\Audit;
+use App\Support\Billing;
 use App\Support\DomainCheck;
 use App\Support\HeadlessContent;
 use App\Support\HostedSites;
@@ -68,6 +69,10 @@ class ProjectPublishController extends Controller
      */
     public function store(Project $project, Generator $generator): RedirectResponse
     {
+        if (Billing::needsPackage($project)) {
+            return redirect()->route('projects.package.show', $project)->with('error', 'Choose a monthly or yearly package to publish your website.');
+        }
+
         $isHosted = HostedSites::hostsFor($project) !== [];
 
         if (! $isHosted && ! HeadlessContent::isEnabled($project)) {

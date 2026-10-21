@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\StudioRole;
 use App\Http\Requests\SignupRequest;
-use App\Models\Plan;
 use App\Models\Project;
 use App\Models\User;
 use App\Support\Audit;
@@ -30,9 +29,7 @@ class SignupController extends Controller
 
     public function store(SignupRequest $request): RedirectResponse
     {
-        $plan = filled(config('studio.signup_plan')) ? Plan::query()->where('name', config('studio.signup_plan'))->first() : null;
-
-        [$project, $user] = DB::transaction(function () use ($request, $plan): array {
+        [$project, $user] = DB::transaction(function () use ($request): array {
             $starter = StarterContent::forSignup(['name' => $request->validated('school_name')]);
             // The starter school's own details would be wrong for this school.
             $starter['school'] = Arr::except($starter['school'], ['shortName', 'tagline', 'motto', 'logo', 'favicon', 'established', 'affiliation', 'social']);
@@ -46,9 +43,8 @@ class SignupController extends Controller
                 'name' => $request->validated('school_name'),
                 'config' => ['target' => 'nextjs', 'theme' => 'classic', ...$starter],
                 'billing_email' => $request->validated('email'),
-                'plan_id' => $plan?->id,
-                'paid_until' => $plan ? today()->addDays(config('studio.signup_trial_days')) : null,
                 'signed_up_at' => now(),
+                'trial_ends_at' => now()->addDays(config('studio.signup_trial_days')),
             ]);
 
             $user = User::create([

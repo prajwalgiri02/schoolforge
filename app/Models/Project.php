@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
  * @property array<string, mixed> $config
  * @property array{languages: list<string>, locales: array<string, array<string, mixed>>, configHash: string}|null $published_site
  */
-#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email', 'signed_up_at', 'onboarded_at'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email', 'signed_up_at', 'onboarded_at', 'trial_ends_at'])]
 #[Hidden(['published_site', 'content_token'])]
 class Project extends Model
 {
@@ -53,6 +53,7 @@ class Project extends Model
             'paid_until' => 'date',
             'signed_up_at' => 'datetime',
             'onboarded_at' => 'datetime',
+            'trial_ends_at' => 'datetime',
             'content_token' => 'encrypted',
         ];
     }
