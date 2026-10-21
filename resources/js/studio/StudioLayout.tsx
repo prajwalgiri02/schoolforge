@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { CircleAlert, CircleCheck, Component, FolderKanban, Images, LogOut, Palette, X } from 'lucide-react';
+import { CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Users, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { StudioSharedProps } from './types';
 
@@ -47,6 +47,7 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
         { href: '/themes', label: 'Themes', icon: Palette, active: url.startsWith('/themes') },
         { href: '/components', label: 'Components', icon: Component, active: url.startsWith('/components') },
         { href: '/media', label: 'Media', icon: Images, active: url.startsWith('/media') },
+        ...(auth.user?.canManage ? [{ href: '/users', label: 'Users', icon: Users, active: url.startsWith('/users') }] : []),
     ];
 
     return (
@@ -81,6 +82,11 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
                     </nav>
                 </div>
             </header>
+            {auth.user && !auth.user.canEdit && (
+                <p className="flex items-center justify-center gap-2 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+                    <Eye className="h-4 w-4" /> You have view-only access. Ask a Studio owner if you need to make changes.
+                </p>
+            )}
             {children}
             <FlashMessage />
         </div>

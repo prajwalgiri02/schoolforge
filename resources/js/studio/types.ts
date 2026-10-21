@@ -34,7 +34,7 @@ export type ComponentProp = {
 export type ComponentSummary = { name: string; label: string; description?: string; variants: string[]; props?: ComponentProp[] };
 
 export type StudioSharedProps = {
-    auth: { user: { id: number; name: string; email: string } | null };
+    auth: { user: { id: number; name: string; email: string; role: 'owner' | 'editor' | 'viewer'; canEdit: boolean; canManage: boolean } | null };
     flash: { success?: string | null; error?: string | null };
     errors: Record<string, string>;
 };
