@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Tablet } from 'lucide-react';
+import { ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Sparkles, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
 import { targetLabels, type ProjectSummary, type StudioSharedProps } from './types';
@@ -84,6 +84,18 @@ export function ProjectLayout({
                     </nav>
                 </div>
             </div>
+            {project.needsOnboarding && (
+                <div className="border-b border-amber-200 bg-amber-50">
+                    <div className="mx-auto flex max-w-[110rem] flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm text-amber-900 sm:px-6">
+                        <span className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4" /> Your website still has starter content. Add your school’s details in a few quick steps.
+                        </span>
+                        <Link href={`/projects/${project.slug}/welcome`} className="font-semibold underline underline-offset-2 hover:no-underline">
+                            Finish setting up
+                        </Link>
+                    </div>
+                </div>
+            )}
             <div className={`mx-auto max-w-[110rem] px-4 py-8 sm:px-6 ${preview ? 'xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-8' : ''}`}>
                 <div className="min-w-0">{children}</div>
                 {preview && (

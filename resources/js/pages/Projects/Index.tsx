@@ -76,6 +76,9 @@ export default function ProjectsIndex({ projects }: { projects: ProjectSummary[]
                                     <span className="absolute bottom-0 left-6 h-1.5 w-16 rounded-t" style={{ background: project.colors.accent ?? '#f59e0b' }} />
                                     <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-zinc-700">{targetLabels[project.target] ?? project.target}</span>
                                     {project.isTemplate && <span className="absolute left-4 top-4 rounded-full bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white">Template</span>}
+                                    {project.signedUpAt && !project.isTemplate && (
+                                        <span className="absolute left-4 top-4 rounded-full bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white">{project.needsOnboarding ? 'New sign-up · setting up' : 'Signed up'}</span>
+                                    )}
                                 </div>
                                 <div className="p-6">
                                     <h2 className="font-semibold group-hover:text-indigo-700">{project.name}</h2>

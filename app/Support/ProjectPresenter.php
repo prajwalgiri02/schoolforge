@@ -29,6 +29,8 @@ class ProjectPresenter
             'updatedAt' => $project->updated_at?->toIso8601String(),
             'outputPath' => $project->output_path,
             'isTemplate' => (bool) $project->is_template,
+            'signedUpAt' => $project->signed_up_at?->toIso8601String(),
+            'needsOnboarding' => $project->needsOnboarding(),
         ];
     }
 

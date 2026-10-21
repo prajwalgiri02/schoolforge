@@ -28,6 +28,8 @@ class RestrictSchoolStaff
         'account.two-factor.destroy',
         'projects.index',
         'projects.show',
+        'projects.onboarding.show',
+        'projects.onboarding.update',
         'projects.content.index',
         'projects.content.edit',
         'projects.content.update',

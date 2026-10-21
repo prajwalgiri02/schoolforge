@@ -13,8 +13,10 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDesignController;
 use App\Http\Controllers\ProjectGenerateController;
 use App\Http\Controllers\ProjectHistoryController;
+use App\Http\Controllers\ProjectOnboardingController;
 use App\Http\Controllers\ProjectPagesController;
 use App\Http\Controllers\ProjectPublishController;
+use App\Http\Controllers\SignupController;
 use App\Http\Controllers\SiteStatusController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ThemeTransferController;
@@ -29,6 +31,8 @@ Route::middleware('guest')->group(function (): void {
     Route::post('login', [SessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
     Route::get('two-factor', [SessionController::class, 'twoFactor'])->name('login.two-factor');
     Route::post('two-factor', [SessionController::class, 'confirmTwoFactor'])->middleware('throttle:5,1')->name('login.two-factor.store');
+    Route::get('signup', [SignupController::class, 'create'])->name('signup');
+    Route::post('signup', [SignupController::class, 'store'])->middleware('throttle:signup')->name('signup.store');
 });
 
 Route::middleware('auth')->group(function (): void {
@@ -48,6 +52,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::delete('projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy')->can('manage-studio');
     Route::get('projects/{project}/config.json', [ProjectController::class, 'export'])->name('projects.export');
+
+    Route::get('projects/{project}/welcome', [ProjectOnboardingController::class, 'show'])->name('projects.onboarding.show');
+    Route::put('projects/{project}/welcome', [ProjectOnboardingController::class, 'update'])->name('projects.onboarding.update')->can('edit-projects');
 
     Route::get('projects/{project}/content', [ProjectContentController::class, 'index'])->name('projects.content.index');
     Route::get('projects/{project}/content/{key}', [ProjectContentController::class, 'edit'])->name('projects.content.edit');

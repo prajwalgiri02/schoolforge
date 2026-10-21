@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Services\Generator;
 use App\Support\Audit;
 use App\Support\ProjectPresenter;
+use App\Support\StarterContent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -25,7 +26,9 @@ class ProjectController extends Controller
         if ($request->user()->isSchoolStaff()) {
             abort_if($request->user()->project === null, 403, 'Your login is not linked to a school yet. Ask a Studio owner.');
 
-            return redirect()->route('projects.content.index', $request->user()->project);
+            $project = $request->user()->project;
+
+            return redirect()->route($project->needsOnboarding() ? 'projects.onboarding.show' : 'projects.content.index', $project);
         }
 
         return Inertia::render('Projects/Index', [
@@ -58,8 +61,8 @@ class ProjectController extends Controller
 
         $startWith = $request->validated('start_with');
         $config = match (true) {
-            $startWith === 'sample' => $this->sampleConfig($school),
-            str_starts_with($startWith, 'template:') => $this->templateConfig(substr($startWith, 9), $school),
+            $startWith === 'sample' => StarterContent::sample($school),
+            str_starts_with($startWith, 'template:') => Arr::except(StarterContent::fromTemplate(Project::query()->where('slug', substr($startWith, 9))->where('is_template', true)->firstOrFail(), $school), ['target', 'theme']),
             default => ['school' => $school],
         };
 
@@ -112,40 +115,5 @@ class ProjectController extends Controller
             "{$project->slug}.school.config.json",
             ['Content-Type' => 'application/json'],
         );
-    }
-
-    /**
-     * A template project's content and design, with the new school's name.
-     *
-     * @param  array<string, string>  $school
-     * @return array<string, mixed>
-     */
-    private function templateConfig(string $slug, array $school): array
-    {
-        $config = Project::query()->where('slug', $slug)->where('is_template', true)->firstOrFail()->config;
-        unset($config['target'], $config['theme'], $config['seo']['siteUrl']);
-        $config['school'] = [...Arr::only($config['school'] ?? [], ['contact', 'social', 'established', 'motto']), ...$school];
-
-        return $config;
-    }
-
-    /**
-     * The generator's example school, renamed, as editable starting content.
-     *
-     * @param  array<string, string>  $school
-     * @return array<string, mixed>
-     */
-    private function sampleConfig(array $school): array
-    {
-        $example = json_decode(file_get_contents(config('studio.generator_path').'/examples/school.config.json'), true, flags: JSON_THROW_ON_ERROR);
-        unset($example['$schema'], $example['target'], $example['theme']);
-
-        $example['school'] = [...$example['school'], ...$school];
-
-        if (! isset($school['shortName'])) {
-            unset($example['school']['shortName']);
-        }
-
-        return $example;
     }
 }

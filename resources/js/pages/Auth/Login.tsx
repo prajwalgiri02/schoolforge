@@ -1,8 +1,8 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 
-export default function Login() {
+export default function Login({ signupEnabled = false }: { signupEnabled?: boolean }) {
     const form = useForm({ email: '', password: '', remember: false });
 
     const submit = (event: FormEvent) => {
@@ -42,9 +42,18 @@ export default function Login() {
                         {form.processing ? 'Signing in…' : 'Sign in'}
                     </button>
                 </form>
-                <p className="mt-6 text-center text-xs text-zinc-500">
-                    Create an account with <code className="rounded bg-zinc-200 px-1">php artisan studio:user</code>
-                </p>
+                {signupEnabled ? (
+                    <p className="mt-6 text-center text-sm text-zinc-600">
+                        New school?{' '}
+                        <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                            Create your school website
+                        </Link>
+                    </p>
+                ) : (
+                    <p className="mt-6 text-center text-xs text-zinc-500">
+                        Create an account with <code className="rounded bg-zinc-200 px-1">php artisan studio:user</code>
+                    </p>
+                )}
             </div>
         </div>
     );

@@ -5,7 +5,10 @@ namespace App\Providers;
 use App\Models\User;
 use App\Services\Generator;
 use App\Support\FormSchema;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('signup', fn (Request $request): Limit => Limit::perHour(5)->by($request->ip()));
+
         Gate::define('edit-projects', fn (User $user): bool => $user->role->canEditProjects());
         Gate::define('manage-studio', fn (User $user): bool => $user->role->canManageStudio());
 

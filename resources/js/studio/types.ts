@@ -8,6 +8,8 @@ export type ProjectSummary = {
     updatedAt: string | null;
     outputPath: string | null;
     isTemplate: boolean;
+    signedUpAt: string | null;
+    needsOnboarding: boolean;
 };
 
 export type ThemeSummary = {

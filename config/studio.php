@@ -104,4 +104,24 @@ return [
 
     'billing_from' => env('SCHOOLFORGE_BILLING_FROM', env('APP_NAME', 'SchoolForge')),
 
+    /*
+    |--------------------------------------------------------------------------
+    | School Sign-up
+    |--------------------------------------------------------------------------
+    |
+    | Lets schools create their own website at /signup. A new school starts
+    | from the template project named here (by slug), else the newest
+    | template, else the example school. Name a plan to put new schools on it
+    | with a free trial of the given number of days.
+    |
+    */
+
+    'signup' => (bool) env('SCHOOLFORGE_SIGNUP', false),
+
+    'signup_template' => env('SCHOOLFORGE_SIGNUP_TEMPLATE'),
+
+    'signup_plan' => env('SCHOOLFORGE_SIGNUP_PLAN'),
+
+    'signup_trial_days' => (int) env('SCHOOLFORGE_SIGNUP_TRIAL_DAYS', 30),
+
 ];

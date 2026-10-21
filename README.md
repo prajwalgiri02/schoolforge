@@ -26,7 +26,7 @@ Open http://localhost:8000 and sign in as **admin@schoolforge.test** / **passwor
 
 | Area | What it does |
 | --- | --- |
-| **Schools** | Create a school from sample content or blank, import an existing `school.config.json`, or download one. |
+| **Schools** | Create a school from sample content, a template or blank, import an existing `school.config.json`, or download one. Schools can also sign themselves up. |
 | **Content** | Edit everything the site says: profile, about, principal, contact, hero banner, announcements, programs, faculty, facilities, gallery, news, events, notices, testimonials, achievements, admissions and FAQs. Lists can be reordered, and images uploaded. |
 | **Design** | Choose a theme, override brand colours and Google Fonts, and choose the layout of every section (e.g. hero: overlay, split or centered). |
 | **Pages** | Use the automatic site map, or build your own: add pages, and add, remove, reorder and configure sections (components) on each. |
@@ -117,6 +117,20 @@ https:// {
 
 Then point each school's domain (and its `www.`) at the server; **Check DNS and HTTPS**
 on the Publish tab shows what is left to do.
+
+### Letting schools sign up
+
+Set `SCHOOLFORGE_SIGNUP=true` and a **Create your school website** link appears on the
+sign-in page. A school enters its name and contact details, gets a login for its own
+school only, and a short setup (logo, contact details, introduction, principal's message,
+theme and colour) leads it to the content editor and the Publish tab.
+
+New schools start from a template so their site already has pages and content to edit:
+mark a school as a template, and name it with `SCHOOLFORGE_SIGNUP_TEMPLATE` (its slug).
+Without one, the newest template is used, else the example school, renamed. To bill
+schools that sign up, set `SCHOOLFORGE_SIGNUP_PLAN` to a plan's name; they get
+`SCHOOLFORGE_SIGNUP_TRIAL_DAYS` (default 30) free first. Sign-ups show in the Activity log
+and with a badge on the Schools page.
 
 ## Backups
 

@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
  * @property array<string, mixed> $config
  * @property array{languages: list<string>, locales: array<string, array<string, mixed>>, configHash: string}|null $published_site
  */
-#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email', 'signed_up_at', 'onboarded_at'])]
 #[Hidden(['published_site', 'content_token'])]
 class Project extends Model
 {
@@ -30,6 +30,13 @@ class Project extends Model
 
     /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
+    /**
+     * Subdomains a school's slug never takes.
+     *
+     * @var list<string>
+     */
+    public const RESERVED_SLUGS = ['www', 'studio', 'admin', 'api', 'app', 'mail'];
 
     /**
      * Get the attributes that should be cast.
@@ -44,6 +51,8 @@ class Project extends Model
             'published_at' => 'datetime',
             'published_site' => 'array',
             'paid_until' => 'date',
+            'signed_up_at' => 'datetime',
+            'onboarded_at' => 'datetime',
             'content_token' => 'encrypted',
         ];
     }
@@ -185,9 +194,22 @@ class Project extends Model
         return rtrim(config('studio.output_path'), '/').'/'.$this->slug;
     }
 
+    /**
+     * Whether the school signed itself up and has not finished the first-run setup.
+     */
+    public function needsOnboarding(): bool
+    {
+        return $this->signed_up_at !== null && $this->onboarded_at === null;
+    }
+
     public static function uniqueSlug(string $name): string
     {
         $base = Str::slug($name) ?: 'school';
+
+        if (in_array($base, self::RESERVED_SLUGS, true)) {
+            $base .= '-school';
+        }
+
         $slug = $base;
 
         for ($suffix = 2; static::query()->where('slug', $slug)->exists(); $suffix++) {
