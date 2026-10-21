@@ -36,7 +36,7 @@ export function describeRegistry() {
             ownTokens: readJson(path.join(theme.dir, 'theme.json')),
             overrides: Object.keys(theme.componentOverrides),
         })),
-        components: listComponents().map(({ name, label, description, category, variants, requires }) => ({ name, label, description, category, variants, requires })),
+        components: listComponents().map(({ name, label, description, category, variants, requires, props }) => ({ name, label, description, category, variants, requires, props: props ?? [] })),
         targets: listTargets().map(({ name, label }) => ({ name, label })),
     };
 }

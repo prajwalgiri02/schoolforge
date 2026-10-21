@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\ComponentController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProjectContentController;
 use App\Http\Controllers\ProjectController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ProjectGenerateController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectPagesController;
 use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\ThemeTransferController;
 use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,9 +52,14 @@ Route::middleware('auth')->group(function (): void {
     Route::get('preview/{project}/{path?}', PreviewController::class)->where('path', '[a-z0-9\-/]*')->name('preview');
 
     Route::post('uploads', UploadController::class)->middleware('throttle:60,1')->name('uploads.store');
+    Route::get('media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('media/library', [MediaController::class, 'library'])->name('media.library');
+    Route::delete('media', [MediaController::class, 'destroy'])->name('media.destroy');
 
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');
     Route::post('themes', [ThemeController::class, 'store'])->name('themes.store');
+    Route::post('themes/import', [ThemeTransferController::class, 'import'])->name('themes.import');
+    Route::get('themes/{theme}/export', [ThemeTransferController::class, 'export'])->name('themes.export');
     Route::get('themes/{theme}/edit', [ThemeController::class, 'edit'])->name('themes.edit');
     Route::put('themes/{theme}', [ThemeController::class, 'update'])->name('themes.update');
 

@@ -307,6 +307,51 @@ function readPath(site, dotted) {
 
 const STRUCTURAL_SECTIONS = new Set(['page-header', 'cta', 'rich-text']);
 
+/** Settings every section accepts, besides the ones its component.json declares under "props". */
+const COMMON_SECTION_PROPS = new Set(['type', 'variant', 'eyebrow', 'title', 'subtitle', 'limit', 'paragraphs', 'newsSlug', 'albumSlug']);
+
+/**
+ * Warns about section settings a component does not declare, or values of the
+ * wrong kind, so typos in school.config.json do not fail silently.
+ */
+export function checkSectionProps(component, section, where) {
+    if (!component?.props) {
+        return [];
+    }
+
+    const warnings = [];
+    const declared = new Map(component.props.map((prop) => [prop.name, prop]));
+
+    for (const [key, value] of Object.entries(section)) {
+        const prop = declared.get(key);
+
+        if (!prop) {
+            if (!COMMON_SECTION_PROPS.has(key)) {
+                warnings.push(`${where}: "${section.type}" has no setting "${key}"${declared.size > 0 ? ` (it has: ${[...declared.keys()].join(', ')})` : ''}.`);
+            }
+
+            continue;
+        }
+
+        const isLink = isObject(value) && typeof value.href === 'string' && typeof value.label === 'string';
+        const valid =
+            prop.type === 'boolean'
+                ? typeof value === 'boolean'
+                : prop.type === 'select'
+                  ? prop.options.some((option) => option.value === value)
+                  : prop.type === 'link'
+                    ? isLink || (prop.hideable && value === false)
+                    : typeof value === 'string';
+
+        if (!valid) {
+            const expected = prop.type === 'select' ? `one of ${prop.options.map((option) => option.value).join(', ')}` : prop.type === 'link' ? `{ "label": "...", "href": "..." }${prop.hideable ? ' or false' : ''}` : `a ${prop.type === 'boolean' ? 'true/false value' : 'text value'}`;
+            warnings.push(`${where}: "${section.type}" setting "${key}" should be ${expected}.`);
+        }
+    }
+
+    return warnings;
+}
+
 /**
  * Turns a school config plus its theme into the normalized site data that the
  * generated app renders. Pure: does not touch the filesystem except to read registry manifests.
@@ -431,6 +476,8 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
     const resolveSection = (section, where) => {
         const component = resolveComponent(section.type);
         const resolved = { ...section };
+
+        warnings.push(...checkSectionProps(component, section, where));
 
         if (!resolved.variant && variants[section.type]) {
             resolved.variant = variants[section.type];

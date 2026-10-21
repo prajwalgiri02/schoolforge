@@ -10,6 +10,14 @@
     "requires": [
         "content.events"
     ],
+    "props": [
+        {
+            "name": "subscribe",
+            "type": "boolean",
+            "label": "Show the calendar subscription link",
+            "default": true
+        }
+    ],
     "files": [
         "index.tsx"
     ]

@@ -7,6 +7,50 @@
         "default"
     ],
     "requires": [],
+    "props": [
+        {
+            "name": "tone",
+            "type": "select",
+            "label": "Background",
+            "options": [
+                {
+                    "value": "default",
+                    "label": "Page background"
+                },
+                {
+                    "value": "muted",
+                    "label": "Soft"
+                },
+                {
+                    "value": "surface",
+                    "label": "White card"
+                },
+                {
+                    "value": "primary",
+                    "label": "Brand colour"
+                },
+                {
+                    "value": "secondary",
+                    "label": "Second brand colour"
+                }
+            ]
+        },
+        {
+            "name": "align",
+            "type": "select",
+            "label": "Text alignment",
+            "options": [
+                {
+                    "value": "left",
+                    "label": "Left"
+                },
+                {
+                    "value": "center",
+                    "label": "Centre"
+                }
+            ]
+        }
+    ],
     "files": [
         "index.tsx"
     ]

@@ -10,6 +10,15 @@
     "requires": [
         "content.programs"
     ],
+    "props": [
+        {
+            "name": "link",
+            "type": "link",
+            "label": "View all button",
+            "hideable": true,
+            "help": "A button under the section. Leave empty for the automatic one."
+        }
+    ],
     "files": [
         "index.tsx"
     ]

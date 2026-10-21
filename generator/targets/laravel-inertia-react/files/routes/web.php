@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageCo
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ResultController as AdminResultController;
 use App\Http\Controllers\Admin\SessionController;
@@ -33,6 +34,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::delete('content/{key}', [ContentController::class, 'destroy'])->name('content.destroy');
 
         Route::post('uploads', UploadController::class)->middleware('throttle:60,1')->name('uploads.store');
+        Route::get('media', MediaController::class)->name('media.index');
 
         Route::get('messages', [AdminContactMessageController::class, 'index'])->name('messages.index');
         Route::patch('messages/{message}', [AdminContactMessageController::class, 'update'])->name('messages.update');

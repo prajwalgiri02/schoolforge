@@ -1,5 +1,5 @@
 import { Link, useForm } from '@inertiajs/react';
-import { ChevronRight, Plus } from 'lucide-react';
+import { ChevronRight, Plus, Upload } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { FieldError, PageHeading, StudioLayout } from '@/studio/StudioLayout';
@@ -7,6 +7,7 @@ import type { ThemeSummary } from '@/studio/types';
 
 export default function ThemesIndex({ themes }: { themes: (ThemeSummary & { projects: number })[] }) {
     const form = useForm({ name: '', from: themes[0]?.name ?? 'classic', label: '' });
+    const importForm = useForm<{ file: File | null; name: string }>({ file: null, name: '' });
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
@@ -81,6 +82,29 @@ export default function ThemesIndex({ themes }: { themes: (ThemeSummary & { proj
                         </div>
                         <button type="submit" disabled={form.processing} className={`${buttonClass.primary} w-full`}>
                             <Plus className="h-4 w-4" /> Create theme
+                        </button>
+                    </form>
+                    <form
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            importForm.post('/themes/import', { forceFormData: true });
+                        }}
+                        className="h-fit space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm lg:col-start-2"
+                    >
+                        <div>
+                            <h2 className="font-semibold">Import a theme</h2>
+                            <p className="mt-1 text-sm text-zinc-500">A .theme.json file exported from another Studio.</p>
+                        </div>
+                        <input type="file" accept=".json,application/json" aria-label="Theme file" onChange={(event) => importForm.setData('file', event.target.files?.[0] ?? null)} className={inputClass} />
+                        <div>
+                            <label htmlFor="import-name" className="mb-1.5 block text-sm font-medium">
+                                Folder name <span className="font-normal text-zinc-400">(optional)</span>
+                            </label>
+                            <input id="import-name" value={importForm.data.name} onChange={(event) => importForm.setData('name', event.target.value)} placeholder="Keep the theme's own name" className={`${inputClass} font-mono`} />
+                        </div>
+                        <FieldError message={importForm.errors.file ?? importForm.errors.name} />
+                        <button type="submit" disabled={importForm.processing || !importForm.data.file} className={`${buttonClass.secondary} w-full`}>
+                            <Upload className="h-4 w-4" /> Import theme
                         </button>
                     </form>
                 </div>

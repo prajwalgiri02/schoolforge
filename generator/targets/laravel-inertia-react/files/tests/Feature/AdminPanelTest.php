@@ -234,6 +234,24 @@ class AdminPanelTest extends TestCase
         $this->assertCount(0, Storage::disk('public')->allFiles());
     }
 
+    public function test_documents_can_be_uploaded_and_reused_from_the_library(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $pdf = $this->actingAs($admin)->post('/admin/uploads', ['file' => UploadedFile::fake()->create('Fee Structure.pdf', 120, 'application/pdf')])->assertCreated()->json('url');
+        $image = $this->actingAs($admin)->post('/admin/uploads', ['file' => UploadedFile::fake()->image('campus.jpg')])->json('url');
+
+        $this->assertMatchesRegularExpression('#^/storage/school/\d{4}/\d{2}/fee-structure-[a-z0-9]{6}\.pdf$#', $pdf);
+
+        $library = collect($this->actingAs($admin)->getJson('/admin/media')->assertOk()->json());
+        $this->assertEqualsCanonicalizing([$pdf, $image], $library->pluck('url')->all(), 'resized copies are not listed');
+        $this->assertSame('document', $library->firstWhere('url', $pdf)['kind']);
+
+        auth()->logout();
+        $this->getJson('/admin/media')->assertUnauthorized();
+    }
+
     public function test_messages_can_be_read_toggled_and_deleted(): void
     {
         $admin = $this->admin();

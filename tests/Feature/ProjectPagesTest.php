@@ -79,4 +79,25 @@ class ProjectPagesTest extends TestCase
 
         $this->assertArrayNotHasKey('pages', $project->fresh()->config);
     }
+
+    public function test_component_settings_are_offered_and_saved(): void
+    {
+        $project = Project::factory()->create();
+
+        $this->get("/projects/{$project->slug}/pages")->assertInertia(fn (Assert $page) => $page
+            ->where('components', fn ($components): bool => collect(collect($components)->firstWhere('name', 'events')['props'])->contains('name', 'subscribe')));
+
+        $this->put("/projects/{$project->slug}/pages", ['pages' => [
+            ['slug' => '/', 'title' => 'Home', 'sections' => [
+                ['type' => 'events', 'subscribe' => false],
+                ['type' => 'about', 'mode' => 'full', 'link' => false],
+                ['type' => 'cta', 'primary' => ['label' => 'Apply', 'href' => '/admissions']],
+            ]],
+        ]])->assertSessionHasNoErrors();
+
+        $sections = $project->fresh()->config['pages'][0]['sections'];
+        $this->assertFalse($sections[0]['subscribe']);
+        $this->assertFalse($sections[1]['link']);
+        $this->assertSame(['label' => 'Apply', 'href' => '/admissions'], $sections[2]['primary']);
+    }
 }

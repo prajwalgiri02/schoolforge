@@ -11,6 +11,35 @@
     "requires": [
         "school.about"
     ],
+    "props": [
+        {
+            "name": "mode",
+            "type": "select",
+            "label": "Show",
+            "options": [
+                {
+                    "value": "summary",
+                    "label": "Short summary"
+                },
+                {
+                    "value": "full",
+                    "label": "Full story"
+                }
+            ]
+        },
+        {
+            "name": "link",
+            "type": "link",
+            "label": "Read more button",
+            "hideable": true,
+            "help": "A button under the section. Leave empty for the automatic one."
+        },
+        {
+            "name": "image",
+            "type": "image",
+            "label": "Photo"
+        }
+    ],
     "files": [
         "index.tsx"
     ]

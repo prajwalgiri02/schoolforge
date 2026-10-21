@@ -9,6 +9,14 @@
         "centered"
     ],
     "requires": [],
+    "props": [
+        {
+            "name": "image",
+            "type": "image",
+            "label": "Background photo",
+            "help": "Overrides the banner photo from Content → Home banner on this page only."
+        }
+    ],
     "files": [
         "index.tsx"
     ]

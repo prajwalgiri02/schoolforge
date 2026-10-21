@@ -145,6 +145,29 @@ describe('buildSite', () => {
         assert.ok(!nextjs.pages.find((page) => page.slug === '/admissions').sections.some((section) => section.type === 'admission-status'));
     });
 
+    it('warns about section settings a component does not have', () => {
+        const config = {
+            ...minimal(),
+            pages: [{ slug: '/', title: 'Home', sections: [{ type: 'hero', image: '/a.jpg', colour: 'red' }, { type: 'events', subscribe: 'yes' }, { type: 'about', mode: 'everything', link: false }] }],
+        };
+        const { warnings } = buildSite(config, getTheme('classic'));
+
+        assert.ok(warnings.some((warning) => warning.includes('"hero" has no setting "colour" (it has: image)')));
+        assert.ok(warnings.some((warning) => warning.includes('"events" setting "subscribe" should be a true/false value')));
+        assert.ok(warnings.some((warning) => warning.includes('"about" setting "mode" should be one of summary, full')));
+        assert.ok(!warnings.some((warning) => warning.includes('"link"')), 'hideable links accept false');
+    });
+
+    it('every component prop schema is well formed', () => {
+        for (const component of listComponents()) {
+            for (const prop of component.props ?? []) {
+                assert.ok(['select', 'boolean', 'text', 'image', 'link'].includes(prop.type), `${component.name}.${prop.name} type`);
+                assert.ok(prop.label, `${component.name}.${prop.name} label`);
+                assert.ok(prop.type !== 'select' || prop.options?.length > 0, `${component.name}.${prop.name} options`);
+            }
+        }
+    });
+
     it('drops preset pages and sections that have no content', () => {
         const { site } = buildSite(minimal(), getTheme('classic'));
         const slugs = site.pages.map((page) => page.slug);

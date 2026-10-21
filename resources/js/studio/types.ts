@@ -21,7 +21,17 @@ export type ThemeSummary = {
 
 export type Target = { name: string; label: string };
 
-export type ComponentSummary = { name: string; label: string; description?: string; variants: string[] };
+export type ComponentProp = {
+    name: string;
+    type: 'select' | 'boolean' | 'text' | 'image' | 'link';
+    label: string;
+    help?: string;
+    options?: { value: string; label: string }[];
+    hideable?: boolean;
+    default?: boolean;
+};
+
+export type ComponentSummary = { name: string; label: string; description?: string; variants: string[]; props?: ComponentProp[] };
 
 export type StudioSharedProps = {
     auth: { user: { id: number; name: string; email: string } | null };

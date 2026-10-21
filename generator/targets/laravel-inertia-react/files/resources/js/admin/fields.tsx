@@ -1,6 +1,6 @@
 import { useHttp } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, FileText, ImageUp, Plus, Trash2 } from 'lucide-react';
-import { createContext, useContext, useId, useRef, useState, type ChangeEvent } from 'react';
+import { ArrowDown, ArrowUp, FileText, FolderOpen, ImageUp, Plus, Search, Trash2, X } from 'lucide-react';
+import { createContext, useContext, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { buttonClass, inputClass } from './AdminLayout';
 import type { FieldDefinition, Item, Value } from './types';
 
@@ -10,6 +10,75 @@ type Errors = Record<string, string | undefined>;
  * Where image fields upload files. Apps embedding these editors elsewhere can provide their own endpoint.
  */
 export const UploadUrlContext = createContext('/admin/uploads');
+
+/**
+ * Where the "Library" picker lists earlier uploads (JSON). Apps embedding these editors can provide their own endpoint.
+ */
+export const MediaLibraryUrlContext = createContext('/admin/media');
+
+type LibraryItem = { url: string; name: string; kind: 'image' | 'document'; size: number };
+
+/**
+ * A dialog listing earlier uploads of one kind, so the same photo or PDF can be
+ * reused without uploading it again.
+ */
+function MediaPicker({ kind, onPick, onClose }: { kind: LibraryItem['kind']; onPick: (url: string) => void; onClose: () => void }) {
+    const libraryUrl = useContext(MediaLibraryUrlContext);
+    const [items, setItems] = useState<LibraryItem[] | null>(null);
+    const [query, setQuery] = useState('');
+    const closeRef = useRef(onClose);
+    closeRef.current = onClose;
+
+    useEffect(() => {
+        fetch(libraryUrl, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            .then((response) => (response.ok ? response.json() : []))
+            .then((list: LibraryItem[]) => setItems(list.filter((item) => item.kind === kind)))
+            .catch(() => setItems([]));
+
+        const onKey = (event: KeyboardEvent) => event.key === 'Escape' && closeRef.current();
+        window.addEventListener('keydown', onKey);
+
+        return () => window.removeEventListener('keydown', onKey);
+    }, [libraryUrl, kind]);
+
+    const shown = (items ?? []).filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+            <div role="dialog" aria-modal="true" aria-label="Media library" className="flex max-h-[80vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl" onClick={(event) => event.stopPropagation()}>
+                <div className="flex items-center gap-3 border-b border-zinc-200 p-4">
+                    <div className="relative flex-1">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input autoFocus type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search uploads" aria-label="Search uploads" className={`${inputClass} pl-9`} />
+                    </div>
+                    <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="overflow-y-auto p-4">
+                    {items === null ? (
+                        <p className="py-10 text-center text-sm text-zinc-500">Loading…</p>
+                    ) : shown.length === 0 ? (
+                        <p className="py-10 text-center text-sm text-zinc-500">{items.length === 0 ? `No ${kind === 'image' ? 'images' : 'documents'} uploaded yet.` : 'Nothing matches your search.'}</p>
+                    ) : (
+                        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            {shown.map((item) => (
+                                <li key={item.url}>
+                                    <button type="button" onClick={() => onPick(item.url)} className="group w-full overflow-hidden rounded-lg border border-zinc-200 text-left hover:border-zinc-900 focus-visible:outline-2 focus-visible:outline-zinc-900">
+                                        <span className="flex aspect-[4/3] items-center justify-center bg-zinc-100">
+                                            {item.kind === 'image' ? <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover" /> : <FileText className="h-8 w-8 text-zinc-400" />}
+                                        </span>
+                                        <span className="block truncate px-2 py-1.5 text-xs text-zinc-600 group-hover:text-zinc-900">{item.name}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 type FieldProps = {
     field: FieldDefinition;
@@ -70,6 +139,7 @@ function ImageInput({ id, value, onChange, document = false }: { id: string; val
     const uploadUrl = useContext(UploadUrlContext);
     const upload = useHttp<{ file: File | null }, { url: string }>({ file: null });
     const src = typeof value === 'string' ? value : '';
+    const [picking, setPicking] = useState(false);
 
     const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -106,6 +176,9 @@ function ImageInput({ id, value, onChange, document = false }: { id: string; val
                     <button type="button" className={buttonClass.secondary} disabled={upload.processing} onClick={() => fileInput.current?.click()}>
                         <ImageUp className="h-4 w-4" /> {upload.processing ? 'Uploading…' : document ? 'Upload file' : 'Upload image'}
                     </button>
+                    <button type="button" className={buttonClass.secondary} onClick={() => setPicking(true)}>
+                        <FolderOpen className="h-4 w-4" /> Library
+                    </button>
                     {src && (
                         <button type="button" className={buttonClass.danger} onClick={() => onChange('')}>
                             Remove
@@ -115,6 +188,16 @@ function ImageInput({ id, value, onChange, document = false }: { id: string; val
                 </div>
                 {upload.errors.file && <p className="text-sm text-red-600">{upload.errors.file}</p>}
             </div>
+            {picking && (
+                <MediaPicker
+                    kind={document ? 'document' : 'image'}
+                    onClose={() => setPicking(false)}
+                    onPick={(url) => {
+                        onChange(url);
+                        setPicking(false);
+                    }}
+                />
+            )}
         </div>
     );
 }

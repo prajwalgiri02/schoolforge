@@ -2,7 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { buttonClass } from '@admin/AdminLayout';
-import { FieldGroup, ItemList, UploadUrlContext } from '@admin/fields';
+import { FieldGroup, ItemList, MediaLibraryUrlContext, UploadUrlContext } from '@admin/fields';
 import type { Item, SectionDefinition } from '@admin/types';
 import { ProjectLayout } from '@/studio/ProjectLayout';
 import type { ProjectSummary } from '@/studio/types';
@@ -132,21 +132,23 @@ function Editor({ project, sectionKey, section, value: initialValue, locale, lan
                 </div>
             )}
             <UploadUrlContext.Provider value="/uploads">
-                <form id="content-form" onSubmit={submit} className="space-y-6">
-                    {errorCount > 0 && (
-                        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                            Please fix {errorCount === 1 ? 'the highlighted field' : `${errorCount} highlighted fields`} before saving.
-                        </div>
-                    )}
-                    {section.kind === 'list' ? (
-                        <ItemList fields={section.fields} value={Array.isArray(value) ? value : []} onChange={setValue} path="value" errors={errors} icons={icons} itemLabel={section.itemLabel} />
-                    ) : (
-                        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                            <FieldGroup fields={section.fields} value={Array.isArray(value) ? {} : value} onChange={setValue} path="value" errors={errors} icons={icons} />
-                        </div>
-                    )}
-                    <div className="flex justify-end border-t border-zinc-200 pt-6">{saveButton}</div>
-                </form>
+                <MediaLibraryUrlContext.Provider value="/media/library">
+                    <form id="content-form" onSubmit={submit} className="space-y-6">
+                        {errorCount > 0 && (
+                            <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                Please fix {errorCount === 1 ? 'the highlighted field' : `${errorCount} highlighted fields`} before saving.
+                            </div>
+                        )}
+                        {section.kind === 'list' ? (
+                            <ItemList fields={section.fields} value={Array.isArray(value) ? value : []} onChange={setValue} path="value" errors={errors} icons={icons} itemLabel={section.itemLabel} />
+                        ) : (
+                            <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                                <FieldGroup fields={section.fields} value={Array.isArray(value) ? {} : value} onChange={setValue} path="value" errors={errors} icons={icons} />
+                            </div>
+                        )}
+                        <div className="flex justify-end border-t border-zinc-200 pt-6">{saveButton}</div>
+                    </form>
+    </MediaLibraryUrlContext.Provider>
             </UploadUrlContext.Provider>
         </ProjectLayout>
     );

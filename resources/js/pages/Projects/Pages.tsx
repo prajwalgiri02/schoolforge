@@ -1,12 +1,16 @@
 import { router, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ChevronDown, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { ArrowDown, ArrowUp, ChevronDown, GripVertical, Plus, RotateCcw, Save, Trash2 } from 'lucide-react';
+import { useRef, useState, type DragEvent, type FormEvent } from 'react';
+import { Field, MediaLibraryUrlContext, UploadUrlContext } from '@admin/fields';
+import type { Value } from '@admin/types';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { ProjectLayout } from '@/studio/ProjectLayout';
 import { FieldError } from '@/studio/StudioLayout';
-import type { ComponentSummary, ProjectSummary } from '@/studio/types';
+import type { ComponentProp, ComponentSummary, ProjectSummary } from '@/studio/types';
 
-type Section = { type: string; variant?: string; title?: string; subtitle?: string; eyebrow?: string; limit?: number; paragraphs?: string[]; [key: string]: string | number | boolean | string[] | null | undefined };
+type LinkValue = { label: string; href: string };
+
+type Section = { type: string; variant?: string; title?: string; subtitle?: string; eyebrow?: string; limit?: number; paragraphs?: string[]; [key: string]: string | number | boolean | string[] | LinkValue | null | undefined };
 
 type Page = { slug: string; title: string; navLabel?: string; description?: string; showInNav?: boolean; showInFooter?: boolean; sections: Section[] };
 
@@ -47,6 +51,116 @@ const lastSelectedSlug: Record<string, string> = {};
 
 const languageNames: Record<string, string> = { en: 'English', ne: 'नेपाली' };
 
+/**
+ * Editor for one setting a component declares in its component.json "props".
+ * Values equal to the component's default are left out of the config.
+ */
+function PropField({ prop, value, onChange }: { prop: ComponentProp; value: Section[string]; onChange: (value: Section[string]) => void }) {
+    const id = `prop-${prop.name}`;
+
+    if (prop.type === 'boolean') {
+        const checked = typeof value === 'boolean' ? value : prop.default === true;
+
+        return (
+            <label className="flex items-center gap-2 text-sm sm:col-span-2">
+                <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked === (prop.default === true) ? undefined : event.target.checked)} className="h-4 w-4 rounded border-zinc-300" />
+                {prop.label}
+                {prop.help && <span className="text-xs text-zinc-500">({prop.help})</span>}
+            </label>
+        );
+    }
+
+    if (prop.type === 'select') {
+        return (
+            <div>
+                <label htmlFor={id} className="mb-1 block text-xs font-medium text-zinc-600">
+                    {prop.label}
+                </label>
+                <select id={id} value={typeof value === 'string' ? value : ''} onChange={(event) => onChange(event.target.value || undefined)} className={inputClass}>
+                    <option value="">Default</option>
+                    {prop.options?.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    }
+
+    const hidden = prop.hideable && value === false;
+
+    return (
+        <div className="sm:col-span-2">
+            {!hidden && (
+                <Field
+                    field={{ name: prop.name, type: prop.type, label: prop.label, required: false, help: prop.help }}
+                    value={(value === false ? undefined : value) as Value}
+                    onChange={(next) => {
+                        const empty = next === '' || next === null || (typeof next === 'object' && !Array.isArray(next) && Object.values(next).every((part) => !part));
+                        onChange(empty ? undefined : (next as Section[string]));
+                    }}
+                    path={id}
+                    errors={{}}
+                    icons={[]}
+                />
+            )}
+            {prop.hideable && (
+                <label className="mt-2 flex items-center gap-2 text-xs text-zinc-600">
+                    <input type="checkbox" checked={hidden} onChange={(event) => onChange(event.target.checked ? false : undefined)} className="h-3.5 w-3.5 rounded border-zinc-300" />
+                    Hide {prop.label.toLowerCase()}
+                </label>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Drag-and-drop reordering for a list; the up/down buttons remain for keyboards.
+ */
+function useReorder(onMove: (from: number, to: number) => void) {
+    // A ref, because dragover and drop can fire before React re-renders with new state.
+    const dragged = useRef<number | null>(null);
+    const [dragging, setDragging] = useState<number | null>(null);
+    const [over, setOver] = useState<number | null>(null);
+    const finish = () => {
+        dragged.current = null;
+        setDragging(null);
+        setOver(null);
+    };
+
+    return {
+        dragging,
+        over,
+        handlers: (index: number) => ({
+            draggable: true,
+            onDragStart: (event: DragEvent) => {
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', String(index));
+                dragged.current = index;
+                setDragging(index);
+            },
+            onDragOver: (event: DragEvent) => {
+                if (dragged.current !== null) {
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = 'move';
+                    setOver(index);
+                }
+            },
+            onDrop: (event: DragEvent) => {
+                event.preventDefault();
+
+                if (dragged.current !== null && dragged.current !== index) {
+                    onMove(dragged.current, index);
+                }
+
+                finish();
+            },
+            onDragEnd: finish,
+        }),
+    };
+}
+
 export default function PagesEditor(props: Props) {
     return <Editor key={String(props.isCustom)} {...props} />;
 }
@@ -68,6 +182,7 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
     };
     const labels = Object.fromEntries(components.map((component) => [component.name, component.label]));
     const variantsOf = Object.fromEntries(components.map((component) => [component.name, component.variants]));
+    const propsOf = Object.fromEntries(components.map((component) => [component.name, component.props ?? []]));
     const isDirty = JSON.stringify([pages, translations]) !== savedSnapshot;
 
     const updatePage = (patch: Partial<Page>) => {
@@ -92,6 +207,14 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
         setTranslations({ ...translations, [code]: { ...translations[code], [page.slug]: { ...translations[code]?.[page.slug], ...patch } } });
     const updateSection = (sectionIndex: number, patch: Partial<Section>) =>
         updatePage({ sections: page.sections.map((section, index) => (index === sectionIndex ? { ...section, ...patch } : section)) });
+    const sectionDrag = useReorder((from, to) => {
+        updatePage({ sections: move(page.sections, from, to) });
+        setOpenSection(null);
+    });
+    const pageDrag = useReorder((from, to) => {
+        setPages(move(pages, from, to));
+        selectPage(to, pages[from].slug);
+    });
 
     const addPage = () => {
         const title = newPageTitle.trim();
@@ -172,7 +295,12 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                 const hasError = Object.keys(errors).some((key) => key.startsWith(`pages.${index}.`));
 
                                 return (
-                                    <li key={`${item.slug}-${index}`} className={`group flex items-center border-b border-zinc-100 last:border-0 ${index === selected ? 'bg-indigo-50' : ''}`}>
+                                    <li
+                                        key={`${item.slug}-${index}`}
+                                        {...pageDrag.handlers(index)}
+                                        className={`group flex items-center border-b border-zinc-100 last:border-0 ${index === selected ? 'bg-indigo-50' : ''} ${pageDrag.over === index && pageDrag.dragging !== index ? 'ring-2 ring-inset ring-indigo-400' : ''} ${pageDrag.dragging === index ? 'opacity-50' : ''}`}
+                                    >
+                                        <GripVertical className="ml-1 h-4 w-4 shrink-0 cursor-grab text-zinc-300" aria-hidden="true" />
                                         <button type="button" onClick={() => selectPage(index)} className="min-w-0 flex-1 px-3 py-2.5 text-left">
                                             <span className={`block truncate text-sm font-medium ${hasError ? 'text-red-600' : index === selected ? 'text-indigo-700' : ''}`}>{item.title}</span>
                                             <span className="block truncate font-mono text-xs text-zinc-400">{item.slug}</span>
@@ -276,8 +404,14 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                     const variants = variantsOf[section.type] ?? [];
 
                                     return (
-                                        <li key={`${section.type}-${index}`} className={`rounded-xl border bg-white shadow-sm ${sectionError ? 'border-red-300' : 'border-zinc-200'}`}>
+                                        <li
+                                            key={`${section.type}-${index}`}
+                                            {...sectionDrag.handlers(index)}
+                                            draggable={!open}
+                                            className={`rounded-xl border bg-white shadow-sm transition ${sectionError ? 'border-red-300' : 'border-zinc-200'} ${sectionDrag.over === index && sectionDrag.dragging !== index ? 'ring-2 ring-indigo-400' : ''} ${sectionDrag.dragging === index ? 'opacity-50' : ''}`}
+                                        >
                                             <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+                                                <GripVertical className="-ml-2 h-4 w-4 cursor-grab text-zinc-300" aria-hidden="true" />
                                                 <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-500">{index + 1}</span>
                                                 <span className="min-w-0 flex-1">
                                                     <span className="block text-sm font-medium">{labels[section.type] ?? section.type}</span>
@@ -321,6 +455,13 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                                         <label className="mb-1 block text-xs font-medium text-zinc-600">Show at most</label>
                                                         <input type="number" min={1} max={100} value={section.limit ?? ''} placeholder="All items" onChange={(event) => updateSection(index, { limit: event.target.value ? Number(event.target.value) : undefined })} className={inputClass} />
                                                     </div>
+                                                    <UploadUrlContext.Provider value="/uploads">
+                                                        <MediaLibraryUrlContext.Provider value="/media/library">
+                                                            {(propsOf[section.type] ?? []).map((prop) => (
+                                                                <PropField key={prop.name} prop={prop} value={section[prop.name]} onChange={(value) => updateSection(index, { [prop.name]: value })} />
+                                                            ))}
+                                                        </MediaLibraryUrlContext.Provider>
+                                                    </UploadUrlContext.Provider>
                                                     {section.type === 'rich-text' && (
                                                         <div className="sm:col-span-2">
                                                             <label className="mb-1 block text-xs font-medium text-zinc-600">Text (separate paragraphs with a blank line)</label>

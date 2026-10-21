@@ -10,6 +10,21 @@
     "requires": [
         "content.gallery"
     ],
+    "props": [
+        {
+            "name": "filter",
+            "type": "boolean",
+            "label": "Show category filter",
+            "default": true
+        },
+        {
+            "name": "link",
+            "type": "link",
+            "label": "Open gallery button",
+            "hideable": true,
+            "help": "A button under the section. Leave empty for the automatic one."
+        }
+    ],
     "files": [
         "index.tsx"
     ]

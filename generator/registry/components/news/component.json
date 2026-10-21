@@ -10,6 +10,22 @@
     "requires": [
         "content.news"
     ],
+    "props": [
+        {
+            "name": "search",
+            "type": "boolean",
+            "label": "Show search and filters",
+            "default": true,
+            "help": "Only on full news lists (no limit)."
+        },
+        {
+            "name": "link",
+            "type": "link",
+            "label": "All news button",
+            "hideable": true,
+            "help": "A button under the section. Leave empty for the automatic one."
+        }
+    ],
     "files": [
         "index.tsx"
     ]

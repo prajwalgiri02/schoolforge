@@ -7,6 +7,14 @@
     "requires": [
         "content.alumni"
     ],
+    "props": [
+        {
+            "name": "form",
+            "type": "boolean",
+            "label": "Show the join form",
+            "default": true
+        }
+    ],
     "files": [
         "index.tsx"
     ]

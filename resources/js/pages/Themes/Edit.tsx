@@ -1,5 +1,5 @@
 import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Download, Save } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { FieldError, StudioLayout } from '@/studio/StudioLayout';
@@ -198,6 +198,9 @@ export default function ThemeEdit({ theme, own, resolved, resolvedVariants, comp
                             <Save className="h-4 w-4" /> {form.processing ? 'Saving…' : 'Save theme'}
                         </button>
                         <p className="text-xs text-zinc-500">Saved to theme.json in the generator registry. Schools using this theme pick it up in their preview immediately and in generated code on the next generate.</p>
+                        <a href={`/themes/${theme.name}/export`} className={`${buttonClass.secondary} w-full`}>
+                            <Download className="h-4 w-4" /> Export theme file
+                        </a>
                     </aside>
                 </form>
             </main>

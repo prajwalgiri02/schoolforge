@@ -9,6 +9,20 @@
         "minimal"
     ],
     "requires": [],
+    "props": [
+        {
+            "name": "sticky",
+            "type": "boolean",
+            "label": "Stay at the top when scrolling",
+            "default": true
+        },
+        {
+            "name": "cta",
+            "type": "link",
+            "label": "Menu button",
+            "hideable": true
+        }
+    ],
     "files": [
         "index.tsx"
     ]

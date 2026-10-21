@@ -8,6 +8,18 @@
         "card"
     ],
     "requires": [],
+    "props": [
+        {
+            "name": "primary",
+            "type": "link",
+            "label": "Main button"
+        },
+        {
+            "name": "secondary",
+            "type": "link",
+            "label": "Second button"
+        }
+    ],
     "files": [
         "index.tsx"
     ]

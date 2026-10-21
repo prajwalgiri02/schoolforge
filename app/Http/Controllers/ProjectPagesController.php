@@ -29,7 +29,7 @@ class ProjectPagesController extends Controller
             'components' => collect($registry['components'])
                 ->where('category', 'section')
                 ->reject(fn (array $component): bool => $component['name'] === 'article')
-                ->map(fn (array $component): array => Arr::only($component, ['name', 'label', 'description', 'variants']))
+                ->map(fn (array $component): array => Arr::only($component, ['name', 'label', 'description', 'variants', 'props']))
                 ->values(),
             'themeVariants' => (object) array_merge($theme['variants'] ?? [], $project->config['variants'] ?? []),
             'languages' => $project->config['languages'] ?? ['en'],

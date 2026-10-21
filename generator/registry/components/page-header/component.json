@@ -9,6 +9,13 @@
         "plain"
     ],
     "requires": [],
+    "props": [
+        {
+            "name": "image",
+            "type": "image",
+            "label": "Background photo"
+        }
+    ],
     "files": [
         "index.tsx"
     ]

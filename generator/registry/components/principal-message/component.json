@@ -10,6 +10,23 @@
     "requires": [
         "school.principal"
     ],
+    "props": [
+        {
+            "name": "mode",
+            "type": "select",
+            "label": "Show",
+            "options": [
+                {
+                    "value": "summary",
+                    "label": "First paragraph"
+                },
+                {
+                    "value": "full",
+                    "label": "Whole message"
+                }
+            ]
+        }
+    ],
     "files": [
         "index.tsx"
     ]
