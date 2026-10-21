@@ -76,3 +76,20 @@ export async function lookupApplication(reference: string, email: string): Promi
         return null;
     }
 }
+
+export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+
+export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
+    try {
+        const response = await fetch('/subscribe', { method: 'POST', headers: { ...csrfHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'same-origin' });
+        const body = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+            return { ok: true };
+        }
+
+        return { ok: false, errors: Object.fromEntries(Object.entries((body.errors ?? {}) as Record<string, string[]>).map(([field, messages]) => [field, messages[0]])) };
+    } catch {
+        return { ok: false };
+    }
+}

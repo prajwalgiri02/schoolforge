@@ -37,4 +37,20 @@ return [
 
     'contact_recipient' => env('SCHOOL_CONTACT_RECIPIENT'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Alerts (Sparrow SMS)
+    |--------------------------------------------------------------------------
+    |
+    | Token and sender identity from https://web.sparrowsms.com. Without a
+    | token, alerts are sent by email only.
+    |
+    */
+
+    'sms' => [
+        'token' => env('SPARROW_SMS_TOKEN'),
+        'from' => env('SPARROW_SMS_FROM', 'InfoAlert'),
+        'endpoint' => env('SPARROW_SMS_ENDPOINT', 'https://api.sparrowsms.com/v2/sms/'),
+    ],
+
 ];

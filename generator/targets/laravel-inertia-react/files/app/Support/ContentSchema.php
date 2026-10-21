@@ -53,6 +53,7 @@ class ContentSchema
                 self::field('phone', 'strings', 'Phone numbers', help: 'One per line.'),
                 self::field('email', 'strings', 'Email addresses', help: 'One per line.'),
                 self::field('hours', 'text', 'Office hours'),
+                self::field('whatsapp', 'text', 'WhatsApp number', help: 'With country code, e.g. +977 9801234567. Shows a chat button on every page.'),
                 self::field('mapEmbedUrl', 'url', 'Map embed URL', help: 'From Google Maps "Share → Embed a map" or OpenStreetMap.'),
             ]),
             'social' => self::section('Social media', 'Links to the school’s social profiles.', 'object', 'school.social', [

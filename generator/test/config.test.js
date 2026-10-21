@@ -139,7 +139,7 @@ describe('buildSite', () => {
         assert.deepEqual(slugs, ['/', '/contact']);
         assert.deepEqual(
             site.pages[0].sections.map((section) => section.type),
-            ['hero', 'cta'],
+            ['hero', 'newsletter', 'cta'],
         );
         assert.deepEqual(
             site.layout.header.map((section) => section.type),

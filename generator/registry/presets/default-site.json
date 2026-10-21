@@ -1,7 +1,7 @@
 {
     "layout": {
         "header": [{ "type": "announcement-bar" }, { "type": "navbar" }],
-        "footer": [{ "type": "footer" }, { "type": "popup" }]
+        "footer": [{ "type": "footer" }, { "type": "popup" }, { "type": "whatsapp-button" }]
     },
     "pages": [
         {
@@ -17,6 +17,7 @@
                 { "type": "facilities", "limit": 6 },
                 { "type": "testimonials", "limit": 3 },
                 { "type": "news", "limit": 3 },
+                { "type": "newsletter" },
                 { "type": "events", "limit": 3 },
                 { "type": "cta" }
             ]

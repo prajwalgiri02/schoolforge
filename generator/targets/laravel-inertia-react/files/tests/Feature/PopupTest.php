@@ -26,6 +26,18 @@ class PopupTest extends TestCase
             ->where('site.layout.footer', fn ($footer): bool => collect($footer)->contains('type', 'popup')));
     }
 
+    public function test_the_whatsapp_number_is_set_in_contact_details(): void
+    {
+        $contact = app(SchoolSite::class)->data()['school']['contact'];
+
+        $this->actingAs(User::factory()->create())->put('/admin/content/contact', ['value' => [...$contact, 'whatsapp' => '+977 9801234567']])
+            ->assertSessionHasNoErrors();
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('site.school.contact.whatsapp', '+977 9801234567')
+            ->where('site.layout.footer', fn ($footer): bool => collect($footer)->contains('type', 'whatsapp-button')));
+    }
+
     public function test_admins_can_schedule_and_turn_off_the_popup(): void
     {
         $admin = User::factory()->create();

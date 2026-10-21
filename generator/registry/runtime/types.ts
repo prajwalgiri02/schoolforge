@@ -59,6 +59,8 @@ export type SchoolProfile = {
         email?: string[];
         hours?: string;
         mapEmbedUrl?: string;
+        /** Number for the floating WhatsApp chat button, with country code. */
+        whatsapp?: string;
     };
     social?: Partial<Record<'facebook' | 'instagram' | 'youtube' | 'x' | 'linkedin' | 'tiktok', string>>;
 };

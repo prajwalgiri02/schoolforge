@@ -55,6 +55,19 @@ This starts the website (port 8080), the SSR server, the queue worker and the
 scheduler, with the SQLite database and uploads in Docker volumes. Put a reverse
 proxy with HTTPS in front of port 8080.
 
+## Email and SMS
+
+Set `MAIL_*` in `.env` so the site can email the office, confirm applications and
+send alerts. Optional settings:
+
+| Variable | Purpose |
+| --- | --- |
+| `SCHOOL_CONTACT_RECIPIENT` | Office address that receives enquiries and applications |
+| `SPARROW_SMS_TOKEN` | Sparrow SMS token, to send alerts by SMS from Admin → Alerts |
+| `SPARROW_SMS_FROM` | Sparrow SMS sender identity (default `InfoAlert`) |
+
+Alerts are sent by the queue worker, so keep it running.
+
 ## Backups
 
 `php artisan school:backup` runs nightly and keeps 14 days of backups in

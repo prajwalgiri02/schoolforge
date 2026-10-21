@@ -1,0 +1,11 @@
+{
+    "name": "whatsapp-button",
+    "label": "WhatsApp button",
+    "description": "Floating chat button that opens WhatsApp with the school's number.",
+    "category": "layout",
+    "variants": [],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AlertController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\FormSubmissionController;
 use App\Http\Controllers\SchoolPageController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\SubscriberController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
@@ -32,6 +34,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::patch('messages/{message}', [AdminContactMessageController::class, 'update'])->name('messages.update');
         Route::delete('messages/{message}', [AdminContactMessageController::class, 'destroy'])->name('messages.destroy');
 
+        Route::get('alerts', [AlertController::class, 'index'])->name('alerts.index');
+        Route::post('alerts', [AlertController::class, 'store'])->middleware('throttle:10,1')->name('alerts.store');
+        Route::get('alerts/subscribers.csv', [AlertController::class, 'export'])->name('alerts.export');
+
         Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
         Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
         Route::patch('submissions/{submission}', [AdminFormSubmissionController::class, 'update'])->name('submissions.update');
@@ -44,6 +50,8 @@ Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('school.sitem
 Route::get('robots.txt', [SeoController::class, 'robots'])->name('school.robots');
 Route::get('events.ics', [SeoController::class, 'calendar'])->name('school.calendar');
 
+Route::post('subscribe', [SubscriberController::class, 'store'])->middleware('throttle:10,1')->name('school.subscribe');
+Route::get('unsubscribe/{token}', [SubscriberController::class, 'destroy'])->name('school.unsubscribe');
 Route::get('forms/status', [FormSubmissionController::class, 'status'])->middleware('throttle:20,1')->name('school.forms.status');
 Route::post('forms/{type}', [FormSubmissionController::class, 'store'])->middleware('throttle:10,1')->name('school.forms.store');
 

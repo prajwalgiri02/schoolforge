@@ -1,0 +1,11 @@
+{
+    "name": "newsletter",
+    "label": "Newsletter sign-up",
+    "description": "Lets parents subscribe to school news and urgent alerts by email or SMS.",
+    "category": "section",
+    "variants": [],
+    "requires": [],
+    "files": [
+        "index.tsx"
+    ]
+}

@@ -26,3 +26,7 @@ export declare const supportsStatusLookup: boolean;
 export declare function submitForm(type: string, data: FormData): Promise<FormResult>;
 
 export declare function lookupApplication(reference: string, email: string): Promise<ApplicationStatus | null>;
+
+export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+
+export declare function subscribe(payload: SubscribePayload): Promise<ContactResult>;

@@ -64,3 +64,9 @@ export async function submitForm(type: string, _data: FormData): Promise<FormRes
 export async function lookupApplication(reference: string, _email: string): Promise<ApplicationStatus | null> {
     return { reference: reference.toUpperCase(), status: 'reviewing', updatedAt: new Date().toISOString() };
 }
+
+export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+
+export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
+    return payload.email || payload.phone ? { ok: true } : { ok: false, errors: { email: 'Enter an email address or a mobile number.' } };
+}

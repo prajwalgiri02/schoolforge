@@ -65,3 +65,16 @@ export async function submitForm(type: string, data: FormData): Promise<FormResu
 export async function lookupApplication(_reference: string, _email: string): Promise<ApplicationStatus | null> {
     return null;
 }
+
+export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+
+export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
+    try {
+        const response = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) });
+        const body = await response.json().catch(() => ({}));
+
+        return response.ok ? { ok: true } : { ok: false, errors: body.errors };
+    } catch {
+        return { ok: false };
+    }
+}
