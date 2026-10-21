@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\SiteSubmission;
+use App\Support\Billing;
 use App\Support\FormSchema;
 use App\Support\HostedSites;
 use Illuminate\Http\Request;
@@ -24,6 +25,12 @@ class HostedSiteController extends Controller
 {
     public function handle(Request $request, Project $project): Response
     {
+        if (Billing::isSuspended($project)) {
+            return $request->expectsJson()
+                ? response()->json(['message' => 'This website is temporarily unavailable.'], 503)
+                : response()->view('hosted-suspended', ['name' => $project->name], 503);
+        }
+
         $path = trim($request->path(), '/');
 
         return match (true) {

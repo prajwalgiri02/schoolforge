@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PreviewController;
@@ -69,6 +70,18 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('status', [SiteStatusController::class, 'index'])->name('status.index');
     Route::post('status/{project}', [SiteStatusController::class, 'store'])->middleware('throttle:20,1')->name('status.check')->can('edit-projects');
+
+    Route::middleware('can:manage-studio')->group(function (): void {
+        Route::get('billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('billing/plans', [BillingController::class, 'storePlan'])->name('billing.plans.store');
+        Route::put('billing/plans/{plan}', [BillingController::class, 'updatePlan'])->name('billing.plans.update');
+        Route::delete('billing/plans/{plan}', [BillingController::class, 'destroyPlan'])->name('billing.plans.destroy');
+        Route::put('billing/schools/{project}', [BillingController::class, 'updateSchool'])->name('billing.schools.update');
+        Route::post('billing/schools/{project}/invoices', [BillingController::class, 'issue'])->name('billing.invoices.store');
+        Route::get('invoices/{invoice}', [BillingController::class, 'show'])->name('invoices.show');
+        Route::post('invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('invoices.pay');
+        Route::post('invoices/{invoice}/void', [BillingController::class, 'void'])->name('invoices.void');
+    });
 
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');
     Route::post('themes', [ThemeController::class, 'store'])->name('themes.store')->can('manage-studio');

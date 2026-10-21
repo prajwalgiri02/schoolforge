@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ use Illuminate\Support\Str;
  * @property array<string, mixed> $config
  * @property array{languages: list<string>, locales: array<string, array<string, mixed>>, configHash: string}|null $published_site
  */
-#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email'])]
 #[Hidden(['published_site'])]
 class Project extends Model
 {
@@ -41,6 +42,7 @@ class Project extends Model
             'is_template' => 'boolean',
             'published_at' => 'datetime',
             'published_site' => 'array',
+            'paid_until' => 'date',
         ];
     }
 
@@ -131,6 +133,22 @@ class Project extends Model
     public function siteSubmissions(): HasMany
     {
         return $this->hasMany(SiteSubmission::class);
+    }
+
+    /**
+     * @return BelongsTo<Plan, $this>
+     */
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * @return HasMany<Invoice, $this>
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 
     public function isPublished(): bool

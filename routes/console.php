@@ -14,3 +14,8 @@ Schedule::command('studio:backup')->dailyAt('02:15')->withoutOverlapping();
  * one goes down or comes back.
  */
 Schedule::command('studio:check-sites')->everyFiveMinutes()->withoutOverlapping();
+
+/*
+ * Issues hosting invoices before each school's paid period ends.
+ */
+Schedule::command('studio:invoices')->dailyAt('06:10')->withoutOverlapping();

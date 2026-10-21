@@ -68,4 +68,21 @@ return [
 
     'hosting_scheme' => env('SCHOOLFORGE_HOSTING_SCHEME', 'https'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Billing
+    |--------------------------------------------------------------------------
+    |
+    | Invoices for hosted schools are issued this many days before the paid
+    | period ends. A hosted school whose payment is this many days late shows
+    | a "temporarily unavailable" page until it is paid.
+    |
+    */
+
+    'invoice_days_before' => (int) env('SCHOOLFORGE_INVOICE_DAYS_BEFORE', 14),
+
+    'grace_days' => (int) env('SCHOOLFORGE_GRACE_DAYS', 14),
+
+    'billing_from' => env('SCHOOLFORGE_BILLING_FROM', env('APP_NAME', 'SchoolForge')),
+
 ];

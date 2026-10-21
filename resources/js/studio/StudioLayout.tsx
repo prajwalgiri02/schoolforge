@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Activity, CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Users, X } from 'lucide-react';
+import { Activity, CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Receipt, Users, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { StudioSharedProps } from './types';
 
@@ -48,7 +48,12 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
         { href: '/themes', label: 'Themes', icon: Palette, active: url.startsWith('/themes') },
         { href: '/components', label: 'Components', icon: Component, active: url.startsWith('/components') },
         { href: '/media', label: 'Media', icon: Images, active: url.startsWith('/media') },
-        ...(auth.user?.canManage ? [{ href: '/users', label: 'Users', icon: Users, active: url.startsWith('/users') }] : []),
+        ...(auth.user?.canManage
+            ? [
+                  { href: '/billing', label: 'Billing', icon: Receipt, active: url.startsWith('/billing') },
+                  { href: '/users', label: 'Users', icon: Users, active: url.startsWith('/users') },
+              ]
+            : []),
     ];
 
     return (
@@ -56,29 +61,29 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
             <Head title={title} />
             <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur">
                 <div className={`mx-auto flex items-center justify-between gap-4 px-4 py-3 sm:px-6 ${wide ? 'max-w-[110rem]' : 'max-w-7xl'}`}>
-                    <Link href="/" className="flex items-center gap-2.5 font-semibold">
+                    <Link href="/" className="flex shrink-0 items-center gap-2.5 font-semibold">
                         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-sm text-white">SF</span>
                         <span className="hidden sm:inline">SchoolForge Studio</span>
                     </Link>
-                    <nav className="flex items-center gap-1">
+                    <nav className="-mr-2 flex min-w-0 items-center gap-0.5 overflow-x-auto sm:mr-0 sm:gap-1">
                         {nav.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${item.active ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
+                                className={`flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition sm:px-3 ${item.active ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'}`}
                             >
                                 <item.icon className="h-4 w-4" />
-                                <span className="hidden md:inline">{item.label}</span>
+                                <span className="hidden xl:inline">{item.label}</span>
                             </Link>
                         ))}
                         <button
                             type="button"
                             onClick={() => router.post('/logout')}
                             title={auth.user ? `Signed in as ${auth.user.email}` : undefined}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+                            className="flex shrink-0 items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 sm:px-3"
                         >
                             <LogOut className="h-4 w-4" />
-                            <span className="hidden md:inline">Sign out</span>
+                            <span className="hidden xl:inline">Sign out</span>
                         </button>
                     </nav>
                 </div>
