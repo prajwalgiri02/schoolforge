@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Support\SchoolSite;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('manage-school', fn (User $user): bool => $user->isAdmin());
+
+        ResetPassword::createUrlUsing(fn (User $user, string $token): string => route('admin.password.reset', ['token' => $token, 'email' => $user->getEmailForPasswordReset()]));
     }
 }

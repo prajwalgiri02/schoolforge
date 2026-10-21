@@ -6,9 +6,12 @@ use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\PasswordResetController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ResultController as AdminResultController;
+use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SessionController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\FormSubmissionController;
@@ -23,6 +26,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware('guest')->group(function (): void {
         Route::get('login', [SessionController::class, 'create'])->name('login');
         Route::post('login', [SessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
+        Route::get('two-factor', [SessionController::class, 'twoFactor'])->name('two-factor');
+        Route::post('two-factor', [SessionController::class, 'confirmTwoFactor'])->middleware('throttle:5,1')->name('two-factor.store');
+        Route::get('forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+        Route::post('forgot-password', [PasswordResetController::class, 'store'])->middleware('throttle:5,1')->name('password.email');
+        Route::get('reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+        Route::post('reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:5,1')->name('password.update');
     });
 
     Route::middleware('auth')->group(function (): void {
@@ -40,18 +49,32 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::patch('messages/{message}', [AdminContactMessageController::class, 'update'])->name('messages.update');
         Route::delete('messages/{message}', [AdminContactMessageController::class, 'destroy'])->name('messages.destroy');
 
-        Route::get('alerts', [AlertController::class, 'index'])->name('alerts.index');
-        Route::post('alerts', [AlertController::class, 'store'])->middleware('throttle:10,1')->name('alerts.store');
-        Route::get('alerts/subscribers.csv', [AlertController::class, 'export'])->name('alerts.export');
+        Route::get('account', [SecurityController::class, 'show'])->name('security.show');
+        Route::put('account/password', [SecurityController::class, 'updatePassword'])->name('security.password');
+        Route::post('account/two-factor', [SecurityController::class, 'enable'])->name('security.two-factor.enable');
+        Route::post('account/two-factor/confirm', [SecurityController::class, 'confirm'])->name('security.two-factor.confirm');
+        Route::post('account/two-factor/recovery-codes', [SecurityController::class, 'regenerateCodes'])->name('security.two-factor.codes');
+        Route::delete('account/two-factor', [SecurityController::class, 'disable'])->name('security.two-factor.disable');
 
-        Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
-        Route::get('payments/export.csv', [AdminPaymentController::class, 'export'])->name('payments.export');
+        Route::middleware('can:manage-school')->group(function (): void {
+            Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
+            Route::post('staff', [StaffController::class, 'store'])->middleware('throttle:10,1')->name('staff.store');
+            Route::patch('staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+            Route::delete('staff/{user}', [StaffController::class, 'destroy'])->name('staff.destroy');
 
-        Route::get('results', [AdminResultController::class, 'index'])->name('results.index');
-        Route::post('results', [AdminResultController::class, 'store'])->name('results.store');
-        Route::get('results/template.csv', [AdminResultController::class, 'template'])->name('results.template');
-        Route::patch('results/{exam}', [AdminResultController::class, 'update'])->name('results.update');
-        Route::delete('results/{exam}', [AdminResultController::class, 'destroy'])->name('results.destroy');
+            Route::get('alerts', [AlertController::class, 'index'])->name('alerts.index');
+            Route::post('alerts', [AlertController::class, 'store'])->middleware('throttle:10,1')->name('alerts.store');
+            Route::get('alerts/subscribers.csv', [AlertController::class, 'export'])->name('alerts.export');
+
+            Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+            Route::get('payments/export.csv', [AdminPaymentController::class, 'export'])->name('payments.export');
+
+            Route::get('results', [AdminResultController::class, 'index'])->name('results.index');
+            Route::post('results', [AdminResultController::class, 'store'])->name('results.store');
+            Route::get('results/template.csv', [AdminResultController::class, 'template'])->name('results.template');
+            Route::patch('results/{exam}', [AdminResultController::class, 'update'])->name('results.update');
+            Route::delete('results/{exam}', [AdminResultController::class, 'destroy'])->name('results.destroy');
+        });
 
         Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
         Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');

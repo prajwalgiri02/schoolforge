@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\StaffRole;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Enum;
 
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
@@ -19,7 +21,8 @@ class CreateSchoolAdmin extends Command
     protected $signature = 'school:admin
                             {email? : Email address used to sign in}
                             {--name= : Display name}
-                            {--password= : Password (prompted when omitted)}';
+                            {--password= : Password (prompted when omitted)}
+                            {--role=admin : admin or editor}';
 
     /**
      * The console command description.
@@ -36,9 +39,12 @@ class CreateSchoolAdmin extends Command
         $email = $this->argument('email') ?? text('Email address', required: true);
         $password = $this->option('password') ?? password('Password (min. 8 characters)', required: true);
 
-        $validator = Validator::make(compact('email', 'password'), [
+        $role = $this->option('role');
+
+        $validator = Validator::make(compact('email', 'password', 'role'), [
             'email' => ['required', 'email', 'max:190'],
             'password' => ['required', 'string', 'min:8'],
+            'role' => ['required', new Enum(StaffRole::class)],
         ]);
 
         if ($validator->fails()) {
@@ -53,6 +59,7 @@ class CreateSchoolAdmin extends Command
         $existed = $user->exists;
         $user->name = $this->option('name') ?? $user->name ?? 'Administrator';
         $user->password = $password;
+        $user->role = StaffRole::from($role);
         $user->save();
 
         $this->components->info($existed ? "Password updated for {$email}." : "Admin account created for {$email}. Sign in at ".url('/admin'));

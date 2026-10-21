@@ -25,6 +25,6 @@ export type Item = { [key: string]: Value };
 
 export type SharedProps = {
     schoolName: string;
-    auth: { user: { id: number; name: string; email: string } | null };
+    auth: { user: { id: number; name: string; email: string; role: 'admin' | 'editor'; isAdmin: boolean } | null };
     flash: { success?: string | null };
 };

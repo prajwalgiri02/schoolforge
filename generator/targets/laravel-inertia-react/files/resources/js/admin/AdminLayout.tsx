@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BellRing, CircleCheck, ExternalLink, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, Wallet, X } from 'lucide-react';
+import { BellRing, CircleCheck, ExternalLink, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, UserCog, Users, Wallet, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
 
@@ -48,9 +48,15 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
                         {navItem('/admin', 'Content', <LayoutDashboard className="h-4 w-4" />)}
                         {navItem('/admin/messages', 'Messages', <Mail className="h-4 w-4" />)}
                         {navItem('/admin/submissions', 'Applications', <Inbox className="h-4 w-4" />)}
-                        {navItem('/admin/results', 'Results', <GraduationCap className="h-4 w-4" />)}
-                        {navItem('/admin/payments', 'Payments', <Wallet className="h-4 w-4" />)}
-                        {navItem('/admin/alerts', 'Alerts', <BellRing className="h-4 w-4" />)}
+                        {auth.user?.isAdmin && (
+                            <>
+                                {navItem('/admin/results', 'Results', <GraduationCap className="h-4 w-4" />)}
+                                {navItem('/admin/payments', 'Payments', <Wallet className="h-4 w-4" />)}
+                                {navItem('/admin/alerts', 'Alerts', <BellRing className="h-4 w-4" />)}
+                                {navItem('/admin/staff', 'Staff', <Users className="h-4 w-4" />)}
+                            </>
+                        )}
+                        {navItem('/admin/account', 'Account', <UserCog className="h-4 w-4" />)}
                         <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">
                             <ExternalLink className="h-4 w-4" /> <span className="hidden sm:inline">View site</span>
                         </a>
