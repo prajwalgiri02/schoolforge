@@ -1,8 +1,8 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Copy, History as HistoryIcon, LayoutTemplate, RotateCcw, Rocket } from 'lucide-react';
 import { buttonClass } from '@admin/AdminLayout';
 import { ProjectLayout } from '@/studio/ProjectLayout';
-import type { ProjectSummary } from '@/studio/types';
+import type { ProjectSummary, StudioSharedProps } from '@/studio/types';
 
 type Activity = { kind: 'version' | 'generation'; id: number; summary: string; user: string | null; at: string };
 
@@ -11,6 +11,8 @@ function formatDate(value: string): string {
 }
 
 export default function History({ project, activity, latestVersionId }: { project: ProjectSummary; activity: Activity[]; latestVersionId: number | null }) {
+    const { auth } = usePage<StudioSharedProps>().props;
+
     const restore = (item: Activity) => {
         if (window.confirm(`Restore the version from ${formatDate(item.at)}? Your current content is kept in the history.`)) {
             router.post(`/projects/${project.slug}/history/${item.id}/restore`, {}, { preserveScroll: true });
@@ -19,6 +21,7 @@ export default function History({ project, activity, latestVersionId }: { projec
 
     return (
         <ProjectLayout project={project} title="History">
+            {auth.user?.role !== 'school' && (
             <div className="mb-6 flex flex-wrap gap-3 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
                 <button type="button" onClick={() => router.post(`/projects/${project.slug}/duplicate`)} className={buttonClass.secondary}>
                     <Copy className="h-4 w-4" /> Duplicate this school
@@ -28,6 +31,7 @@ export default function History({ project, activity, latestVersionId }: { projec
                 </button>
                 <p className="w-full text-sm text-zinc-500">Templates appear under “Starting content” when you create a school, with their pages, design and content but the new school’s name.</p>
             </div>
+            )}
             <h2 className="mb-3 font-semibold">Activity</h2>
             <ol className="relative space-y-1 border-l border-zinc-200 pl-6">
                 {activity.map((item) => (

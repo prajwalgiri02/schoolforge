@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Services\Generator;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,8 +19,14 @@ class ProjectController extends Controller
     /**
      * List every school website managed in Studio.
      */
-    public function index(ProjectPresenter $presenter): Response
+    public function index(Request $request, ProjectPresenter $presenter): Response|RedirectResponse
     {
+        if ($request->user()->isSchoolStaff()) {
+            abort_if($request->user()->project === null, 403, 'Your login is not linked to a school yet. Ask a Studio owner.');
+
+            return redirect()->route('projects.content.index', $request->user()->project);
+        }
+
         return Inertia::render('Projects/Index', [
             'projects' => Project::query()->latest('updated_at')->get()->map($presenter->summary(...)),
         ]);

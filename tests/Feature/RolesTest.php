@@ -54,7 +54,7 @@ class RolesTest extends TestCase
         $owner = User::factory()->create();
         $this->actingAs($owner);
 
-        $this->get('/users')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Users/Index')->has('roles', 3));
+        $this->get('/users')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Users/Index')->has('roles', 4));
 
         $this->post('/users', ['name' => 'Gita', 'email' => 'gita@example.com', 'role' => 'editor', 'password' => 'secret-password'])->assertSessionHasNoErrors();
         $gita = User::query()->where('email', 'gita@example.com')->sole();

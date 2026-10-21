@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\StudioRole;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +23,8 @@ class CreateStudioUser extends Command
                             {email? : Email address used to sign in}
                             {--name= : Display name}
                             {--password= : Password (prompted when omitted)}
-                            {--role=owner : owner, editor or viewer}';
+                            {--role=owner : owner, editor, viewer or school}
+                            {--school= : Slug of the school a school-staff login looks after}';
 
     /**
      * The console command description.
@@ -47,7 +49,15 @@ class CreateStudioUser extends Command
             'role' => ['required', new Enum(StudioRole::class)],
         ]);
 
-        if ($validator->fails()) {
+        $failed = $validator->fails();
+        $school = $role === StudioRole::School->value ? Project::query()->where('slug', (string) $this->option('school'))->first() : null;
+
+        if ($role === StudioRole::School->value && $school === null) {
+            $validator->errors()->add('school', 'School staff need --school=<slug> of an existing school.');
+            $failed = true;
+        }
+
+        if ($failed) {
             foreach ($validator->errors()->all() as $error) {
                 $this->components->error($error);
             }
@@ -60,6 +70,7 @@ class CreateStudioUser extends Command
         $user->name = $this->option('name') ?? $user->name ?? 'Administrator';
         $user->password = $password;
         $user->role = StudioRole::from($role);
+        $user->project_id = $school?->id;
         $user->save();
 
         $this->components->info($existed ? "Password updated for {$email}." : "Studio account created for {$email}. Sign in at ".url('/login'));

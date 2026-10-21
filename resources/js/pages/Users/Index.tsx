@@ -1,17 +1,60 @@
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Trash2, UserPlus } from 'lucide-react';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { FieldError, PageHeading, StudioLayout } from '@/studio/StudioLayout';
 import type { StudioSharedProps } from '@/studio/types';
 
-type User = { id: number; name: string; email: string; role: string };
+type User = { id: number; name: string; email: string; role: string; project_id: number | null; project: { id: number; name: string; slug: string } | null };
+
+type School = { id: number; name: string };
 
 type Role = { value: string; label: string; description: string };
 
-export default function UsersIndex({ users, roles }: { users: User[]; roles: Role[] }) {
+/**
+ * A user's role; school staff also choose the school they look after before the change is saved.
+ */
+function RoleControl({ user, roles, schools }: { user: User; roles: Role[]; schools: School[] }) {
+    const [role, setRole] = useState(user.role);
+    const save = (nextRole: string, projectId: number | null) => router.patch(`/users/${user.id}`, { role: nextRole, project_id: projectId }, { preserveScroll: true });
+
+    return (
+        <div className="flex flex-wrap gap-2">
+            <select
+                aria-label={`Role of ${user.name}`}
+                value={role}
+                onChange={(event) => {
+                    setRole(event.target.value);
+
+                    if (event.target.value !== 'school') {
+                        save(event.target.value, null);
+                    }
+                }}
+                className={`${inputClass} w-auto`}
+            >
+                {roles.map((item) => (
+                    <option key={item.value} value={item.value}>
+                        {item.label}
+                    </option>
+                ))}
+            </select>
+            {role === 'school' && (
+                <select aria-label={`School of ${user.name}`} value={user.role === 'school' ? (user.project_id ?? '') : ''} onChange={(event) => event.target.value && save('school', Number(event.target.value))} className={`${inputClass} w-auto max-w-48`}>
+                    <option value="">Choose a school…</option>
+                    {schools.map((school) => (
+                        <option key={school.id} value={school.id}>
+                            {school.name}
+                        </option>
+                    ))}
+                </select>
+            )}
+        </div>
+    );
+}
+
+export default function UsersIndex({ users, roles, schools }: { users: User[]; roles: Role[]; schools: School[] }) {
     const { auth, errors } = usePage<StudioSharedProps>().props;
-    const form = useForm({ name: '', email: '', role: 'editor', password: '' });
+    const form = useForm({ name: '', email: '', role: 'editor', password: '', project_id: '' as number | '' });
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
@@ -37,15 +80,12 @@ export default function UsersIndex({ users, roles }: { users: User[]; roles: Rol
                                     <p className="font-medium">
                                         {user.name} {user.id === auth.user?.id && <span className="text-xs font-normal text-zinc-500">(you)</span>}
                                     </p>
-                                    <p className="truncate text-sm text-zinc-500">{user.email}</p>
+                                    <p className="truncate text-sm text-zinc-500">
+                                        {user.email}
+                                        {user.project && ` · ${user.project.name}`}
+                                    </p>
                                 </div>
-                                <select aria-label={`Role of ${user.name}`} value={user.role} onChange={(event) => router.patch(`/users/${user.id}`, { role: event.target.value }, { preserveScroll: true })} className={`${inputClass} w-auto`}>
-                                    {roles.map((role) => (
-                                        <option key={role.value} value={role.value}>
-                                            {role.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <RoleControl key={`${user.role}-${user.project_id}`} user={user} roles={roles} schools={schools} />
                                 {user.id !== auth.user?.id && (
                                     <button type="button" onClick={() => remove(user)} aria-label={`Remove ${user.name}`} className={buttonClass.danger}>
                                         <Trash2 className="h-4 w-4" />
@@ -77,6 +117,22 @@ export default function UsersIndex({ users, roles }: { users: User[]; roles: Rol
                                 </label>
                             ))}
                         </fieldset>
+                        {form.data.role === 'school' && (
+                            <div>
+                                <label htmlFor="user-school" className="mb-1.5 block text-sm font-medium">
+                                    School
+                                </label>
+                                <select id="user-school" value={form.data.project_id} onChange={(event) => form.setData('project_id', event.target.value ? Number(event.target.value) : '')} className={inputClass}>
+                                    <option value="">Choose a school…</option>
+                                    {schools.map((school) => (
+                                        <option key={school.id} value={school.id}>
+                                            {school.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <FieldError message={form.errors.project_id} />
+                            </div>
+                        )}
                         <button type="submit" disabled={form.processing} className={`${buttonClass.primary} w-full`}>
                             <UserPlus className="h-4 w-4" /> Add user
                         </button>

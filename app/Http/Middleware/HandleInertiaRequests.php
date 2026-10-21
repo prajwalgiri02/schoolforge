@@ -43,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                     'role' => $request->user()->role->value,
                     'canEdit' => $request->user()->role->canEditProjects(),
                     'canManage' => $request->user()->role->canManageStudio(),
+                    'schoolSlug' => $request->user()->isSchoolStaff() ? $request->user()->project?->slug : null,
                 ] : null,
             ],
             'flash' => [

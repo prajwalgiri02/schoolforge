@@ -42,7 +42,9 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
     const { auth } = usePage<StudioSharedProps>().props;
     const url = usePage().url;
 
-    const nav = [
+    const nav = auth.user?.role === 'school'
+        ? [{ href: auth.user.schoolSlug ? `/projects/${auth.user.schoolSlug}/content` : '/', label: 'My school', icon: FolderKanban, active: url.startsWith('/projects') }]
+        : [
         { href: '/', label: 'Schools', icon: FolderKanban, active: url === '/' || url.startsWith('/projects') },
         { href: '/status', label: 'Status', icon: Activity, active: url.startsWith('/status') },
         { href: '/themes', label: 'Themes', icon: Palette, active: url.startsWith('/themes') },
@@ -54,7 +56,7 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
                   { href: '/users', label: 'Users', icon: Users, active: url.startsWith('/users') },
               ]
             : []),
-    ];
+          ];
 
     return (
         <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900">

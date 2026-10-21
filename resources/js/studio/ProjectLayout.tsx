@@ -2,7 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
-import { targetLabels, type ProjectSummary } from './types';
+import { targetLabels, type ProjectSummary, type StudioSharedProps } from './types';
 
 const tabs = [
     { key: 'content', label: 'Content', icon: FileText },
@@ -39,6 +39,9 @@ export function ProjectLayout({
     previewPath?: string;
 }) {
     const url = usePage().url;
+    const { auth } = usePage<StudioSharedProps>().props;
+    /** School staff look after content, pages and publishing only. */
+    const visibleTabs = auth.user?.role === 'school' ? tabs.filter((tab) => ['content', 'pages', 'publish', 'history'].includes(tab.key)) : tabs;
     const [reloads, setReloads] = useState(0);
     const [device, setDevice] = useState<Device>('desktop');
     const frameWidth = devices.find((item) => item.key === device)?.width;
@@ -63,7 +66,7 @@ export function ProjectLayout({
                         </a>
                     </div>
                     <nav className="-mb-px mt-6 flex gap-1 overflow-x-auto" aria-label="Project">
-                        {tabs.map((tab) => {
+                        {visibleTabs.map((tab) => {
                             const href = `/projects/${project.slug}/${tab.key}`;
                             const active = url.startsWith(href);
 

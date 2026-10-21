@@ -8,7 +8,7 @@ import type { ProjectSummary, StudioSharedProps } from '@/studio/types';
 
 type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url: string | null; domain: string | null; subdomain: string | null; serverHost: string };
 
-type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean };
+type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean; canManage: boolean };
 
 type Submission = { id: number; form: string; reference: string; data: Record<string, string | boolean>; files: string[]; read: boolean; createdAt: string };
 
@@ -153,7 +153,7 @@ export default function Publish({ project, hosting, headless, submissions, unrea
                             <button type="button" disabled={!canPublish || publishForm.processing} onClick={() => publishForm.post(`${base}/publish`, { preserveScroll: true })} className={buttonClass.primary}>
                                 {publishForm.processing ? 'Publishing…' : hosting.publishedAt ? 'Publish changes' : 'Publish'}
                             </button>
-                            {hosting.publishedAt && (
+                            {hosting.publishedAt && auth.user?.role !== 'school' && (
                                 <button type="button" onClick={unpublish} className={buttonClass.danger}>
                                     Unpublish
                                 </button>
@@ -189,7 +189,7 @@ export default function Publish({ project, hosting, headless, submissions, unrea
                     </form>
                 </section>
 
-                <HeadlessSection project={project} headless={headless} canEdit={Boolean(auth.user?.canEdit)} />
+                {headless.canManage && <HeadlessSection project={project} headless={headless} canEdit />}
 
                 <section className="rounded-xl border border-zinc-200 bg-white shadow-sm">
                     <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">

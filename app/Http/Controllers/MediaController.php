@@ -34,9 +34,16 @@ class MediaController extends Controller
     /**
      * The library as JSON, for the "Choose from library" picker in editors.
      */
-    public function library(): JsonResponse
+    public function library(Request $request): JsonResponse
     {
-        return response()->json(MediaLibrary::list(ProjectAssets::DIRECTORY));
+        $items = MediaLibrary::list(ProjectAssets::DIRECTORY);
+
+        if ($request->user()->isSchoolStaff()) {
+            $own = ProjectAssets::referencedFiles($request->user()->project?->config ?? []);
+            $items = array_values(array_filter($items, fn (array $item): bool => in_array($item['path'], $own, true)));
+        }
+
+        return response()->json($items);
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\StudioRole;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ class UserController extends Controller
     public function index(): Response
     {
         return Inertia::render('Users/Index', [
-            'users' => User::query()->orderBy('name')->get(['id', 'name', 'email', 'role', 'created_at']),
+            'users' => User::query()->with('project:id,name,slug')->orderBy('name')->get(['id', 'name', 'email', 'role', 'project_id', 'created_at']),
+            'schools' => Project::query()->where('is_template', false)->orderBy('name')->get(['id', 'name']),
             'roles' => collect(StudioRole::cases())->map(fn (StudioRole $role): array => ['value' => $role->value, 'label' => $role->label(), 'description' => $role->description()]),
         ]);
     }
@@ -31,17 +33,22 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:190', Rule::unique(User::class)],
             'role' => ['required', new Enum(StudioRole::class)],
+            'project_id' => $this->schoolRules(),
             'password' => ['required', 'string', 'min:8'],
-        ]);
+        ], ['project_id.required_if' => 'Choose the school this person looks after.']);
 
-        User::create($validated);
+        User::create([...$validated, 'project_id' => $validated['role'] === StudioRole::School->value ? $validated['project_id'] : null]);
 
         return back()->with('success', "{$validated['name']} can now sign in.");
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $validated = $request->validate(['role' => ['required', new Enum(StudioRole::class)]]);
+        $validated = $request->validate(
+            ['role' => ['required', new Enum(StudioRole::class)], 'project_id' => $this->schoolRules()],
+            ['project_id.required_if' => 'Choose the school this person looks after.'],
+        );
+        $validated['project_id'] = $validated['role'] === StudioRole::School->value ? $validated['project_id'] : null;
 
         if ($validated['role'] !== StudioRole::Owner->value) {
             $this->keepAnOwner($user);
@@ -62,6 +69,16 @@ class UserController extends Controller
         $user->delete();
 
         return back()->with('success', "{$user->name} can no longer sign in.");
+    }
+
+    /**
+     * School staff look after exactly one school.
+     *
+     * @return list<mixed>
+     */
+    private function schoolRules(): array
+    {
+        return ['nullable', 'required_if:role,'.StudioRole::School->value, 'integer', Rule::exists('projects', 'id')];
     }
 
     private function keepAnOwner(User $user): void

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\StudioRole;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,14 @@ class UserFactory extends Factory
     public function viewer(): static
     {
         return $this->state(fn (): array => ['role' => StudioRole::Viewer]);
+    }
+
+    /**
+     * School staff looking after the given school.
+     */
+    public function schoolStaff(Project $project): static
+    {
+        return $this->state(fn (): array => ['role' => StudioRole::School, 'project_id' => $project->id]);
     }
 
     /**

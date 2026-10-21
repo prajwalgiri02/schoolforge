@@ -40,7 +40,8 @@ class ProjectPublishController extends Controller
             'headless' => [
                 'enabled' => HeadlessContent::isEnabled($project),
                 'contentUrl' => HeadlessContent::contentUrl($project),
-                'token' => $request->user()->can('edit-projects') ? $project->content_token : null,
+                'token' => $request->user()->can('edit-projects') && ! $request->user()->isSchoolStaff() ? $project->content_token : null,
+                'canManage' => $request->user()->can('edit-projects') && ! $request->user()->isSchoolStaff(),
                 'revalidateUrl' => HeadlessContent::revalidateUrl($project),
                 'isNextjs' => $project->target() === 'nextjs',
             ],
