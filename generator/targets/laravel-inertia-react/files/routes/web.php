@@ -34,6 +34,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
 Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('school.sitemap');
 Route::get('robots.txt', [SeoController::class, 'robots'])->name('school.robots');
+Route::get('events.ics', [SeoController::class, 'calendar'])->name('school.calendar');
 
 Route::post('/contact', ContactMessageController::class)
     ->middleware('throttle:6,1')

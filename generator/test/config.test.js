@@ -41,7 +41,7 @@ describe('validateConfig', () => {
             target: 'rails',
             theme: 'nope',
             colors: { primary: 'blue', sparkle: '#fff' },
-            events: [{ title: 'Sports day', date: '12/11/2026' }],
+            events: [{ title: 'Sports day', date: '12/11/2026' }, { title: 'Exams', date: '2026-12-10', endDate: '2026-12-01' }],
             admissions: { deadline: 'soon' },
         }).join('\n');
 
@@ -50,6 +50,7 @@ describe('validateConfig', () => {
         assert.match(errors, /colors\.primary must be a hex colour/);
         assert.match(errors, /colors\.sparkle is not a known colour token/);
         assert.match(errors, /events\[0\]\.date must use YYYY-MM-DD/);
+        assert.match(errors, /events\[1\]\.endDate must not be before date/);
         assert.match(errors, /admissions\.deadline must use YYYY-MM-DD/);
     });
 

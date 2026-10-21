@@ -1,10 +1,11 @@
 {
     "name": "events",
     "label": "Events",
-    "description": "Upcoming events calendar list.",
+    "description": "Events as a list or a month calendar, with add-to-calendar links and an .ics feed.",
     "category": "section",
     "variants": [
-        "list"
+        "list",
+        "calendar"
     ],
     "requires": [
         "content.events"

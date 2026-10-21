@@ -76,7 +76,7 @@ export type SiteContent = {
     faculty?: { name: string; role?: string; department?: string; photo?: ImageRef; bio?: string }[];
     gallery?: { src?: ImageRef; caption?: string; category?: string }[];
     news?: { slug: string; title: string; date?: string; excerpt?: string; image?: ImageRef; body?: string[] }[];
-    events?: { title: string; date: string; time?: string; location?: string; description?: string }[];
+    events?: { title: string; date: string; endDate?: string; time?: string; location?: string; description?: string; category?: string }[];
     notices?: { title: string; date?: string; link?: string; important?: boolean }[];
     testimonials?: { quote: string; name: string; role?: string; photo?: ImageRef }[];
     achievements?: { title: string; year?: string | number; description?: string }[];

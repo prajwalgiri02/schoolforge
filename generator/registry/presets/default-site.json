@@ -78,7 +78,7 @@
             "navLabel": "News",
             "description": "Stories, announcements, notices and upcoming events.",
             "showInNav": true,
-            "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events" }, { "type": "notices" }]
+            "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events", "variant": "calendar" }, { "type": "notices" }]
         },
         {
             "slug": "/contact",

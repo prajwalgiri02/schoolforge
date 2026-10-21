@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SchoolCalendar;
 use App\Support\SchoolSite;
 use Illuminate\Http\Response;
 
@@ -32,6 +33,17 @@ class SeoController extends Controller
             .'</urlset>'."\n";
 
         return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+    }
+
+    /**
+     * The school's events as an iCalendar feed families can subscribe to.
+     */
+    public function calendar(SchoolSite $site): Response
+    {
+        return response(SchoolCalendar::ics($site->data()), 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'inline; filename="events.ics"',
+        ]);
     }
 
     /**

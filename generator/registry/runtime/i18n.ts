@@ -64,6 +64,13 @@ const dictionaries = {
         allNews: 'All news & updates',
         calendar: 'Calendar',
         upcomingEvents: 'Upcoming events',
+        addToCalendar: 'Add to calendar',
+        subscribeCalendar: 'Subscribe to the calendar',
+        previousMonth: 'Previous month',
+        nextMonth: 'Next month',
+        noEventsThisMonth: 'No events this month.',
+        eventsOn: 'Events on {date}',
+        until: 'until {date}',
         noticeBoard: 'Notice Board',
         noticesTitle: 'Notices & circulars',
         important: 'Important',
@@ -162,6 +169,13 @@ const dictionaries = {
         allNews: 'सबै समाचार र अपडेट',
         calendar: 'पात्रो',
         upcomingEvents: 'आगामी कार्यक्रमहरू',
+        addToCalendar: 'पात्रोमा थप्नुहोस्',
+        subscribeCalendar: 'पात्रो सब्स्क्राइब गर्नुहोस्',
+        previousMonth: 'अघिल्लो महिना',
+        nextMonth: 'अर्को महिना',
+        noEventsThisMonth: 'यो महिना कुनै कार्यक्रम छैन।',
+        eventsOn: '{date} का कार्यक्रमहरू',
+        until: '{date} सम्म',
         noticeBoard: 'सूचना पाटी',
         noticesTitle: 'सूचना र परिपत्रहरू',
         important: 'महत्त्वपूर्ण',
@@ -308,4 +322,56 @@ export function siteDateParts(site: SiteData, value: string): { day: string; mon
         month: new Intl.DateTimeFormat(locale, { month: 'short' }).format(date),
         year: new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(date),
     };
+}
+
+/** YYYY-MM-DD of a local date. */
+export function isoDate(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * A month of the site's calendar (Bikram Sambat or Gregorian), `offset` months
+ * after the month containing `value`: its name and its days as ISO dates.
+ */
+export function calendarMonth(site: SiteData, value: string, offset = 0): { label: string; days: string[] } {
+    const start = new Date(`${value}T00:00:00`);
+    const days: string[] = [];
+
+    if (site.i18n?.calendar === 'bs') {
+        const nepali = new NepaliDate(start);
+        const index = nepali.getYear() * 12 + nepali.getMonth() + offset;
+        const first = new NepaliDate(Math.floor(index / 12), index % 12, 1);
+        const day = first.toJsDate();
+
+        while (new NepaliDate(day).getMonth() === first.getMonth()) {
+            days.push(isoDate(day));
+            day.setDate(day.getDate() + 1);
+        }
+
+        return { label: first.format('MMMM YYYY', localeOf(site) === 'ne' ? 'np' : 'en'), days };
+    }
+
+    const first = new Date(start.getFullYear(), start.getMonth() + offset, 1);
+
+    for (const day = new Date(first); day.getMonth() === first.getMonth(); day.setDate(day.getDate() + 1)) {
+        days.push(isoDate(day));
+    }
+
+    return { label: new Intl.DateTimeFormat(localeOf(site) === 'ne' ? 'ne-NP' : 'en', { month: 'long', year: 'numeric' }).format(first), days };
+}
+
+const nepaliWeekdays = ['आइत', 'सोम', 'मङ्गल', 'बुध', 'बिहि', 'शुक्र', 'शनि'];
+
+/**
+ * Short weekday names, Sunday first. Nepali names are built in because not every
+ * browser ships Nepali locale data, and server and browser markup must match.
+ */
+export function weekdayNames(site: SiteData): string[] {
+    if (localeOf(site) === 'ne') {
+        return nepaliWeekdays;
+    }
+
+    const format = new Intl.DateTimeFormat(localeOf(site) === 'ne' ? 'ne-NP' : 'en', { weekday: 'short' });
+
+    return Array.from({ length: 7 }, (_, index) => format.format(new Date(2026, 0, 4 + index)));
 }

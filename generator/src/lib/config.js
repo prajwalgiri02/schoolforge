@@ -119,10 +119,14 @@ export function validateConfig(config, { components = null } = {}) {
                 }
             }
 
-            for (const dateField of ['date', 'deadline']) {
+            for (const dateField of ['date', 'endDate', 'deadline']) {
                 if (item[dateField] !== undefined && !ISO_DATE.test(String(item[dateField]))) {
                     errors.push(`${key}[${index}].${dateField} must use YYYY-MM-DD (got "${item[dateField]}").`);
                 }
+            }
+
+            if (ISO_DATE.test(String(item.date)) && ISO_DATE.test(String(item.endDate)) && item.endDate < item.date) {
+                errors.push(`${key}[${index}].endDate must not be before date.`);
             }
         });
     }

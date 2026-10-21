@@ -19,7 +19,7 @@
         "node": ">=20.11"
     },
     "scripts": {
-        "test": "node --test \"test/**/*.test.js\"",
+        "test": "node --experimental-strip-types --test \"test/**/*.test.js\"",
         "demo": "node bin/schoolforge.js create .demo/next-site --config examples/school.config.json --force"
     },
     "license": "MIT"

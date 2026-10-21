@@ -132,8 +132,10 @@ class ContentSchema
             'events' => self::section('Events', 'Upcoming events calendar.', 'list', 'content.events', [
                 self::field('title', 'text', 'Title', required: true),
                 self::field('date', 'date', 'Date', required: true),
-                self::field('time', 'text', 'Time'),
+                self::field('endDate', 'date', 'End date', help: 'For events that last several days'),
+                self::field('time', 'text', 'Time', help: 'e.g. 9 am - 1 pm (leave empty for all-day events)'),
                 self::field('location', 'text', 'Location'),
+                self::field('category', 'text', 'Category', help: 'e.g. Sports, Exams, Holiday'),
                 self::field('description', 'textarea', 'Description'),
             ], 'title'),
             'notices' => self::section('Notices', 'Notice board and circulars.', 'list', 'content.notices', [
