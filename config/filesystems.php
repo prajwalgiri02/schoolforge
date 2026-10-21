@@ -47,6 +47,13 @@ return [
             'report' => false,
         ],
 
+        // Off-site backups on a mounted network drive: set SCHOOLFORGE_BACKUP_DISK=offsite.
+        'offsite' => [
+            'driver' => 'local',
+            'root' => env('OFFSITE_BACKUP_PATH', '/mnt/backups'),
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Behind a reverse proxy (compose.yaml sets TRUSTED_PROXIES=* for Caddy),
+        // use the visitor's address and scheme it forwards.
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
+
         $middleware->append(ServeHostedSites::class);
 
         $middleware->web(append: [

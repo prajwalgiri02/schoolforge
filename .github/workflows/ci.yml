@@ -31,6 +31,29 @@ jobs:
       - run: cp .env.example .env && php artisan key:generate
       - run: php artisan test
 
+  studio-docker:
+    name: Studio Docker stack
+    runs-on: ubuntu-latest
+    needs: studio
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose stack serves Studio over HTTPS and can generate sites
+        run: |
+          printf 'APP_KEY=base64:%s\nSTUDIO_HOST=localhost\n' "$(openssl rand -base64 32)" > .env
+          docker compose up -d --build
+          for i in $(seq 1 60); do curl -skf https://localhost/login > login.html && break; sleep 3; done
+          grep -q 'data-page' login.html
+          docker compose exec -T web php artisan studio:user ci@example.com --password=ci-password-123 --role=owner
+          test "$(curl -sk -o /dev/null -w '%{http_code}' 'https://localhost/hosting/certificate-check?domain=evil.example.org')" = 404
+          docker compose exec -T web test -f bootstrap/ssr/ssr.js
+          docker compose exec -T web test -f generator/registry/themes/classic/theme.json
+          docker compose exec -T web node generator/bin/schoolforge.js create /tmp/ci-site --config generator/examples/school.config.json --skip-install
+          docker compose exec -T web composer --version
+          docker compose exec -T web php artisan schedule:list | grep -q studio:backup
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --tail=200 || true
+
   generator:
     name: Generator CLI
     runs-on: ubuntu-latest

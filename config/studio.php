@@ -94,6 +94,14 @@ return [
 
     'grace_days' => (int) env('SCHOOLFORGE_GRACE_DAYS', 14),
 
+    /*
+    | A filesystem disk (config/filesystems.php) that each nightly backup is also
+    | copied to, e.g. a network drive or object storage. Empty keeps backups on
+    | this server only.
+    */
+
+    'backup_disk' => env('SCHOOLFORGE_BACKUP_DISK'),
+
     'billing_from' => env('SCHOOLFORGE_BILLING_FROM', env('APP_NAME', 'SchoolForge')),
 
 ];

@@ -67,9 +67,26 @@ The generator also works on its own from the command line. See [generator/README
 | `SCHOOLFORGE_HOSTING_DOMAIN` | none | Serve published schools at `<slug>.<domain>` too |
 | `SCHOOLFORGE_SERVER_IPS` | addresses of `APP_URL`'s host | This server's public IPs, for checking schools' DNS |
 | `SCHOOLFORGE_INVOICE_DAYS_BEFORE` | `14` | Days before a paid period ends that the next invoice is issued |
+| `SCHOOLFORGE_BACKUP_DISK` | none | Disk that nightly backups are also copied to |
 | `SCHOOLFORGE_GRACE_DAYS` | `14` | Days late before a hosted school shows "temporarily unavailable" |
 
 Keep code editing off on a public server: it lets signed-in users change code that runs in every generated site.
+
+## Running Studio on a server
+
+`compose.yaml` runs everything with one command: Studio, its queue worker and scheduler,
+and Caddy for HTTPS. On a server with Docker, point Studio's domain at it, then:
+
+```bash
+echo "APP_KEY=$(php artisan key:generate --show)" > .env   # or any base64:… 32-byte key
+echo "STUDIO_HOST=studio.example.com" >> .env
+docker compose up -d --build
+docker compose exec web php artisan studio:user you@example.com --role=owner
+```
+
+Schools, uploads, backups and the theme/component registry live in Docker volumes, so
+they survive rebuilds. Mail settings (`MAIL_MAILER`, `MAIL_HOST`, …) and the other
+settings below can go in the same `.env`.
 
 ## Hosting schools
 
@@ -107,6 +124,13 @@ on the Publish tab shows what is left to do.
 theme/component registry to `storage/app/private/backups`, and runs nightly when the
 scheduler is running (`php artisan schedule:work`, or a cron entry for
 `php artisan schedule:run`). Restore with `php artisan studio:backup --restore=path/to/backup.zip`.
+
+To keep a copy on another machine, set `SCHOOLFORGE_BACKUP_DISK` to a filesystem disk
+from `config/filesystems.php`: `offsite` writes to a mounted network drive
+(`OFFSITE_BACKUP_PATH`, default `/mnt/backups`); `s3` needs
+`composer require league/flysystem-aws-s3-v3` and the `AWS_*` settings. The same number
+of backups is kept there, and the command fails (so the scheduler reports it) when the
+copy cannot be made.
 
 Generated Laravel sites have the same feature as `php artisan school:backup`.
 

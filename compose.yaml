@@ -1,0 +1,81 @@
+# SchoolForge Studio in production: docker compose up -d --build
+# Put these in a .env file next to this one (see README → Running Studio on a server):
+#   APP_KEY=        from `php artisan key:generate --show`
+#   STUDIO_HOST=    the domain Studio answers on, e.g. studio.example.com
+# Then create the first login:
+#   docker compose exec web php artisan studio:user you@example.com --role=owner
+
+x-studio: &studio
+  build:
+    context: .
+    target: web
+  image: schoolforge-studio
+  restart: unless-stopped
+  environment: &env
+    APP_NAME: SchoolForge Studio
+    APP_ENV: production
+    APP_DEBUG: 'false'
+    APP_KEY: ${APP_KEY:?Set APP_KEY in .env}
+    APP_URL: https://${STUDIO_HOST:?Set STUDIO_HOST in .env}
+    DB_CONNECTION: sqlite
+    DB_DATABASE: /var/www/html/database/data/database.sqlite
+    QUEUE_CONNECTION: database
+    MAIL_MAILER: ${MAIL_MAILER:-log}
+    MAIL_HOST: ${MAIL_HOST:-}
+    MAIL_PORT: ${MAIL_PORT:-587}
+    MAIL_USERNAME: ${MAIL_USERNAME:-}
+    MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-studio@example.com}
+    SCHOOLFORGE_HOSTING_DOMAIN: ${SCHOOLFORGE_HOSTING_DOMAIN:-}
+    SCHOOLFORGE_SERVER_IPS: ${SCHOOLFORGE_SERVER_IPS:-}
+    SCHOOLFORGE_BACKUP_DISK: ${SCHOOLFORGE_BACKUP_DISK:-}
+    # Only Caddy can reach Studio, so the client address it forwards is trusted.
+    TRUSTED_PROXIES: '*'
+  volumes:
+    - storage:/var/www/html/storage/app
+    - database:/var/www/html/database/data
+    - registry:/var/www/html/generator/registry
+
+services:
+  web:
+    <<: *studio
+
+  queue:
+    <<: *studio
+    command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=1', '--timeout=1900']
+    environment:
+      <<: *env
+      AUTORUN_ENABLED: 'false'
+    depends_on:
+      - web
+
+  scheduler:
+    <<: *studio
+    command: ['php', '/var/www/html/artisan', 'schedule:work']
+    environment:
+      <<: *env
+      AUTORUN_ENABLED: 'false'
+    depends_on:
+      - web
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      STUDIO_HOST: ${STUDIO_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  storage:
+  database:
+  registry:
+  caddy_data:
+  caddy_config:
