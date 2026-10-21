@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\SiteSubmission;
 use App\Services\Generator;
+use App\Support\DomainCheck;
 use App\Support\HeadlessContent;
 use App\Support\HostedSites;
 use App\Support\ProjectPresenter;
@@ -55,6 +56,7 @@ class ProjectPublishController extends Controller
                 'createdAt' => $submission->created_at->toIso8601String(),
             ]),
             'unread' => $project->siteSubmissions()->whereNull('read_at')->count(),
+            'domainCheck' => Inertia::optional(fn (): ?array => $project->domain ? DomainCheck::run($project) : null),
         ]);
     }
 

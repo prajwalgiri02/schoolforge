@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\CertificateCheckController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PreviewController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\ThemeTransferController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('hosting/certificate-check', CertificateCheckController::class)->middleware('throttle:120,1')->name('hosting.certificate-check');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('login', [SessionController::class, 'create'])->name('login');

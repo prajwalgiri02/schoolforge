@@ -64,8 +64,42 @@ The generator also works on its own from the command line. See [generator/README
 | `SCHOOLFORGE_NODE_BINARY` | `node` | Node.js executable used to run the generator |
 | `SCHOOLFORGE_TIMEOUT` | `1800` | Seconds a generation (including installs) may take |
 | `SCHOOLFORGE_CODE_EDITING` | on when `APP_ENV=local` | Allow editing component source code in the browser |
+| `SCHOOLFORGE_HOSTING_DOMAIN` | none | Serve published schools at `<slug>.<domain>` too |
+| `SCHOOLFORGE_SERVER_IPS` | addresses of `APP_URL`'s host | This server's public IPs, for checking schools' DNS |
+| `SCHOOLFORGE_INVOICE_DAYS_BEFORE` | `14` | Days before a paid period ends that the next invoice is issued |
+| `SCHOOLFORGE_GRACE_DAYS` | `14` | Days late before a hosted school shows "temporarily unavailable" |
 
-Studio is meant to run on your own machine or a private server. It writes to folders you choose and, with code editing on, to the component registry, so do not expose it publicly.
+Keep code editing off on a public server: it lets signed-in users change code that runs in every generated site.
+
+## Hosting schools
+
+Publishing a school (its **Publish** tab) makes Studio serve it on the school's domain,
+rendered to HTML for search engines. Run `npm run build` on the server; it also builds
+the renderer (`bootstrap/ssr/ssr.js`). For HTTPS on every school's domain without
+configuring each one, put [Caddy](https://caddyserver.com) in front of Studio with
+on-demand certificates, which Studio only allows for published schools:
+
+```caddyfile
+{
+    on_demand_tls {
+        ask http://127.0.0.1:8000/hosting/certificate-check
+    }
+}
+
+studio.example.com {
+    reverse_proxy 127.0.0.1:8000
+}
+
+https:// {
+    tls {
+        on_demand
+    }
+    reverse_proxy 127.0.0.1:8000
+}
+```
+
+Then point each school's domain (and its `www.`) at the server; **Check DNS and HTTPS**
+on the Publish tab shows what is left to do.
 
 ## Backups
 

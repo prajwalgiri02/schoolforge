@@ -75,6 +75,10 @@ return [
 
     'hosting_scheme' => env('SCHOOLFORGE_HOSTING_SCHEME', 'https'),
 
+    // This server's public IP addresses (comma separated), for checking schools' DNS.
+    // When empty, the addresses of APP_URL's host are used.
+    'server_ips' => env('SCHOOLFORGE_SERVER_IPS'),
+
     /*
     |--------------------------------------------------------------------------
     | Billing

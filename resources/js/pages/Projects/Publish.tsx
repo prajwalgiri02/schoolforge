@@ -10,6 +10,36 @@ type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url
 
 type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean; canManage: boolean };
 
+type DomainCheckResult = { records: { host: string; addresses: string[]; pointsHere: boolean }[]; serverAddresses: string[]; https: boolean; checkedAt: string };
+
+function DomainStatus({ check }: { check: DomainCheckResult }) {
+    const row = (ok: boolean, label: string, detail: string) => (
+        <li className="flex gap-2">
+            {ok ? <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />}
+            <span>
+                <span className="font-medium">{label}</span> <span className="text-zinc-500">{detail}</span>
+            </span>
+        </li>
+    );
+
+    return (
+        <ul className="mt-3 space-y-1.5 rounded-lg bg-zinc-50 p-3 text-sm">
+            {check.records.map((record) =>
+                row(
+                    record.pointsHere,
+                    record.host,
+                    record.addresses.length === 0
+                        ? 'has no DNS record yet.'
+                        : record.pointsHere
+                          ? 'points at this server.'
+                          : `points at ${record.addresses.join(', ')}, not this server (${check.serverAddresses.join(', ') || 'unknown'}).`,
+                ),
+            )}
+            {row(check.https, 'HTTPS', check.https ? 'works.' : 'is not working yet. Once DNS points here, the certificate is issued on the first visit.')}
+        </ul>
+    );
+}
+
 type Submission = { id: number; form: string; reference: string; data: Record<string, string | boolean>; files: string[]; read: boolean; createdAt: string };
 
 type Paginated<T> = { data: T[]; links: { url: string | null; label: string; active: boolean }[]; last_page: number };
@@ -89,7 +119,22 @@ function HeadlessSection({ project, headless, canEdit }: { project: ProjectSumma
     );
 }
 
-export default function Publish({ project, hosting, headless, submissions, unread }: { project: ProjectSummary; hosting: Hosting; headless: Headless; submissions: Paginated<Submission>; unread: number }) {
+export default function Publish({
+    project,
+    hosting,
+    headless,
+    submissions,
+    unread,
+    domainCheck,
+}: {
+    project: ProjectSummary;
+    hosting: Hosting;
+    headless: Headless;
+    submissions: Paginated<Submission>;
+    unread: number;
+    domainCheck?: DomainCheckResult | null;
+}) {
+    const [checkingDomain, setCheckingDomain] = useState(false);
     const { auth } = usePage<StudioSharedProps>().props;
     const domainForm = useForm({ domain: hosting.domain ?? '' });
     const publishForm = useForm({});
@@ -184,9 +229,25 @@ export default function Publish({ project, hosting, headless, submissions, unrea
                         </div>
                         <FieldError message={domainForm.errors.domain} />
                         <p className="text-xs text-zinc-500">
-                            At the domain’s DNS provider, point the domain (an A record, or a CNAME to <span className="font-mono">{hosting.serverHost}</span>) at this Studio server, and set up HTTPS for it on the server. Both the bare domain and www. work.
+                            At the domain’s DNS provider, point the domain and its www. version at this server (an A record, or a CNAME to <span className="font-mono">{hosting.serverHost}</span>). HTTPS is set up automatically once the school is published.
                         </p>
                     </form>
+                    {hosting.domain && (
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                disabled={checkingDomain}
+                                onClick={() => {
+                                    setCheckingDomain(true);
+                                    router.reload({ only: ['domainCheck'], onFinish: () => setCheckingDomain(false) });
+                                }}
+                                className={buttonClass.secondary}
+                            >
+                                {checkingDomain ? 'Checking…' : 'Check DNS and HTTPS'}
+                            </button>
+                            {domainCheck && <DomainStatus check={domainCheck} />}
+                        </div>
+                    )}
                 </section>
 
                 {headless.canManage && <HeadlessSection project={project} headless={headless} canEdit />}
