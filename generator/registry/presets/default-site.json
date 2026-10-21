@@ -70,7 +70,7 @@
             "title": "Gallery",
             "description": "Moments from classrooms, sports fields, stages and celebrations.",
             "showInNav": true,
-            "sections": [{ "type": "page-header" }, { "type": "gallery" }]
+            "sections": [{ "type": "page-header" }, { "type": "albums" }, { "type": "gallery" }, { "type": "videos" }]
         },
         {
             "slug": "/news",

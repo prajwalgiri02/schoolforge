@@ -1,0 +1,16 @@
+{
+    "name": "videos",
+    "label": "Videos",
+    "description": "YouTube and Vimeo videos that load only when played.",
+    "category": "section",
+    "variants": [
+        "grid",
+        "featured"
+    ],
+    "requires": [
+        "content.videos"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

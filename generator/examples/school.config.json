@@ -302,6 +302,68 @@
             "category": "Community"
         }
     ],
+    "albums": [
+        {
+            "title": "Annual Day 2026",
+            "date": "2026-03-14",
+            "description": "Dance, drama and music from every grade on our biggest night of the year.",
+            "photos": [
+                {
+                    "caption": "Opening ceremony"
+                },
+                {
+                    "caption": "Grade 3 folk dance"
+                },
+                {
+                    "caption": "School choir"
+                },
+                {
+                    "caption": "Prize distribution"
+                },
+                {
+                    "caption": "Drama club performance"
+                },
+                {
+                    "caption": "Closing night"
+                }
+            ]
+        },
+        {
+            "title": "Science Fair",
+            "date": "2026-08-22",
+            "description": "Young inventors showing robots, water filters and solar models.",
+            "photos": [
+                {
+                    "caption": "Solar car project"
+                },
+                {
+                    "caption": "Water filter demo"
+                },
+                {
+                    "caption": "Judges at work"
+                },
+                {
+                    "caption": "Winning team"
+                }
+            ]
+        }
+    ],
+    "videos": [
+        {
+            "title": "A day at Riverside Heights",
+            "url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+            "description": "Follow our students from morning assembly to evening sports."
+        },
+        {
+            "title": "Annual Day highlights",
+            "url": "https://youtu.be/aqz-KE-bpKQ",
+            "date": "2026-03-14"
+        },
+        {
+            "title": "Robotics club in action",
+            "url": "https://vimeo.com/76979871"
+        }
+    ],
     "news": [
         {
             "title": "Riverside students win national science olympiad",
@@ -557,7 +619,16 @@
                 "/contact": {
                     "title": "सम्पर्क"
                 }
-            }
+            },
+            "albums": [
+                {
+                    "title": "वार्षिकोत्सव २०२६",
+                    "description": "हरेक कक्षाका नृत्य, नाटक र संगीत।"
+                },
+                {
+                    "title": "विज्ञान मेला"
+                }
+            ]
         }
     }
 }

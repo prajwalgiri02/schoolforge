@@ -121,6 +121,24 @@ class ContentSchema
                 self::field('caption', 'text', 'Caption'),
                 self::field('category', 'text', 'Category', help: 'Used for the gallery filter.'),
             ], 'caption'),
+            'albums' => self::section('Photo albums', 'Albums of photos, each with its own page under /gallery.', 'list', 'content.albums', [
+                self::field('title', 'text', 'Title', required: true),
+                self::field('date', 'date', 'Date'),
+                self::field('description', 'textarea', 'Description'),
+                self::field('cover', 'image', 'Cover photo', help: 'Leave empty to use the first photo.'),
+                self::field('photos', 'items', 'Photos', fields: [
+                    self::field('src', 'image', 'Photo'),
+                    self::field('caption', 'text', 'Caption'),
+                ]),
+                self::field('slug', 'text', 'URL slug', help: 'Leave empty to create it from the title.'),
+            ], 'title'),
+            'videos' => self::section('Videos', 'YouTube or Vimeo videos.', 'list', 'content.videos', [
+                self::field('title', 'text', 'Title', required: true),
+                self::field('url', 'url', 'Video link', required: true, help: 'e.g. https://www.youtube.com/watch?v=… or https://vimeo.com/…'),
+                self::field('date', 'date', 'Date'),
+                self::field('description', 'textarea', 'Description'),
+                self::field('thumbnail', 'image', 'Thumbnail', help: 'Optional. YouTube videos get one automatically.'),
+            ], 'title'),
             'news' => self::section('News', 'News stories. Stories with a full text get their own page.', 'list', 'content.news', [
                 self::field('title', 'text', 'Title', required: true),
                 self::field('date', 'date', 'Date'),
@@ -210,7 +228,7 @@ class ContentSchema
 
     /**
      * Removes empty values so stored content mirrors a hand-written school config,
-     * and fills in news slugs so article URLs stay stable.
+     * and fills in news and album slugs so their URLs stay stable.
      */
     public static function normalize(string $key, mixed $value): mixed
     {
@@ -221,8 +239,13 @@ class ContentSchema
             $value = array_values(array_filter($value, fn ($item): bool => is_array($item) && $item !== []));
         }
 
-        if ($key === 'news') {
-            $value = array_map(fn (array $item): array => [...$item, 'slug' => Str::slug($item['slug'] ?? $item['title'])], $value);
+        if (in_array($key, ['news', 'albums'], true)) {
+            $noun = $key === 'news' ? 'article' : 'album';
+            $value = array_map(
+                fn (array $item, int $index): array => [...$item, 'slug' => Str::slug($item['slug'] ?? $item['title']) ?: "{$noun}-".($index + 1)],
+                $value,
+                array_keys($value),
+            );
         }
 
         if ($key === 'school' && isset($value['established']) && ctype_digit((string) $value['established'])) {
@@ -306,7 +329,7 @@ class ContentSchema
                 'boolean' => $rules[$path] = ['nullable', 'boolean'],
                 'strings', 'paragraphs' => $rules += [$path => [$presence, 'array', 'max:100'], "{$path}.*" => ['nullable', 'string', 'max:5000']],
                 'link' => $rules += [$path => ['nullable', 'array'], "{$path}.label" => ["required_with:{$path}.href", 'nullable', 'string', 'max:120'], "{$path}.href" => ["required_with:{$path}.label", 'nullable', 'string', 'max:500']],
-                'items' => $rules += [$path => ['nullable', 'array', 'max:50'], ...self::fieldRules($field['fields'], "{$path}.*")],
+                'items' => $rules += [$path => ['nullable', 'array', 'max:200'], ...self::fieldRules($field['fields'], "{$path}.*")],
             };
         }
 

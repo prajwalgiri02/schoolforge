@@ -1,0 +1,15 @@
+{
+    "name": "album",
+    "label": "Album",
+    "description": "Photo album page body (generated automatically for every album).",
+    "category": "section",
+    "variants": [
+        "default"
+    ],
+    "requires": [
+        "content.albums"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

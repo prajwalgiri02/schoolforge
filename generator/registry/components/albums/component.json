@@ -1,0 +1,15 @@
+{
+    "name": "albums",
+    "label": "Photo albums",
+    "description": "Album covers linking to a page of photos for each album.",
+    "category": "section",
+    "variants": [
+        "grid"
+    ],
+    "requires": [
+        "content.albums"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

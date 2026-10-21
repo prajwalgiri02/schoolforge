@@ -1,7 +1,7 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Lightbox, useLightbox } from '../../runtime/lightbox';
 import { ButtonLink, Container, Media, Section, SectionHeading, cn, limitItems } from '../../runtime/ui';
 import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
@@ -13,39 +13,16 @@ export default function Gallery({ section, site }: GalleryProps) {
     const all = limitItems(site.content.gallery, section.limit);
     const categories = Array.from(new Set(all.map((item) => item.category).filter(Boolean))) as string[];
     const [category, setCategory] = useState<string | null>(null);
-    const [active, setActive] = useState<number | null>(null);
     const items = category ? all.filter((item) => item.category === category) : all;
     const showFilter = section.filter !== false && categories.length > 1 && !section.limit;
     const isPreview = typeof section.limit === 'number' && (site.content.gallery?.length ?? 0) > section.limit;
     const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/gallery') ? { label: t(site, 'openGallery'), href: '/gallery' } : null));
 
-    const close = useCallback(() => setActive(null), []);
-    const step = useCallback((delta: number) => setActive((index) => (index === null ? null : (index + delta + items.length) % items.length)), [items.length]);
-
-    useEffect(() => {
-        if (active === null) {
-            return;
-        }
-
-        const onKey = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                close();
-            } else if (event.key === 'ArrowRight') {
-                step(1);
-            } else if (event.key === 'ArrowLeft') {
-                step(-1);
-            }
-        };
-        window.addEventListener('keydown', onKey);
-
-        return () => window.removeEventListener('keydown', onKey);
-    }, [active, close, step]);
+    const lightbox = useLightbox(items.length);
 
     if (all.length === 0) {
         return null;
     }
-
-    const current = active === null ? null : items[active];
 
     return (
         <Section>
@@ -75,7 +52,7 @@ export default function Gallery({ section, site }: GalleryProps) {
                         <button
                             key={`${item.caption ?? 'image'}-${index}`}
                             type="button"
-                            onClick={() => setActive(index)}
+                            onClick={() => lightbox.open(index)}
                             className={cn(
                                 'group relative block w-full overflow-hidden rounded-card text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                                 variant === 'masonry' ? (index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/3]') : 'aspect-square',
@@ -98,25 +75,7 @@ export default function Gallery({ section, site }: GalleryProps) {
                     </div>
                 )}
             </Container>
-            {current && (
-                <div role="dialog" aria-modal="true" aria-label={current.caption ?? t(site, 'imagePreview')} className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={close}>
-                    <button type="button" onClick={close} aria-label={t(site, 'close')} className="absolute right-4 top-4 text-white/80 hover:text-white">
-                        <X className="h-8 w-8" />
-                    </button>
-                    <button type="button" onClick={(event) => (event.stopPropagation(), step(-1))} aria-label={t(site, 'previousImage')} className="absolute left-4 text-white/80 hover:text-white">
-                        <ChevronLeft className="h-10 w-10" />
-                    </button>
-                    <figure className="max-h-full w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
-                        <div className="aspect-[16/10] overflow-hidden rounded-card">
-                            <Media src={current.src} alt={current.caption ?? t(site, 'galleryImage')} label={current.caption} icon="camera" className="object-contain" />
-                        </div>
-                        {current.caption && <figcaption className="mt-4 text-center text-white/85">{current.caption}</figcaption>}
-                    </figure>
-                    <button type="button" onClick={(event) => (event.stopPropagation(), step(1))} aria-label={t(site, 'nextImage')} className="absolute right-4 text-white/80 hover:text-white">
-                        <ChevronRight className="h-10 w-10" />
-                    </button>
-                </div>
-            )}
+            <Lightbox site={site} item={lightbox.active === null ? null : items[lightbox.active]} onClose={lightbox.close} onStep={lightbox.step} />
         </Section>
     );
 }

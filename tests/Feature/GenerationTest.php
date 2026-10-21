@@ -47,7 +47,7 @@ class GenerationTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Projects/Generate')
                 ->where('validation.ok', true)
-                ->where('validation.pageCount', 11)
+                ->where('validation.pageCount', 13)
                 ->where('defaults.outputPath', "{$this->outputRoot}/{$project->slug}")
                 ->where('defaults.isExisting', false)
                 ->has('runs', 0));

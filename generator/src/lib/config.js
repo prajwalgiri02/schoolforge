@@ -12,6 +12,8 @@ export const CONTENT_KEYS = [
     'facilities',
     'faculty',
     'gallery',
+    'albums',
+    'videos',
     'news',
     'events',
     'notices',
@@ -21,13 +23,15 @@ export const CONTENT_KEYS = [
     'faqs',
 ];
 
-const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
+const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'albums', 'videos', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
 
 const COLLECTION_REQUIRED_FIELDS = {
     stats: ['label', 'value'],
     programs: ['name'],
     facilities: ['name'],
     faculty: ['name'],
+    albums: ['title'],
+    videos: ['title', 'url'],
     news: ['title'],
     events: ['title', 'date'],
     notices: ['title'],
@@ -42,6 +46,18 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function loadConfig(file) {
     return readJson(file);
+}
+
+const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const SLUGGED_COLLECTIONS = { news: 'article', albums: 'album' };
+
+/**
+ * News and albums with their URL slug filled in: the given one, else one made
+ * from the title, else "article-2" for titles without Latin letters.
+ */
+function withSlugs(items, noun) {
+    return items.map((item, index) => (isObject(item) ? { ...item, slug: item.slug || slugify(item.title ?? '') || `${noun}-${index + 1}` } : item));
 }
 
 export function slugify(value) {
@@ -60,7 +76,6 @@ export function slugify(value) {
  */
 export function validateConfig(config, { components = null } = {}) {
     const errors = [];
-    const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
     if (!isObject(config)) {
         return ['Config must be a JSON object.'];
@@ -171,14 +186,28 @@ export function validateConfig(config, { components = null } = {}) {
         }
     }
 
-    if (Array.isArray(config.news)) {
-        const slugs = config.news.map((item) => item.slug ?? slugify(item.title ?? ''));
-        const duplicate = slugs.find((slug, index) => slugs.indexOf(slug) !== index);
+    for (const [key, noun] of Object.entries(SLUGGED_COLLECTIONS)) {
+        if (Array.isArray(config[key])) {
+            const slugs = withSlugs(config[key], noun).map((item) => item?.slug);
+            const duplicate = slugs.find((slug, index) => slugs.indexOf(slug) !== index);
 
-        if (duplicate) {
-            errors.push(`news slug "${duplicate}" is used more than once. Give each article a unique "slug".`);
+            if (duplicate) {
+                errors.push(`${key} slug "${duplicate}" is used more than once. Give each ${noun} a unique "slug".`);
+            }
         }
     }
+
+    (Array.isArray(config.albums) ? config.albums : []).forEach((album, index) => {
+        if (album?.photos !== undefined && (!Array.isArray(album.photos) || album.photos.some((photo) => !isObject(photo)))) {
+            errors.push(`albums[${index}].photos must be a list of photos like { "src": "...", "caption": "..." }.`);
+        }
+    });
+
+    (Array.isArray(config.videos) ? config.videos : []).forEach((video, index) => {
+        if (typeof video?.url === 'string' && !/^https?:\/\//.test(video.url)) {
+            errors.push(`videos[${index}].url must be a full link such as https://www.youtube.com/watch?v=... (got "${video.url}").`);
+        }
+    });
 
     if (config.pages !== undefined) {
         if (!Array.isArray(config.pages) || config.pages.length === 0) {
@@ -304,7 +333,16 @@ export function localizedConfig(config, locale) {
     }
 
     const { pages: _pages, navigation, ...translation } = config.translations?.[locale] ?? {};
-    const localized = mergeTranslation(config, translation);
+    const slugged = { ...config };
+
+    // Pin slugs to the default language so /ne/news/<slug> matches /news/<slug>.
+    for (const [key, noun] of Object.entries(SLUGGED_COLLECTIONS)) {
+        if (Array.isArray(config[key])) {
+            slugged[key] = withSlugs(config[key], noun);
+        }
+    }
+
+    const localized = mergeTranslation(slugged, translation);
 
     return navigation ? { ...localized, navigation } : localized;
 }
@@ -352,8 +390,10 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
         }
     }
 
-    if (content.news) {
-        content.news = content.news.map((item) => ({ ...item, slug: item.slug ?? slugify(item.title) }));
+    for (const [key, noun] of Object.entries(SLUGGED_COLLECTIONS)) {
+        if (content[key]) {
+            content[key] = withSlugs(content[key], noun);
+        }
     }
 
     const school = structuredClone(config.school);
@@ -411,6 +451,20 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
                 description: item.excerpt,
                 showInNav: false,
                 sections: [{ type: 'article', newsSlug: item.slug }],
+            });
+        }
+    }
+
+    for (const album of content.albums ?? []) {
+        const slug = `/gallery/${album.slug}`;
+
+        if (!slugs.has(slug)) {
+            pages.push({
+                slug,
+                title: album.title,
+                description: album.description,
+                showInNav: false,
+                sections: [{ type: 'album', albumSlug: album.slug }],
             });
         }
     }

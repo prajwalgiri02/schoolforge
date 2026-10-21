@@ -30,6 +30,8 @@ const previewPaths: Record<string, string> = {
     faculty: '/faculty',
     facilities: '/facilities',
     gallery: '/gallery',
+    albums: '/gallery',
+    videos: '/gallery',
     news: '/news',
     events: '/news',
     notices: '/news',

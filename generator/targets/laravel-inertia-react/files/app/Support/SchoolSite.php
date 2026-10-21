@@ -72,7 +72,7 @@ class SchoolSite
             }
         }
 
-        return $this->withArticlePages($site);
+        return $this->withGeneratedPages($site);
     }
 
     /**
@@ -88,7 +88,7 @@ class SchoolSite
             $site = ContentSchema::apply($site, $key, $value);
         }
 
-        return $this->withArticlePages($site);
+        return $this->withGeneratedPages($site);
     }
 
     /**
@@ -179,16 +179,17 @@ class SchoolSite
     }
 
     /**
-     * Rebuilds the per-article news pages so stories added in the admin panel get their own URL.
+     * Rebuilds the per-article news pages and per-album gallery pages, so stories
+     * and albums added in the admin panel get their own URL.
      *
      * @param  array<string, mixed>  $site
      * @return array<string, mixed>
      */
-    private function withArticlePages(array $site): array
+    private function withGeneratedPages(array $site): array
     {
         $pages = array_values(array_filter(
             $site['pages'],
-            fn (array $page): bool => ! collect($page['sections'])->contains('type', 'article'),
+            fn (array $page): bool => ! collect($page['sections'])->contains(fn (array $section): bool => in_array($section['type'], ['article', 'album'], true)),
         ));
         $slugs = array_column($pages, 'slug');
 
@@ -202,6 +203,21 @@ class SchoolSite
                     'description' => $article['excerpt'] ?? null,
                     'showInNav' => false,
                     'sections' => [['type' => 'article', 'newsSlug' => $article['slug']]],
+                ], fn ($value): bool => $value !== null);
+                $slugs[] = $slug;
+            }
+        }
+
+        foreach ($site['content']['albums'] ?? [] as $album) {
+            $slug = '/gallery/'.$album['slug'];
+
+            if (! in_array($slug, $slugs, true)) {
+                $pages[] = array_filter([
+                    'slug' => $slug,
+                    'title' => $album['title'],
+                    'description' => $album['description'] ?? null,
+                    'showInNav' => false,
+                    'sections' => [['type' => 'album', 'albumSlug' => $album['slug']]],
                 ], fn ($value): bool => $value !== null);
                 $slugs[] = $slug;
             }

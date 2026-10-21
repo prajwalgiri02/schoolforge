@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { contrastRatio, ensureContrast, readableOn } from '../src/lib/color.js';
-import { buildSite, buildThemeCss, googleFontsUrl, resolveColors, slugify, usedComponents, validateConfig } from '../src/lib/config.js';
+import { buildSite, buildSites, buildThemeCss, googleFontsUrl, resolveColors, slugify, usedComponents, validateConfig } from '../src/lib/config.js';
 import { readJson } from '../src/lib/fsutil.js';
 import { ROOT } from '../src/lib/paths.js';
 import { getTheme, listComponents, listThemes } from '../src/lib/registry.js';
@@ -93,6 +93,37 @@ describe('buildSite', () => {
         assert.ok(slugs.includes('/news/riverside-students-win-national-science-olympiad'));
         assert.ok(!slugs.includes('/news/admissions-open-for-the-2027-session'), 'news without a body gets no article page');
         assert.ok(!site.navigation.some((link) => link.href.startsWith('/news/')));
+    });
+
+    it('gives every photo album its own page with slugs shared by all languages', () => {
+        const config = {
+            ...minimal(),
+            languages: ['en', 'ne'],
+            albums: [{ title: 'Annual Day', photos: [{ caption: 'Dance' }] }, { title: 'वार्षिकोत्सव' }],
+            videos: [{ title: 'Tour', url: 'https://youtu.be/aqz-KE-bpKQ' }],
+            translations: { ne: { albums: [{ title: 'वार्षिक दिवस' }] } },
+        };
+        const { sites } = buildSites(config, getTheme('classic'));
+        const albumPages = (site) => site.pages.filter((page) => page.slug.startsWith('/gallery/'));
+
+        assert.deepEqual(albumPages(sites.en).map((page) => page.slug), ['/gallery/annual-day', '/gallery/album-2']);
+        assert.deepEqual(albumPages(sites.ne).map((page) => [page.slug, page.title]), [['/gallery/annual-day', 'वार्षिक दिवस'], ['/gallery/album-2', 'वार्षिकोत्सव']]);
+        assert.deepEqual(albumPages(sites.en)[0].sections, [{ type: 'album', albumSlug: 'annual-day' }]);
+        assert.ok(sites.en.pages.find((page) => page.slug === '/gallery').sections.some((section) => section.type === 'videos'));
+        assert.ok(!sites.en.navigation.some((link) => link.href.startsWith('/gallery/')));
+    });
+
+    it('validates albums and videos', () => {
+        const errors = validateConfig({
+            ...minimal(),
+            albums: [{ title: 'Sports' }, { title: 'Sports' }, { title: 'Trip', photos: 'many' }],
+            videos: [{ title: 'Tour' }, { title: 'Tour', url: 'youtube.com/watch?v=1' }],
+        }).join('\n');
+
+        assert.match(errors, /albums slug "sports" is used more than once/);
+        assert.match(errors, /albums\[2\]\.photos must be a list of photos/);
+        assert.match(errors, /videos\[0\]\.url is required/);
+        assert.match(errors, /videos\[1\]\.url must be a full link/);
     });
 
     it('drops preset pages and sections that have no content', () => {
