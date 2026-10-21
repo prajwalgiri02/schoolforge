@@ -1,4 +1,4 @@
-import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { Deferred, Link, router, useForm, usePage } from '@inertiajs/react';
 import { CircleCheck, Copy, Download, ExternalLink, Globe, Inbox, KeyRound, Mail, Trash2, TriangleAlert } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
@@ -9,6 +9,90 @@ import type { ProjectSummary, StudioSharedProps } from '@/studio/types';
 type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url: string | null; domain: string | null; subdomain: string | null; serverHost: string };
 
 type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean; canManage: boolean };
+
+type Analytics = { days: { date: string; views: number; visitors: number }[]; views: number; visitors: number; topPages: { path: string; views: number }[] };
+
+function shortDate(value: string): string {
+    return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short' }).format(new Date(`${value}T00:00:00`));
+}
+
+/**
+ * Last 30 days of the hosted site: totals, daily page views and the most read pages.
+ */
+function VisitorsPanel({ analytics }: { analytics?: Analytics }) {
+    const [hovered, setHovered] = useState<number | null>(null);
+
+    if (!analytics) {
+        return <div className="h-56 animate-pulse rounded-lg bg-zinc-100" aria-label="Loading visitors" />;
+    }
+
+    if (analytics.views === 0) {
+        return <p className="py-6 text-center text-sm text-zinc-500">No visits recorded yet. Visits to the hosted website are counted here, without cookies.</p>;
+    }
+
+    const max = Math.max(...analytics.days.map((day) => day.views), 1);
+    const active = hovered === null ? null : analytics.days[hovered];
+
+    return (
+        <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-4 sm:max-w-sm">
+                {(
+                    [
+                        ['Page views', analytics.views],
+                        ['Visits', analytics.visitors],
+                    ] as const
+                ).map(([label, value]) => (
+                    <div key={label}>
+                        <p className="text-2xl font-semibold tabular-nums">{value.toLocaleString('en-IN')}</p>
+                        <p className="text-xs text-zinc-500">{label}, last 30 days</p>
+                    </div>
+                ))}
+            </div>
+            <figure>
+                <div className="relative">
+                    <p className="mb-1 h-4 text-xs text-zinc-600" aria-live="polite">
+                        {active ? `${shortDate(active.date)}: ${active.views.toLocaleString('en-IN')} page views, ${active.visitors.toLocaleString('en-IN')} visitors` : 'Page views per day'}
+                    </p>
+                    <div className="flex h-32 items-end gap-0.5 border-b border-zinc-200" onMouseLeave={() => setHovered(null)}>
+                        {analytics.days.map((day, index) => (
+                            <button
+                                key={day.date}
+                                type="button"
+                                onMouseEnter={() => setHovered(index)}
+                                onFocus={() => setHovered(index)}
+                                onBlur={() => setHovered(null)}
+                                aria-label={`${shortDate(day.date)}: ${day.views} page views, ${day.visitors} visitors`}
+                                className="group flex h-full flex-1 items-end"
+                            >
+                                <span
+                                    className={`w-full rounded-t-[4px] transition-colors ${hovered === index ? 'bg-indigo-800' : 'bg-indigo-600'}`}
+                                    style={{ height: day.views === 0 ? 0 : `max(2px, ${(day.views / max) * 100}%)` }}
+                                />
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-1 flex justify-between text-[11px] text-zinc-500">
+                        <span>{shortDate(analytics.days[0].date)}</span>
+                        <span>{shortDate(analytics.days[analytics.days.length - 1].date)}</span>
+                    </div>
+                </div>
+            </figure>
+            {analytics.topPages.length > 0 && (
+                <table className="w-full text-sm">
+                    <caption className="mb-1 text-left text-xs font-medium text-zinc-500">Most read pages</caption>
+                    <tbody className="divide-y divide-zinc-100">
+                        {analytics.topPages.map((page) => (
+                            <tr key={page.path}>
+                                <td className="py-1.5 font-mono text-xs">{page.path}</td>
+                                <td className="py-1.5 text-right tabular-nums">{page.views.toLocaleString('en-IN')}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    );
+}
 
 type DomainCheckResult = { records: { host: string; addresses: string[]; pointsHere: boolean }[]; serverAddresses: string[]; https: boolean; checkedAt: string };
 
@@ -126,6 +210,7 @@ export default function Publish({
     submissions,
     unread,
     domainCheck,
+    analytics,
 }: {
     project: ProjectSummary;
     hosting: Hosting;
@@ -133,6 +218,7 @@ export default function Publish({
     submissions: Paginated<Submission>;
     unread: number;
     domainCheck?: DomainCheckResult | null;
+    analytics?: Analytics;
 }) {
     const [checkingDomain, setCheckingDomain] = useState(false);
     const { auth } = usePage<StudioSharedProps>().props;
@@ -249,6 +335,15 @@ export default function Publish({
                         </div>
                     )}
                 </section>
+
+                {hosting.publishedAt && (
+                    <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                        <h2 className="mb-4 font-semibold">Visitors</h2>
+                        <Deferred data="analytics" fallback={<VisitorsPanel />}>
+                            <VisitorsPanel analytics={analytics} />
+                        </Deferred>
+                    </section>
+                )}
 
                 {headless.canManage && <HeadlessSection project={project} headless={headless} canEdit />}
 

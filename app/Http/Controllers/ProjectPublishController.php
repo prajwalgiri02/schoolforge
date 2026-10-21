@@ -10,6 +10,7 @@ use App\Support\DomainCheck;
 use App\Support\HeadlessContent;
 use App\Support\HostedSites;
 use App\Support\ProjectPresenter;
+use App\Support\SiteAnalytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -57,6 +58,7 @@ class ProjectPublishController extends Controller
                 'createdAt' => $submission->created_at->toIso8601String(),
             ]),
             'unread' => $project->siteSubmissions()->whereNull('read_at')->count(),
+            'analytics' => Inertia::defer(fn (): array => SiteAnalytics::summary($project)),
             'domainCheck' => Inertia::optional(fn (): ?array => $project->domain ? DomainCheck::run($project) : null),
         ]);
     }

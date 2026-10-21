@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AuditEvent;
+use App\Support\SiteAnalytics;
 use Illuminate\Support\Facades\Schedule;
 
 /*
@@ -25,3 +26,8 @@ Schedule::command('studio:invoices')->dailyAt('06:10')->withoutOverlapping();
  * Deletes Studio activity log entries older than a year.
  */
 Schedule::command('model:prune', ['--model' => [AuditEvent::class]])->daily();
+
+/*
+ * Deletes hosted schools' page view counts older than about 13 months.
+ */
+Schedule::call(fn () => SiteAnalytics::prune())->daily()->name('studio:prune-analytics');

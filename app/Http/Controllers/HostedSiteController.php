@@ -7,6 +7,7 @@ use App\Models\SiteSubmission;
 use App\Support\Billing;
 use App\Support\FormSchema;
 use App\Support\HostedSites;
+use App\Support\SiteAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -55,6 +56,10 @@ class HostedSiteController extends Controller
         $page = collect($site['pages'])->firstWhere('slug', $slug);
 
         abort_if($page === null, 404);
+
+        if ($request->isMethod('GET')) {
+            SiteAnalytics::record($project, $request, '/'.$path);
+        }
 
         $base = $this->baseUrl($request);
         $title = $slug === '/' ? $site['school']['name'].(filled($site['school']['tagline'] ?? null) ? ' | '.$site['school']['tagline'] : '') : "{$page['title']} | {$site['school']['name']}";
