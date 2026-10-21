@@ -95,6 +95,22 @@ class Project extends Model
         return $this->hasOne(GenerationRun::class)->latestOfMany();
     }
 
+    /**
+     * @return HasMany<SiteCheck, $this>
+     */
+    public function siteChecks(): HasMany
+    {
+        return $this->hasMany(SiteCheck::class);
+    }
+
+    /**
+     * @return HasOne<SiteCheck, $this>
+     */
+    public function latestSiteCheck(): HasOne
+    {
+        return $this->hasOne(SiteCheck::class)->latestOfMany();
+    }
+
     public function target(): string
     {
         return $this->config['target'] ?? 'nextjs';

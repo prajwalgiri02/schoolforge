@@ -8,3 +8,9 @@ use Illuminate\Support\Facades\Schedule;
  * locally or a cron entry running `php artisan schedule:run` on a server.
  */
 Schedule::command('studio:backup')->dailyAt('02:15')->withoutOverlapping();
+
+/*
+ * Checks every live school website's health endpoint and emails owners when
+ * one goes down or comes back.
+ */
+Schedule::command('studio:check-sites')->everyFiveMinutes()->withoutOverlapping();

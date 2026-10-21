@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Users, X } from 'lucide-react';
+import { Activity, CircleAlert, CircleCheck, Component, Eye, FolderKanban, Images, LogOut, Palette, Users, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { StudioSharedProps } from './types';
 
@@ -44,6 +44,7 @@ export function StudioLayout({ title, children, wide = false }: { title: string;
 
     const nav = [
         { href: '/', label: 'Schools', icon: FolderKanban, active: url === '/' || url.startsWith('/projects') },
+        { href: '/status', label: 'Status', icon: Activity, active: url.startsWith('/status') },
         { href: '/themes', label: 'Themes', icon: Palette, active: url.startsWith('/themes') },
         { href: '/components', label: 'Components', icon: Component, active: url.startsWith('/components') },
         { href: '/media', label: 'Media', icon: Images, active: url.startsWith('/media') },

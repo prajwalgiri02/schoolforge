@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectDesignController;
 use App\Http\Controllers\ProjectGenerateController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectPagesController;
+use App\Http\Controllers\SiteStatusController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ThemeTransferController;
 use App\Http\Controllers\UploadController;
@@ -56,6 +57,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('media', [MediaController::class, 'index'])->name('media.index');
     Route::get('media/library', [MediaController::class, 'library'])->name('media.library');
     Route::delete('media', [MediaController::class, 'destroy'])->name('media.destroy')->can('manage-studio');
+
+    Route::get('status', [SiteStatusController::class, 'index'])->name('status.index');
+    Route::post('status/{project}', [SiteStatusController::class, 'store'])->middleware('throttle:20,1')->name('status.check')->can('edit-projects');
 
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');
     Route::post('themes', [ThemeController::class, 'store'])->name('themes.store')->can('manage-studio');
