@@ -1,0 +1,13 @@
+{
+    "name": "admission-form",
+    "label": "Admission form",
+    "description": "Multi-step online admission application with document uploads.",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.admissions"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

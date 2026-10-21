@@ -8,7 +8,7 @@ import type { ComponentSummary, ProjectSummary } from '@/studio/types';
 
 type Section = { type: string; variant?: string; title?: string; subtitle?: string; eyebrow?: string; limit?: number; paragraphs?: string[]; [key: string]: string | number | boolean | string[] | null | undefined };
 
-type Page = { slug: string; title: string; navLabel?: string; description?: string; showInNav?: boolean; sections: Section[] };
+type Page = { slug: string; title: string; navLabel?: string; description?: string; showInNav?: boolean; showInFooter?: boolean; sections: Section[] };
 
 type PageTranslation = { title?: string; navLabel?: string; description?: string };
 
@@ -224,6 +224,12 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                     <input type="checkbox" checked={page.showInNav !== false} onChange={(event) => updatePage({ showInNav: event.target.checked })} className="h-4 w-4 rounded border-zinc-300" />
                                     Show in the main menu
                                 </label>
+                                {page.showInNav === false && (
+                                    <label className="flex items-center gap-3 text-sm font-medium sm:col-start-2">
+                                        <input type="checkbox" checked={page.showInFooter === true} onChange={(event) => updatePage({ showInFooter: event.target.checked })} className="h-4 w-4 rounded border-zinc-300" />
+                                        Link it in the footer instead
+                                    </label>
+                                )}
                                 <div className="sm:col-span-2">
                                     <label htmlFor="page-description" className="mb-1.5 block text-sm font-medium">
                                         Description <span className="font-normal text-zinc-400">(search engines and page header)</span>

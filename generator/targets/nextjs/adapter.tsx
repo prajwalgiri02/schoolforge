@@ -43,3 +43,25 @@ export async function submitContact(payload: ContactPayload): Promise<ContactRes
         return { ok: false };
     }
 }
+
+export type FormResult = { ok: boolean; reference?: string; errors?: Record<string, string> };
+
+export type ApplicationStatus = { reference: string; status: string; updatedAt: string };
+
+/** Next.js sites forward applications to a webhook and do not store them, so there is nothing to track. */
+export const supportsStatusLookup = false;
+
+export async function submitForm(type: string, data: FormData): Promise<FormResult> {
+    try {
+        const response = await fetch(`/api/forms/${type}`, { method: 'POST', headers: { Accept: 'application/json' }, body: data });
+        const body = await response.json().catch(() => ({}));
+
+        return response.ok ? { ok: true, reference: body.reference } : { ok: false, errors: body.errors };
+    } catch {
+        return { ok: false };
+    }
+}
+
+export async function lookupApplication(_reference: string, _email: string): Promise<ApplicationStatus | null> {
+    return null;
+}

@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { CircleCheck, ExternalLink, LayoutDashboard, LogOut, Mail, X } from 'lucide-react';
+import { CircleCheck, ExternalLink, Inbox, LayoutDashboard, LogOut, Mail, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
 
@@ -46,6 +46,7 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
                     <nav className="flex items-center gap-1">
                         {navItem('/admin', 'Content', <LayoutDashboard className="h-4 w-4" />)}
                         {navItem('/admin/messages', 'Messages', <Mail className="h-4 w-4" />)}
+                        {navItem('/admin/submissions', 'Applications', <Inbox className="h-4 w-4" />)}
                         <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">
                             <ExternalLink className="h-4 w-4" /> <span className="hidden sm:inline">View site</span>
                         </a>

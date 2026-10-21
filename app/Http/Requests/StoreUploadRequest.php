@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\MediaUpload;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreUploadRequest extends FormRequest
@@ -22,7 +23,7 @@ class StoreUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif,ico', 'max:5120'],
+            'file' => MediaUpload::rules(),
         ];
     }
 

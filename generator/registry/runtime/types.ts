@@ -24,6 +24,8 @@ export type PageDefinition = {
     navLabel?: string;
     description?: string;
     showInNav?: boolean;
+    /** Listed in the footer's quick links even when not in the main menu. */
+    showInFooter?: boolean;
     sections: SectionBlock[];
 };
 
@@ -77,6 +79,9 @@ export type SiteContent = {
     faculty?: { name: string; role?: string; department?: string; photo?: ImageRef; bio?: string }[];
     gallery?: { src?: ImageRef; caption?: string; category?: string }[];
     albums?: { slug: string; title: string; date?: string; description?: string; cover?: ImageRef; photos?: { src?: ImageRef; caption?: string }[] }[];
+    jobs?: { title: string; type?: string; location?: string; deadline?: string; description?: string; requirements?: string[] }[];
+    downloads?: { title: string; file: string; category?: string; date?: string; description?: string }[];
+    alumni?: { name: string; batch?: string | number; role?: string; photo?: ImageRef; quote?: string }[];
     campuses?: { name: string; address?: string; phone?: string; email?: string; hours?: string; mapUrl?: string; image?: ImageRef; description?: string; levels?: string[] }[];
     videos?: { title: string; url: string; date?: string; description?: string; thumbnail?: ImageRef }[];
     news?: { slug: string; title: string; date?: string; excerpt?: string; image?: ImageRef; body?: string[]; category?: string; tags?: string[] }[];

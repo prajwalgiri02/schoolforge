@@ -15,6 +15,10 @@ sitemap, canonical links and share previews.
 3. Under **Settings → Domains**, add the school's domain and follow the DNS instructions.
 4. Optional: set `CONTACT_WEBHOOK_URL` under **Settings → Environment Variables** to
    receive contact form enquiries (Zapier, Make, Slack, a CRM...).
+   Set `FORMS_WEBHOOK_URL` too to receive online admission and job applications,
+   alumni registrations and testimonials, with their uploaded documents. Next.js
+   sites do not store applications themselves; choose the Laravel target if the
+   school wants an admin panel to review them and an application tracker.
 
 Every push to the repository redeploys the site automatically.
 

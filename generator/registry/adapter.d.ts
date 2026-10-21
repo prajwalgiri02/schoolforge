@@ -15,3 +15,14 @@ export type ContactPayload = { name: string; email: string; phone?: string; subj
 export type ContactResult = { ok: boolean; errors?: Record<string, string> };
 
 export declare function submitContact(payload: ContactPayload): Promise<ContactResult>;
+
+export type FormResult = { ok: boolean; reference?: string; errors?: Record<string, string> };
+
+export type ApplicationStatus = { reference: string; status: string; updatedAt: string };
+
+/** Whether the site has a backend that stores applications so applicants can track them. */
+export declare const supportsStatusLookup: boolean;
+
+export declare function submitForm(type: string, data: FormData): Promise<FormResult>;
+
+export declare function lookupApplication(reference: string, email: string): Promise<ApplicationStatus | null>;

@@ -47,7 +47,7 @@
             "title": "Admissions",
             "description": "Everything you need to know about joining our school.",
             "showInNav": true,
-            "sections": [{ "type": "page-header" }, { "type": "admissions" }, { "type": "faq" }]
+            "sections": [{ "type": "page-header" }, { "type": "admissions" }, { "type": "admission-form" }, { "type": "admission-status" }, { "type": "faq" }]
         },
         {
             "slug": "/faculty",
@@ -79,6 +79,30 @@
             "description": "Stories, announcements, notices and upcoming events.",
             "showInNav": true,
             "sections": [{ "type": "page-header" }, { "type": "news" }, { "type": "events", "variant": "calendar" }, { "type": "notices" }]
+        },
+        {
+            "slug": "/careers",
+            "title": "Careers",
+            "description": "Teach, coach and grow with us. See our current openings and apply online.",
+            "showInNav": false,
+            "showInFooter": true,
+            "sections": [{ "type": "page-header" }, { "type": "careers" }]
+        },
+        {
+            "slug": "/downloads",
+            "title": "Downloads",
+            "description": "Admission forms, prospectus, academic calendar and other documents.",
+            "showInNav": false,
+            "showInFooter": true,
+            "sections": [{ "type": "page-header" }, { "type": "downloads" }]
+        },
+        {
+            "slug": "/alumni",
+            "title": "Alumni",
+            "description": "Our graduates, where they are now, and how to stay connected.",
+            "showInNav": false,
+            "showInFooter": true,
+            "sections": [{ "type": "page-header" }, { "type": "alumni" }, { "type": "testimonial-form" }]
         },
         {
             "slug": "/contact",

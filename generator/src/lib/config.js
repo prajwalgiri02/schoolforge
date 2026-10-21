@@ -16,6 +16,9 @@ export const CONTENT_KEYS = [
     'albums',
     'videos',
     'campuses',
+    'jobs',
+    'downloads',
+    'alumni',
     'news',
     'events',
     'notices',
@@ -25,7 +28,7 @@ export const CONTENT_KEYS = [
     'faqs',
 ];
 
-const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'albums', 'videos', 'campuses', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
+const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'albums', 'videos', 'campuses', 'jobs', 'downloads', 'alumni', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
 
 const COLLECTION_REQUIRED_FIELDS = {
     stats: ['label', 'value'],
@@ -35,6 +38,9 @@ const COLLECTION_REQUIRED_FIELDS = {
     albums: ['title'],
     videos: ['title', 'url'],
     campuses: ['name'],
+    jobs: ['title'],
+    downloads: ['title', 'file'],
+    alumni: ['name'],
     news: ['title'],
     events: ['title', 'date'],
     notices: ['title'],

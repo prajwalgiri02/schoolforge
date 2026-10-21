@@ -397,6 +397,73 @@
             "description": "A calm, play-based campus for our youngest learners."
         }
     ],
+    "jobs": [
+        {
+            "title": "Secondary Science Teacher",
+            "type": "Full-time",
+            "location": "Main Campus, Lalitpur",
+            "deadline": "2026-12-15",
+            "description": "Teach physics and chemistry to grades 9–10 and help run our science club and olympiad training.",
+            "requirements": [
+                "Master's degree in Physics or Chemistry",
+                "Teaching licence",
+                "2+ years of classroom experience"
+            ]
+        },
+        {
+            "title": "Early Years Teaching Assistant",
+            "type": "Part-time",
+            "location": "Junior Campus, Kathmandu",
+            "description": "Support play-based learning for pre-primary classes.",
+            "requirements": [
+                "+2 or above",
+                "Experience with young children"
+            ]
+        }
+    ],
+    "downloads": [
+        {
+            "title": "Prospectus 2027",
+            "file": "/files/prospectus-2027.pdf",
+            "category": "Admissions",
+            "date": "2026-07-01",
+            "description": "Programs, fees and facilities"
+        },
+        {
+            "title": "Admission form",
+            "file": "/files/admission-form.pdf",
+            "category": "Admissions"
+        },
+        {
+            "title": "Academic calendar 2083",
+            "file": "/files/academic-calendar-2083.pdf",
+            "category": "Academics"
+        },
+        {
+            "title": "Uniform price list",
+            "file": "/files/uniform-prices.xlsx",
+            "category": "Parents"
+        }
+    ],
+    "alumni": [
+        {
+            "name": "Anisha Thapa",
+            "batch": "2015",
+            "role": "Software engineer, Kathmandu",
+            "quote": "The robotics club is where I wrote my first line of code."
+        },
+        {
+            "name": "Rohan Shrestha",
+            "batch": "2012",
+            "role": "Doctor, Bir Hospital",
+            "quote": "My teachers taught me to ask questions, not just learn answers."
+        },
+        {
+            "name": "Sneha Gurung",
+            "batch": "2018",
+            "role": "National football team"
+        }
+    ],
     "news": [
         {
             "title": "Riverside students win national science olympiad",

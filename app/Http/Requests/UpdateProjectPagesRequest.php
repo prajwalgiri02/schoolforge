@@ -33,6 +33,7 @@ class UpdateProjectPagesRequest extends FormRequest
             'pages.*.navLabel' => ['nullable', 'string', 'max:40'],
             'pages.*.description' => ['nullable', 'string', 'max:300'],
             'pages.*.showInNav' => ['nullable', 'boolean'],
+            'pages.*.showInFooter' => ['nullable', 'boolean'],
             'pages.*.sections' => ['present', 'array', 'max:40'],
             'pages.*.sections.*.type' => ['required', 'string', Rule::in($components)],
             'pages.*.sections.*.variant' => ['nullable', 'string', 'max:40'],

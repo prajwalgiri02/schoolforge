@@ -159,6 +159,28 @@ class ContentSchema
                 self::field('image', 'image', 'Photo'),
                 self::field('mapUrl', 'url', 'Map link', help: 'Optional. Defaults to a Google Maps search for the address.'),
             ], 'name'),
+            'jobs' => self::section('Careers', 'Job openings. Applicants apply on the Careers page and appear under Applications.', 'list', 'content.jobs', [
+                self::field('title', 'text', 'Position', required: true),
+                self::field('type', 'text', 'Type', help: 'e.g. Full-time, Part-time'),
+                self::field('location', 'text', 'Location'),
+                self::field('deadline', 'date', 'Apply by'),
+                self::field('description', 'textarea', 'Description'),
+                self::field('requirements', 'strings', 'Requirements', help: 'One per line.'),
+            ], 'title'),
+            'downloads' => self::section('Downloads', 'Forms, prospectus, calendars and other files.', 'list', 'content.downloads', [
+                self::field('title', 'text', 'Title', required: true),
+                self::field('file', 'file', 'File', required: true, help: 'PDF, Word, Excel or PowerPoint, up to 10 MB.'),
+                self::field('category', 'text', 'Category', help: 'e.g. Admission forms, Academic calendar'),
+                self::field('date', 'date', 'Date'),
+                self::field('description', 'text', 'Short description'),
+            ], 'title'),
+            'alumni' => self::section('Alumni', 'Alumni profiles. Approved alumni registrations are added here automatically.', 'list', 'content.alumni', [
+                self::field('name', 'text', 'Name', required: true),
+                self::field('batch', 'text', 'Batch (year)'),
+                self::field('role', 'text', 'What they do now'),
+                self::field('photo', 'image', 'Photo'),
+                self::field('quote', 'textarea', 'Message'),
+            ], 'name'),
             'news' => self::section('News', 'News stories. Stories with a full text get their own page.', 'list', 'content.news', [
                 self::field('title', 'text', 'Title', required: true),
                 self::field('date', 'date', 'Date'),
@@ -346,7 +368,7 @@ class ContentSchema
             match ($field['type']) {
                 'text', 'icon' => $rules[$path] = [$presence, 'string', 'max:255'],
                 'textarea' => $rules[$path] = [$presence, 'string', 'max:5000'],
-                'url', 'image' => $rules[$path] = [$presence, 'string', 'max:500'],
+                'url', 'image', 'file' => $rules[$path] = [$presence, 'string', 'max:500'],
                 'date' => $rules[$path] = [$presence, 'date_format:Y-m-d'],
                 'boolean' => $rules[$path] = ['nullable', 'boolean'],
                 'strings', 'paragraphs' => $rules += [$path => [$presence, 'array', 'max:100'], "{$path}.*" => ['nullable', 'string', 'max:5000']],

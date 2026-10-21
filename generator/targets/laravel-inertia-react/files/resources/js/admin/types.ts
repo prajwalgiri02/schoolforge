@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'textarea' | 'url' | 'image' | 'date' | 'boolean' | 'strings' | 'paragraphs' | 'link' | 'items' | 'icon';
+export type FieldType = 'text' | 'textarea' | 'url' | 'image' | 'file' | 'date' | 'boolean' | 'strings' | 'paragraphs' | 'link' | 'items' | 'icon';
 
 export type FieldDefinition = {
     name: string;

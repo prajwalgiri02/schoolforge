@@ -11,7 +11,8 @@ export default function Footer({ section, site }: FooterProps) {
     const { school } = site;
     const contact = school.contact ?? {};
     const social = Object.entries(school.social ?? {}).filter(([, url]) => Boolean(url));
-    const quickLinks = section.quickLinks ?? site.navigation;
+    const footerPages = site.pages.filter((page) => page.showInFooter && !site.navigation.some((link) => link.href === page.slug)).map((page) => ({ label: page.navLabel ?? page.title, href: page.slug }));
+    const quickLinks = section.quickLinks ?? [...site.navigation, ...footerPages];
     const year = new Date().getFullYear();
 
     const socialRow = social.length > 0 && (

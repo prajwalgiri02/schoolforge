@@ -1,0 +1,13 @@
+{
+    "name": "admission-status",
+    "label": "Application tracker",
+    "description": "Lets applicants check their application status with their reference number (Laravel sites).",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.admissions"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

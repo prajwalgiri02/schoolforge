@@ -1,0 +1,13 @@
+{
+    "name": "downloads",
+    "label": "Downloads",
+    "description": "Forms, prospectus, calendars and other files grouped by category.",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.downloads"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

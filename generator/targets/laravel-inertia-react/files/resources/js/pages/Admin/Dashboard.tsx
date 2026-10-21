@@ -11,7 +11,8 @@ const groups: { title: string; keys: string[] }[] = [
     { title: 'Home page', keys: ['hero', 'announcement', 'popup', 'stats', 'testimonials'] },
     { title: 'Academics & campus', keys: ['programs', 'facilities', 'faculty', 'achievements'] },
     { title: 'Gallery & media', keys: ['gallery', 'albums', 'videos'] },
-    { title: 'News & admissions', keys: ['news', 'events', 'notices', 'admissions', 'faqs'] },
+    { title: 'People & community', keys: ['jobs', 'alumni'] },
+    { title: 'News & admissions', keys: ['news', 'events', 'notices', 'admissions', 'faqs', 'downloads'] },
 ];
 
 function formatDate(value: string): string {

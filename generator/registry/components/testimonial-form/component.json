@@ -1,0 +1,13 @@
+{
+    "name": "testimonial-form",
+    "label": "Share your experience",
+    "description": "Lets parents, students and alumni submit a testimonial for approval.",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.testimonials"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

@@ -3,9 +3,11 @@
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormSubmissionController as AdminFormSubmissionController;
 use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\FormSubmissionController;
 use App\Http\Controllers\SchoolPageController;
 use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
@@ -29,12 +31,21 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('messages', [AdminContactMessageController::class, 'index'])->name('messages.index');
         Route::patch('messages/{message}', [AdminContactMessageController::class, 'update'])->name('messages.update');
         Route::delete('messages/{message}', [AdminContactMessageController::class, 'destroy'])->name('messages.destroy');
+
+        Route::get('submissions', [AdminFormSubmissionController::class, 'index'])->name('submissions.index');
+        Route::get('submissions/{submission}', [AdminFormSubmissionController::class, 'show'])->name('submissions.show');
+        Route::patch('submissions/{submission}', [AdminFormSubmissionController::class, 'update'])->name('submissions.update');
+        Route::delete('submissions/{submission}', [AdminFormSubmissionController::class, 'destroy'])->name('submissions.destroy');
+        Route::get('submissions/{submission}/files/{field}', [AdminFormSubmissionController::class, 'file'])->name('submissions.file');
     });
 });
 
 Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('school.sitemap');
 Route::get('robots.txt', [SeoController::class, 'robots'])->name('school.robots');
 Route::get('events.ics', [SeoController::class, 'calendar'])->name('school.calendar');
+
+Route::get('forms/status', [FormSubmissionController::class, 'status'])->middleware('throttle:20,1')->name('school.forms.status');
+Route::post('forms/{type}', [FormSubmissionController::class, 'store'])->middleware('throttle:10,1')->name('school.forms.store');
 
 Route::post('/contact', ContactMessageController::class)
     ->middleware('throttle:6,1')

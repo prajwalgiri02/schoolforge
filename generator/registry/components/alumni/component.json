@@ -1,0 +1,13 @@
+{
+    "name": "alumni",
+    "label": "Alumni",
+    "description": "Alumni profiles and a form for former students to join the network.",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.alumni"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

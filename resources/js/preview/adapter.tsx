@@ -49,3 +49,18 @@ export async function submitContact(payload: ContactPayload): Promise<ContactRes
 
     return Object.keys(errors).length > 0 ? { ok: false, errors } : { ok: true };
 }
+
+export type FormResult = { ok: boolean; reference?: string; errors?: Record<string, string> };
+
+export type ApplicationStatus = { reference: string; status: string; updatedAt: string };
+
+/** The preview shows the tracker so schools can see it; lookups return a sample. */
+export const supportsStatusLookup = true;
+
+export async function submitForm(type: string, _data: FormData): Promise<FormResult> {
+    return { ok: true, reference: `${type.slice(0, 3).toUpperCase()}-PREVIEW` };
+}
+
+export async function lookupApplication(reference: string, _email: string): Promise<ApplicationStatus | null> {
+    return { reference: reference.toUpperCase(), status: 'reviewing', updatedAt: new Date().toISOString() };
+}

@@ -1,0 +1,116 @@
+{
+    "admission": {
+        "label": { "en": "Admission application", "ne": "भर्ना आवेदन" },
+        "referencePrefix": "ADM",
+        "statuses": ["received", "reviewing", "interview", "accepted", "waitlisted", "rejected"],
+        "steps": [
+            {
+                "title": { "en": "Student", "ne": "विद्यार्थी" },
+                "fields": [
+                    { "name": "studentName", "type": "text", "label": { "en": "Student's full name", "ne": "विद्यार्थीको पूरा नाम" }, "required": true, "max": 120 },
+                    { "name": "dateOfBirth", "type": "date", "label": { "en": "Date of birth", "ne": "जन्म मिति" }, "required": true, "half": true },
+                    {
+                        "name": "gender",
+                        "type": "select",
+                        "label": { "en": "Gender", "ne": "लिङ्ग" },
+                        "half": true,
+                        "options": [
+                            { "value": "female", "label": { "en": "Female", "ne": "महिला" } },
+                            { "value": "male", "label": { "en": "Male", "ne": "पुरुष" } },
+                            { "value": "other", "label": { "en": "Other", "ne": "अन्य" } }
+                        ]
+                    },
+                    { "name": "grade", "type": "text", "label": { "en": "Applying for grade", "ne": "भर्ना हुन चाहेको कक्षा" }, "required": true, "max": 60, "half": true },
+                    { "name": "previousSchool", "type": "text", "label": { "en": "Previous school", "ne": "पहिलेको विद्यालय" }, "max": 160, "half": true }
+                ]
+            },
+            {
+                "title": { "en": "Parent or guardian", "ne": "अभिभावक" },
+                "fields": [
+                    { "name": "name", "type": "text", "label": { "en": "Parent or guardian's name", "ne": "अभिभावकको नाम" }, "required": true, "max": 120 },
+                    {
+                        "name": "relationship",
+                        "type": "select",
+                        "label": { "en": "Relationship", "ne": "नाता" },
+                        "required": true,
+                        "half": true,
+                        "options": [
+                            { "value": "mother", "label": { "en": "Mother", "ne": "आमा" } },
+                            { "value": "father", "label": { "en": "Father", "ne": "बुबा" } },
+                            { "value": "guardian", "label": { "en": "Guardian", "ne": "संरक्षक" } }
+                        ]
+                    },
+                    { "name": "phone", "type": "tel", "label": { "en": "Phone", "ne": "फोन" }, "required": true, "max": 40, "half": true },
+                    { "name": "email", "type": "email", "label": { "en": "Email", "ne": "इमेल" }, "required": true, "max": 190 },
+                    { "name": "address", "type": "textarea", "label": { "en": "Home address", "ne": "घरको ठेगाना" }, "max": 500 }
+                ]
+            },
+            {
+                "title": { "en": "Documents", "ne": "कागजातहरू" },
+                "fields": [
+                    { "name": "birthCertificate", "type": "file", "label": { "en": "Birth certificate", "ne": "जन्मदर्ता प्रमाणपत्र" }, "accept": ["pdf", "jpg", "jpeg", "png"], "maxSizeMb": 5 },
+                    { "name": "reportCard", "type": "file", "label": { "en": "Latest report card", "ne": "पछिल्लो प्रगति पत्र" }, "accept": ["pdf", "jpg", "jpeg", "png"], "maxSizeMb": 5 },
+                    { "name": "photo", "type": "file", "label": { "en": "Passport-size photo", "ne": "पासपोर्ट साइजको फोटो" }, "accept": ["jpg", "jpeg", "png"], "maxSizeMb": 2 },
+                    { "name": "notes", "type": "textarea", "label": { "en": "Anything else we should know?", "ne": "हामीले थाहा पाउनुपर्ने अरू केही?" }, "max": 2000 }
+                ]
+            },
+            {
+                "title": { "en": "Review", "ne": "पुनरावलोकन" },
+                "review": true,
+                "fields": [
+                    { "name": "consent", "type": "checkbox", "label": { "en": "I confirm the information is correct and agree to be contacted about this application.", "ne": "दिइएको जानकारी सही छ र यस आवेदनबारे सम्पर्क गर्न म सहमत छु।" }, "required": true }
+                ]
+            }
+        ]
+    },
+    "job": {
+        "label": { "en": "Job application", "ne": "रोजगारी आवेदन" },
+        "referencePrefix": "JOB",
+        "statuses": ["received", "reviewing", "interview", "hired", "rejected"],
+        "steps": [
+            {
+                "fields": [
+                    { "name": "position", "type": "hidden", "label": { "en": "Position", "ne": "पद" }, "max": 160 },
+                    { "name": "name", "type": "text", "label": { "en": "Full name", "ne": "पूरा नाम" }, "required": true, "max": 120 },
+                    { "name": "email", "type": "email", "label": { "en": "Email", "ne": "इमेल" }, "required": true, "max": 190, "half": true },
+                    { "name": "phone", "type": "tel", "label": { "en": "Phone", "ne": "फोन" }, "required": true, "max": 40, "half": true },
+                    { "name": "coverLetter", "type": "textarea", "label": { "en": "Why would you like to join us?", "ne": "तपाईं किन हामीसँग जोडिन चाहनुहुन्छ?" }, "max": 5000 },
+                    { "name": "cv", "type": "file", "label": { "en": "CV / résumé", "ne": "बायोडाटा" }, "required": true, "accept": ["pdf", "doc", "docx"], "maxSizeMb": 5 }
+                ]
+            }
+        ]
+    },
+    "alumni": {
+        "label": { "en": "Alumni registration", "ne": "पूर्व विद्यार्थी दर्ता" },
+        "referencePrefix": "ALU",
+        "statuses": ["pending", "approved", "rejected"],
+        "steps": [
+            {
+                "fields": [
+                    { "name": "name", "type": "text", "label": { "en": "Full name", "ne": "पूरा नाम" }, "required": true, "max": 120 },
+                    { "name": "email", "type": "email", "label": { "en": "Email", "ne": "इमेल" }, "required": true, "max": 190, "half": true },
+                    { "name": "batch", "type": "text", "label": { "en": "Graduating batch (year)", "ne": "उत्तीर्ण ब्याच (वर्ष)" }, "required": true, "max": 10, "half": true },
+                    { "name": "role", "type": "text", "label": { "en": "What do you do now?", "ne": "अहिले के गर्नुहुन्छ?" }, "max": 160 },
+                    { "name": "quote", "type": "textarea", "label": { "en": "A message for current students", "ne": "हालका विद्यार्थीहरूलाई सन्देश" }, "max": 1000 },
+                    { "name": "photo", "type": "file", "label": { "en": "Photo", "ne": "फोटो" }, "accept": ["jpg", "jpeg", "png"], "maxSizeMb": 2 }
+                ]
+            }
+        ]
+    },
+    "testimonial": {
+        "label": { "en": "Testimonial", "ne": "अनुभव" },
+        "referencePrefix": "TES",
+        "statuses": ["pending", "approved", "rejected"],
+        "steps": [
+            {
+                "fields": [
+                    { "name": "name", "type": "text", "label": { "en": "Your name", "ne": "तपाईंको नाम" }, "required": true, "max": 120, "half": true },
+                    { "name": "email", "type": "email", "label": { "en": "Email (not published)", "ne": "इमेल (प्रकाशित हुँदैन)" }, "required": true, "max": 190, "half": true },
+                    { "name": "role", "type": "text", "label": { "en": "You are…", "ne": "तपाईं…" }, "placeholder": { "en": "e.g. Parent of a Grade 4 student", "ne": "जस्तै: कक्षा ४ का विद्यार्थीको अभिभावक" }, "max": 120 },
+                    { "name": "quote", "type": "textarea", "label": { "en": "Your experience", "ne": "तपाईंको अनुभव" }, "required": true, "max": 1000 },
+                    { "name": "photo", "type": "file", "label": { "en": "Photo (optional)", "ne": "फोटो (ऐच्छिक)" }, "accept": ["jpg", "jpeg", "png"], "maxSizeMb": 2 }
+                ]
+            }
+        ]
+    }
+}

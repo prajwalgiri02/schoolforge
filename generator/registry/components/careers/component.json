@@ -1,0 +1,13 @@
+{
+    "name": "careers",
+    "label": "Careers",
+    "description": "Job openings with an online application form and CV upload.",
+    "category": "section",
+    "variants": [],
+    "requires": [
+        "content.jobs"
+    ],
+    "files": [
+        "index.tsx"
+    ]
+}

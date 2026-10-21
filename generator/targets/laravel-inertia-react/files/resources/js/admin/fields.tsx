@@ -1,5 +1,5 @@
 import { useHttp } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ImageUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, FileText, ImageUp, Plus, Trash2 } from 'lucide-react';
 import { createContext, useContext, useId, useRef, useState, type ChangeEvent } from 'react';
 import { buttonClass, inputClass } from './AdminLayout';
 import type { FieldDefinition, Item, Value } from './types';
@@ -61,7 +61,11 @@ function TextListInput({ id, value, onChange, paragraphs }: { id: string; value:
     return <textarea id={id} rows={paragraphs ? 8 : 4} value={text} onChange={handleChange} className={inputClass} />;
 }
 
-function ImageInput({ id, value, onChange }: { id: string; value: Value; onChange: (value: string) => void }) {
+/**
+ * Uploads an image (shown as a thumbnail) or, with `document`, a PDF or office
+ * file for the Downloads page (shown by name).
+ */
+function ImageInput({ id, value, onChange, document = false }: { id: string; value: Value; onChange: (value: string) => void; document?: boolean }) {
     const fileInput = useRef<HTMLInputElement>(null);
     const uploadUrl = useContext(UploadUrlContext);
     const upload = useHttp<{ file: File | null }, { url: string }>({ file: null });
@@ -88,20 +92,26 @@ function ImageInput({ id, value, onChange }: { id: string; value: Value; onChang
     return (
         <div className="flex items-start gap-4">
             <div className="flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-zinc-300 bg-zinc-100">
-                {src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <ImageUp className="h-6 w-6 text-zinc-400" />}
+                {document ? (
+                    <FileText className={`h-7 w-7 ${src ? 'text-zinc-700' : 'text-zinc-400'}`} />
+                ) : src ? (
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    <ImageUp className="h-6 w-6 text-zinc-400" />
+                )}
             </div>
             <div className="flex-1 space-y-2">
-                <input id={id} type="text" value={src} placeholder="https://… or /images/photo.jpg" onChange={(event) => onChange(event.target.value)} className={inputClass} />
+                <input id={id} type="text" value={src} placeholder={document ? 'https://… or /files/form.pdf' : 'https://… or /images/photo.jpg'} onChange={(event) => onChange(event.target.value)} className={inputClass} />
                 <div className="flex flex-wrap items-center gap-2">
                     <button type="button" className={buttonClass.secondary} disabled={upload.processing} onClick={() => fileInput.current?.click()}>
-                        <ImageUp className="h-4 w-4" /> {upload.processing ? 'Uploading…' : 'Upload image'}
+                        <ImageUp className="h-4 w-4" /> {upload.processing ? 'Uploading…' : document ? 'Upload file' : 'Upload image'}
                     </button>
                     {src && (
                         <button type="button" className={buttonClass.danger} onClick={() => onChange('')}>
                             Remove
                         </button>
                     )}
-                    <input ref={fileInput} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+                    <input ref={fileInput} type="file" accept={document ? '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt' : 'image/*'} className="hidden" onChange={handleFile} />
                 </div>
                 {upload.errors.file && <p className="text-sm text-red-600">{upload.errors.file}</p>}
             </div>
@@ -143,10 +153,11 @@ export function Field({ field, value, onChange, path, errors, icons }: FieldProp
                 </div>
             );
         case 'image':
+        case 'file':
             return (
                 <div>
                     <Label field={field} htmlFor={id} />
-                    <ImageInput id={id} value={value} onChange={onChange} />
+                    <ImageInput id={id} value={value} onChange={onChange} document={field.type === 'file'} />
                     <Help field={field} error={error} />
                 </div>
             );
@@ -202,7 +213,7 @@ export function FieldGroup({ fields, value, onChange, path, errors, icons }: { f
     return (
         <div className="grid gap-5 md:grid-cols-2">
             {fields.map((field) => (
-                <div key={field.name} className={['textarea', 'paragraphs', 'items', 'image', 'link', 'strings'].includes(field.type) ? 'md:col-span-2' : ''}>
+                <div key={field.name} className={['textarea', 'paragraphs', 'items', 'image', 'file', 'link', 'strings'].includes(field.type) ? 'md:col-span-2' : ''}>
                     <Field field={field} value={value[field.name]} onChange={(next) => onChange({ ...value, [field.name]: next })} path={`${path}.${field.name}`} errors={errors} icons={icons} />
                 </div>
             ))}
