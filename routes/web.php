@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectDesignController;
 use App\Http\Controllers\ProjectGenerateController;
 use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectPagesController;
+use App\Http\Controllers\ProjectPublishController;
 use App\Http\Controllers\SiteStatusController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ThemeTransferController;
@@ -50,6 +51,14 @@ Route::middleware('auth')->group(function (): void {
     Route::post('projects/{project}/template', [ProjectHistoryController::class, 'template'])->name('projects.template')->can('edit-projects');
     Route::get('projects/{project}/generate', [ProjectGenerateController::class, 'show'])->name('projects.generate.show');
     Route::post('projects/{project}/generate', [ProjectGenerateController::class, 'store'])->name('projects.generate.store')->can('edit-projects');
+
+    Route::get('projects/{project}/publish', [ProjectPublishController::class, 'show'])->name('projects.publish.show');
+    Route::post('projects/{project}/publish', [ProjectPublishController::class, 'store'])->name('projects.publish.store')->can('edit-projects');
+    Route::delete('projects/{project}/publish', [ProjectPublishController::class, 'destroy'])->name('projects.publish.destroy')->can('edit-projects');
+    Route::put('projects/{project}/domain', [ProjectPublishController::class, 'updateDomain'])->name('projects.domain.update')->can('manage-studio');
+    Route::patch('projects/{project}/submissions/{submission}', [ProjectPublishController::class, 'markRead'])->name('projects.submissions.update');
+    Route::delete('projects/{project}/submissions/{submission}', [ProjectPublishController::class, 'destroySubmission'])->name('projects.submissions.destroy')->can('edit-projects');
+    Route::get('projects/{project}/submissions/{submission}/files/{field}', [ProjectPublishController::class, 'download'])->name('projects.submissions.file');
 
     Route::get('preview/{project}/{path?}', PreviewController::class)->where('path', '[a-z0-9\-/]*')->name('preview');
 

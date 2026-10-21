@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\HostedSites;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,8 +17,10 @@ use Illuminate\Support\Str;
  * school config (the same shape as school.config.json).
  *
  * @property array<string, mixed> $config
+ * @property array{languages: list<string>, locales: array<string, array<string, mixed>>, configHash: string}|null $published_site
  */
-#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site'])]
+#[Hidden(['published_site'])]
 class Project extends Model
 {
     /** Overrides the automatic description of the next saved change. */
@@ -35,6 +39,8 @@ class Project extends Model
         return [
             'config' => 'array',
             'is_template' => 'boolean',
+            'published_at' => 'datetime',
+            'published_site' => 'array',
         ];
     }
 
@@ -46,6 +52,14 @@ class Project extends Model
         });
 
         static::created(fn (Project $project) => $project->recordVersion('Created'));
+
+        static::saved(function (Project $project): void {
+            if ($project->wasChanged(['slug', 'domain', 'published_at']) || $project->wasRecentlyCreated) {
+                HostedSites::forget();
+            }
+        });
+
+        static::deleted(fn () => HostedSites::forget());
 
         static::updated(function (Project $project): void {
             if ($project->wasChanged('config')) {
@@ -109,6 +123,19 @@ class Project extends Model
     public function latestSiteCheck(): HasOne
     {
         return $this->hasOne(SiteCheck::class)->latestOfMany();
+    }
+
+    /**
+     * @return HasMany<SiteSubmission, $this>
+     */
+    public function siteSubmissions(): HasMany
+    {
+        return $this->hasMany(SiteSubmission::class);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->published_at !== null;
     }
 
     public function target(): string

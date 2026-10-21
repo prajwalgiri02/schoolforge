@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
+use App\Models\SiteSubmission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
@@ -35,12 +36,17 @@ class BackupTest extends TestCase
         $project = Project::factory()->example()->create();
         User::factory()->create(['email' => 'owner@example.com']);
         File::put("{$this->generatorPath}/registry/themes/classic/extra.css", '/* custom */');
+        $submission = $project->siteSubmissions()->create(['form' => 'job', 'reference' => 'JOB-26-BACKUP', 'data' => ['name' => 'Hari'], 'files' => ['cv' => ['path' => 'hosted-submissions/1/JOB-26-BACKUP/cv.pdf', 'name' => 'cv.pdf']]]);
+        $cv = storage_path('app/private/hosted-submissions/1/JOB-26-BACKUP/cv.pdf');
+        File::ensureDirectoryExists(dirname($cv));
+        File::put($cv, 'cv');
 
         $this->artisan('studio:backup')->assertSuccessful();
         $backup = File::glob("{$this->backups}/studio-backup-*.zip")[0];
 
         Project::query()->delete();
         User::query()->delete();
+        File::delete($cv);
         File::put("{$this->generatorPath}/registry/themes/classic/extra.css", '/* changed */');
 
         $this->artisan('studio:backup', ['--restore' => $backup, '--force' => true])->assertSuccessful();
@@ -48,6 +54,9 @@ class BackupTest extends TestCase
         $this->assertSame($project->config, Project::query()->sole()->config);
         $this->assertTrue(User::query()->where('email', 'owner@example.com')->exists());
         $this->assertSame('/* custom */', File::get("{$this->generatorPath}/registry/themes/classic/extra.css"));
+        $this->assertSame($submission->reference, SiteSubmission::query()->sole()->reference);
+        $this->assertSame('cv', File::get($cv));
+        File::deleteDirectory(storage_path('app/private/hosted-submissions/1'));
     }
 
     public function test_backup_is_scheduled_nightly(): void

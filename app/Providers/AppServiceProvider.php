@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Services\Generator;
+use App\Support\FormSchema;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,5 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('edit-projects', fn (User $user): bool => $user->role->canEditProjects());
         Gate::define('manage-studio', fn (User $user): bool => $user->role->canManageStudio());
+
+        FormSchema::$path = config('studio.generator_path').'/registry/runtime/forms.json';
     }
 }

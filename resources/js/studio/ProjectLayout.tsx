@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ExternalLink, FileText, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Tablet } from 'lucide-react';
+import { ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
 import { targetLabels, type ProjectSummary } from './types';
@@ -9,6 +9,7 @@ const tabs = [
     { key: 'design', label: 'Design', icon: Paintbrush },
     { key: 'pages', label: 'Pages', icon: LayoutTemplate },
     { key: 'generate', label: 'Generate', icon: Rocket },
+    { key: 'publish', label: 'Publish', icon: Globe },
     { key: 'history', label: 'History', icon: History },
 ] as const;
 

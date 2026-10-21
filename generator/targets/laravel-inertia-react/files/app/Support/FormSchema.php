@@ -15,12 +15,15 @@ class FormSchema
     /** @var array<string, array<string, mixed>>|null */
     private static ?array $definitions = null;
 
+    /** Where forms.json is read from; SchoolForge Studio points this at the registry. */
+    public static ?string $path = null;
+
     /**
      * @return array<string, array<string, mixed>>
      */
     public static function all(): array
     {
-        return self::$definitions ??= json_decode(File::get(resource_path('js/school/runtime/forms.json')), true);
+        return self::$definitions ??= json_decode(File::get(self::$path ?? resource_path('js/school/runtime/forms.json')), true);
     }
 
     /**

@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 const appName = import.meta.env.VITE_APP_NAME || 'SchoolForge Studio';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} · ${appName}` : appName),
+    title: (title) => (document.documentElement.hasAttribute('data-hosted') ? title : title ? `${title} · ${appName}` : appName),
     resolve: (name) => {
         const pages = import.meta.glob<{ default: ComponentType }>('./pages/**/*.tsx');
         const page = pages[`./pages/${name}.tsx`];

@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import type { CSSProperties } from 'react';
+import { setHostedMode } from '@/preview/adapter';
 import { PageRenderer } from '@registry/runtime/page-renderer';
 import { findPage, pageTitle } from '@registry/runtime/pages';
 import type { SiteData } from '@registry/runtime/types';
@@ -13,13 +14,18 @@ type Props = {
     tokens?: Tokens;
     extraCss?: string;
     problems?: string[];
+    /** A published school Studio hosts, rather than the editor preview. */
+    hosted?: boolean;
 };
 
 /**
  * Renders a school website inside Studio with its real components. The theme is
  * applied through CSS variables, so any theme or brand colour shows instantly.
+ * Published schools that Studio hosts are served with this page too.
  */
-export default function Preview({ slug, site, tokens, extraCss, problems = [] }: Props) {
+export default function Preview({ slug, site, tokens, extraCss, problems = [], hosted = false }: Props) {
+    setHostedMode(hosted);
+
     if (!site || !tokens || !slug) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-8 font-sans">
@@ -49,7 +55,7 @@ export default function Preview({ slug, site, tokens, extraCss, problems = [] }:
                 {site.theme.fontImports?.map((href) => <link key={href} rel="stylesheet" href={href} />)}
             </Head>
             {extraCss && <style>{extraCss}</style>}
-            <div style={style}>{page && <PageRenderer site={site} page={page} debug />}</div>
+            <div style={style}>{page && <PageRenderer site={site} page={page} debug={!hosted} />}</div>
         </>
     );
 }

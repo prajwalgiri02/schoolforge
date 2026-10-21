@@ -53,4 +53,19 @@ return [
 
     'code_editing' => (bool) env('SCHOOLFORGE_CODE_EDITING', env('APP_ENV') === 'local'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Hosting
+    |--------------------------------------------------------------------------
+    |
+    | Studio can serve published schools itself. Each school answers on its own
+    | domain (point its DNS at this server) and, when this is set, on
+    | <school-slug>.<hosting_domain> (point a wildcard DNS record here).
+    |
+    */
+
+    'hosting_domain' => env('SCHOOLFORGE_HOSTING_DOMAIN'),
+
+    'hosting_scheme' => env('SCHOOLFORGE_HOSTING_SCHEME', 'https'),
+
 ];

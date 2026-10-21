@@ -33,6 +33,7 @@ class BackupStudio extends Command
         $backup = new Backup(directories: [
             'uploads' => storage_path('app/public/'.ProjectAssets::DIRECTORY),
             'registry' => config('studio.generator_path').'/registry',
+            'hosted-submissions' => storage_path('app/private/hosted-submissions'),
         ]);
 
         if ($file = $this->option('restore')) {
