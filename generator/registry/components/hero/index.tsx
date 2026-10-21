@@ -52,7 +52,7 @@ export default function Hero({ section, site }: HeroProps) {
                     <div className="relative">
                         <div className="absolute -bottom-5 -left-5 h-full w-full rounded-card bg-accent/30" aria-hidden="true" />
                         <div className="relative aspect-[4/5] overflow-hidden rounded-card shadow-card sm:aspect-[5/4] lg:aspect-[4/5]">
-                            <Media src={image} alt={school.name} label={school.name} icon="school" />
+                            <Media src={image} alt={school.name} label={school.name} icon="school" priority sizes="(min-width: 1024px) 50vw, 100vw" />
                         </div>
                     </div>
                 </Container>
@@ -82,7 +82,7 @@ export default function Hero({ section, site }: HeroProps) {
                         )}
                     </div>
                     <div className="mt-14 aspect-[21/9] w-full max-w-5xl overflow-hidden rounded-card shadow-card">
-                        <Media src={image} alt={school.name} label={school.name} icon="school" />
+                        <Media src={image} alt={school.name} label={school.name} icon="school" priority sizes="(min-width: 1024px) 50vw, 100vw" />
                     </div>
                 </Container>
             </section>
@@ -92,7 +92,7 @@ export default function Hero({ section, site }: HeroProps) {
     return (
         <section className="relative isolate flex min-h-[78vh] items-center overflow-hidden text-white">
             <div className="absolute inset-0 -z-20">
-                <Media src={image} alt="" icon="none" />
+                <Media src={image} alt="" icon="none" priority />
             </div>
             <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/80 via-black/55 to-black/20" aria-hidden="true" />
             <Container className="py-24">

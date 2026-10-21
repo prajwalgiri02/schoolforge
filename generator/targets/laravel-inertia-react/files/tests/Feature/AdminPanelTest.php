@@ -201,8 +201,25 @@ class AdminPanelTest extends TestCase
             ->assertCreated()
             ->assertJsonStructure(['url']);
 
-        $this->assertCount(1, Storage::disk('public')->allFiles('school'));
         $this->assertStringStartsWith('/storage/school/', $response->json('url'));
+        $this->assertStringEndsWith('.r.webp', $response->json('url'));
+        $this->assertCount(4, Storage::disk('public')->allFiles('school'), 'main image plus 480, 960 and 1440 pixel copies');
+
+        $main = imagecreatefromstring(Storage::disk('public')->get(substr($response->json('url'), strlen('/storage/'))));
+        $this->assertSame(1200, imagesx($main), 'images narrower than 1920px keep their size');
+    }
+
+    public function test_large_images_are_resized_and_gifs_kept(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $url = $this->actingAs($admin)->post('/admin/uploads', ['file' => UploadedFile::fake()->image('wide.png', 4000, 2000)])->json('url');
+        $this->assertSame(1920, imagesx(imagecreatefromstring(Storage::disk('public')->get(substr($url, strlen('/storage/'))))));
+        $this->assertSame(480, imagesx(imagecreatefromstring(Storage::disk('public')->get(str_replace(['/storage/', '.r.webp'], ['', '.480.webp'], $url)))));
+
+        $gif = $this->actingAs($admin)->post('/admin/uploads', ['file' => UploadedFile::fake()->image('animation.gif', 100, 100)])->json('url');
+        $this->assertStringEndsWith('.gif', $gif);
     }
 
     public function test_uploads_must_be_images(): void

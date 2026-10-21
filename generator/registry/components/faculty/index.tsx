@@ -57,7 +57,7 @@ export default function Faculty({ section, site }: SectionProps) {
                     {faculty.map((member) => (
                         <article key={member.name} className="school-card overflow-hidden text-center">
                             <div className="aspect-square">
-                                <Media src={member.photo} alt={member.name} label={member.name} icon="users" />
+                                <Media sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" src={member.photo} alt={member.name} label={member.name} icon="users" />
                             </div>
                             <div className="p-5">
                                 <h3 className="school-heading text-lg">{member.name}</h3>

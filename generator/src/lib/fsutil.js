@@ -78,6 +78,20 @@ export function copyTemplateDir(src, dest, vars = {}) {
     return written;
 }
 
+/**
+ * Renders every file of a template directory in memory: relative output path
+ * (with any `.tpl` suffix removed) mapped to its rendered contents.
+ */
+export function renderTemplateFiles(src, vars = {}) {
+    const files = new Map();
+
+    for (const relative of listFiles(src)) {
+        files.set(relative.replace(/\.tpl$/, ''), Buffer.from(renderTemplate(fs.readFileSync(path.join(src, relative), 'utf8'), vars)));
+    }
+
+    return files;
+}
+
 export function removeFile(file) {
     fs.rmSync(file, { force: true });
 

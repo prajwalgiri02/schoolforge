@@ -1,0 +1,13 @@
+node_modules
+vendor
+public/build
+public/storage
+bootstrap/ssr
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+database/database.sqlite
+.env
+.git

@@ -70,7 +70,7 @@ export default function Programs({ section, site }: ProgramsProps) {
                     {programs.map((program) => (
                         <article key={program.name} className="school-card group flex flex-col overflow-hidden">
                             <div className="aspect-[16/10] overflow-hidden">
-                                <Media src={program.image} alt={program.name} label={program.level} icon="book" className="transition duration-500 group-hover:scale-105" />
+                                <Media sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" src={program.image} alt={program.name} label={program.level} icon="book" className="transition duration-500 group-hover:scale-105" />
                             </div>
                             <div className="flex flex-1 flex-col p-6">
                                 {program.level && <p className="school-eyebrow text-accent-strong">{program.level}</p>}

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { readProjectConfig, requireProject, syncProject, writeProjectConfig } from '../lib/project.js';
+import { GENERATOR_VERSION, readProjectConfig, requireProject, syncProject, writeProjectConfig } from '../lib/project.js';
 import { getComponent, getTheme, listThemes } from '../lib/registry.js';
 import { getTarget } from '../lib/targets/index.js';
 
@@ -19,6 +19,35 @@ export function sync({ projectDir, force = false, log = console.log }) {
     log(`Syncing ${path.basename(projectDir)}`);
     const result = syncProject(projectDir, { config, force, log });
     report(result, log);
+
+    return result;
+}
+
+/**
+ * Brings an existing project up to the installed SchoolForge version: components,
+ * runtime and app files (controllers, routes, migrations...) are updated unless
+ * they were edited locally, then the steps to finish the upgrade are listed.
+ */
+export function upgrade({ projectDir, force = false, log = console.log }) {
+    const lock = requireProject(projectDir);
+    log(`Upgrading ${path.basename(projectDir)} from SchoolForge ${lock.version ?? 'unknown'} to ${GENERATOR_VERSION}`);
+    const result = syncProject(projectDir, { config: readProjectConfig(projectDir), force, log });
+    report(result, log);
+
+    const steps =
+        lock.target === 'laravel-inertia-react'
+            ? ['composer install', 'npm install', 'php artisan migrate', 'npm run build', 'restart `php artisan inertia:start-ssr` and your queue worker']
+            : ['npm install', 'npm run build'];
+
+    log('\nFinish the upgrade:');
+
+    for (const step of steps) {
+        log(`  ${step}`);
+    }
+
+    if (result.skipped.length > 0) {
+        log(`\n${result.skipped.length} file(s) you edited were left as they are. Compare them with a fresh project if something looks off, or rerun with --force to replace them.`);
+    }
 
     return result;
 }

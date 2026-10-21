@@ -37,7 +37,7 @@ export default function Facilities({ section, site }: FacilitiesProps) {
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {facilities.map((facility) => (
                             <article key={facility.name} className="group relative aspect-[4/3] overflow-hidden rounded-card">
-                                <Media src={facility.image} alt={facility.name} icon={facility.icon} className="transition duration-500 group-hover:scale-105" />
+                                <Media sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={facility.image} alt={facility.name} icon={facility.icon} className="transition duration-500 group-hover:scale-105" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" aria-hidden="true" />
                                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                                     <h3 className="school-heading text-xl">{facility.name}</h3>

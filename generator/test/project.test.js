@@ -178,3 +178,32 @@ describe('Laravel overlay', () => {
         assert.equal(readJson(dir, 'resources/school/site.json').theme.name, 'elegant');
     });
 });
+
+describe('upgrading existing projects', () => {
+    it('updates app files, keeps local edits and merges package.json', async () => {
+        const { upgrade } = await import('../src/commands/manage.js');
+        const dir = path.join(tmp, 'upgrade-site');
+        createProject({ directory: dir, configFile, skipInstall: true, log: quiet });
+
+        const layout = path.join(dir, 'src/app/layout.tsx');
+        const robots = path.join(dir, 'src/app/robots.ts');
+        fs.writeFileSync(layout, `${read(layout)}\n// our own tweak\n`);
+        fs.rmSync(robots);
+
+        const pkgFile = path.join(dir, 'package.json');
+        const pkg = readJson(pkgFile);
+        pkg.dependencies['my-own-lib'] = '^1.0.0';
+        delete pkg.dependencies['lucide-react'];
+        fs.writeFileSync(pkgFile, JSON.stringify(pkg));
+
+        const result = upgrade({ projectDir: dir, log: quiet });
+
+        assert.ok(result.skipped.includes('src/app/layout.tsx'));
+        assert.match(read(layout), /our own tweak/);
+        assert.ok(fs.existsSync(robots), 'deleted app files are restored');
+        assert.equal(readJson(pkgFile).dependencies['my-own-lib'], '^1.0.0');
+        assert.ok(readJson(pkgFile).dependencies['lucide-react'], 'required dependencies come back');
+        assert.equal(readJson(pkgFile).name, 'riverside-heights');
+        assert.ok(readLock(dir).files['src/app/sitemap.ts'], 'app files are tracked in the lock file');
+    });
+});

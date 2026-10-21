@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\GenerationRun;
 use App\Services\Generator;
+use App\Services\GitPublisher;
 use App\Support\ProjectAssets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -35,7 +36,7 @@ class GenerateSchoolProject implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(Generator $generator): void
+    public function handle(Generator $generator, GitPublisher $git): void
     {
         $run = $this->run;
         $project = $run->project;
@@ -43,16 +44,17 @@ class GenerateSchoolProject implements ShouldQueue
 
         $lastSave = microtime(true);
         $config = [...$project->config, 'target' => $run->target];
+        $log = function (string $output) use ($run, &$lastSave): void {
+            $run->appendLog($output);
+
+            if (microtime(true) - $lastSave > 1) {
+                $run->save();
+                $lastSave = microtime(true);
+            }
+        };
 
         try {
-            $result = $generator->generate($config, $run->output_path, $run->install, function (string $output) use ($run, &$lastSave): void {
-                $run->appendLog($output);
-
-                if (microtime(true) - $lastSave > 1) {
-                    $run->save();
-                    $lastSave = microtime(true);
-                }
-            });
+            $result = $generator->generate($config, $run->output_path, $run->install, $log);
 
             $run->status = $result->successful() ? GenerationRun::STATUS_SUCCEEDED : GenerationRun::STATUS_FAILED;
             $run->appendLog($result->errorOutput());
@@ -60,6 +62,11 @@ class GenerateSchoolProject implements ShouldQueue
             if ($result->successful()) {
                 $copied = ProjectAssets::copyInto($config, $run->output_path, $run->target);
                 $run->appendLog($copied > 0 ? "\nCopied {$copied} uploaded image(s) into the project.\n" : '');
+
+                if ($run->git_commit) {
+                    $log("\nPublishing to git\n");
+                    $git->publish($run->output_path, $run->git_remote, "Update {$project->name} website from SchoolForge Studio", $log);
+                }
             }
         } catch (Throwable $exception) {
             $run->status = GenerationRun::STATUS_FAILED;

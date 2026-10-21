@@ -3,7 +3,7 @@ import { parseArgs } from 'node:util';
 import { createProject, help as createHelp } from './commands/create.js';
 import { init } from './commands/init.js';
 import { describeRegistry, previewData, printJson, readConfigArgument } from './commands/inspect.js';
-import { add, remove, sync, useTheme } from './commands/manage.js';
+import { add, remove, sync, upgrade, useTheme } from './commands/manage.js';
 import { list, newComponent, newTheme, validate } from './commands/registry.js';
 import { GENERATOR_VERSION } from './lib/project.js';
 
@@ -18,6 +18,7 @@ Create
 
 Inside a generated project (or pass --project <dir>)
   sync [--force]                      Regenerate site data and theme and update components
+  upgrade [--force]                   Update an older project to this SchoolForge version
   add <component...> [--page /slug]   Install components (optionally append to a page)
   remove <component...>               Uninstall components and remove their sections
   use-theme <theme>                   Switch the project to another theme
@@ -87,6 +88,9 @@ export async function main(argv) {
             break;
         case 'sync':
             sync({ projectDir, force: values.force });
+            break;
+        case 'upgrade':
+            upgrade({ projectDir, force: values.force });
             break;
         case 'add':
             add({ projectDir, names: rest, page: values.page, variant: values.variant });

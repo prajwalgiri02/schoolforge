@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildSite, buildThemeCss, usedComponents, validateConfig } from './config.js';
+import { buildSite, buildThemeCss, slugify, usedComponents, validateConfig } from './config.js';
 import { exists, hashContents, hashFile, listFiles, readJson, removeFile, writeFile, writeJson } from './fsutil.js';
 import { LOCK_FILE, PROJECT_CONFIG_FILE, RUNTIME_DIR } from './paths.js';
 import { getComponent, getTheme, listComponents } from './registry.js';
@@ -129,6 +129,12 @@ export function syncProject(projectDir, { config, force = false, extraComponents
 
     managed.set(`${schoolDir}/adapter.tsx`, target.adapterFile);
 
+    const vars = lock.vars ?? { packageName: slugify(config.project?.name ?? config.school.shortName ?? config.school.name) || 'school-website', schoolName: config.school.name };
+
+    for (const [relative, contents] of target.appFiles?.(vars) ?? []) {
+        managed.set(relative, { contents });
+    }
+
     for (const name of registryComponents) {
         const override = theme.componentOverrides[name];
         const sourceDir = override?.dir ?? getComponent(name).dir;
@@ -143,7 +149,7 @@ export function syncProject(projectDir, { config, force = false, extraComponents
 
     for (const [relative, source] of managed) {
         const dest = path.join(projectDir, relative);
-        const contents = fs.readFileSync(source);
+        const contents = typeof source === 'string' ? fs.readFileSync(source) : source.contents;
         const sourceHash = hashContents(contents);
         const currentHash = hashFile(dest);
         const recordedHash = lock.files?.[relative];
@@ -183,6 +189,7 @@ export function syncProject(projectDir, { config, force = false, extraComponents
         }
     }
 
+    target.mergePackageJson?.(projectDir, vars);
     writeFile(path.join(projectDir, schoolDir, 'registry.ts'), renderRegistryFile(registryComponents, custom));
     writeFile(path.join(projectDir, schoolDir, 'theme.css'), buildThemeCss(theme, config));
     writeJson(path.join(projectDir, target.siteDataFile), site);
@@ -192,6 +199,7 @@ export function syncProject(projectDir, { config, force = false, extraComponents
         version: GENERATOR_VERSION,
         target: target.name,
         theme: theme.name,
+        vars,
         components: registryComponents,
         custom,
         files: Object.fromEntries(Object.entries(nextFiles).sort(([a], [b]) => a.localeCompare(b))),

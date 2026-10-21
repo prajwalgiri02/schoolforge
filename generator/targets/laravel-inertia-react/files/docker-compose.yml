@@ -1,0 +1,56 @@
+# Full production stack: docker compose up -d --build, then open http://localhost:8080
+# Put APP_KEY (from `php artisan key:generate --show`) and APP_URL in a .env file next to this one.
+
+x-app: &app
+  build:
+    context: .
+    target: web
+  image: school-site-web
+  environment: &env
+    APP_ENV: production
+    APP_DEBUG: 'false'
+    APP_KEY: ${APP_KEY:?Set APP_KEY in .env}
+    APP_URL: ${APP_URL:-http://localhost:8080}
+    DB_CONNECTION: sqlite
+    DB_DATABASE: /var/www/html/database/data/database.sqlite
+    INERTIA_SSR_URL: http://ssr:13714
+    QUEUE_CONNECTION: database
+  volumes:
+    - storage:/var/www/html/storage/app
+    - database:/var/www/html/database/data
+
+services:
+  web:
+    <<: *app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - ssr
+
+  ssr:
+    build:
+      context: .
+      target: ssr
+    image: school-site-ssr
+
+  scheduler:
+    <<: *app
+    command: ['php', '/var/www/html/artisan', 'schedule:work']
+    environment:
+      <<: *env
+      AUTORUN_ENABLED: 'false'
+    depends_on:
+      - web
+
+  queue:
+    <<: *app
+    command: ['php', '/var/www/html/artisan', 'queue:work', '--tries=3']
+    environment:
+      <<: *env
+      AUTORUN_ENABLED: 'false'
+    depends_on:
+      - web
+
+volumes:
+  storage:
+  database:

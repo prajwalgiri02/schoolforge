@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * One request to write (or sync) a project's codebase to disk.
  */
-#[Fillable(['project_id', 'user_id', 'target', 'output_path', 'install', 'status', 'log', 'started_at', 'finished_at'])]
+#[Fillable(['project_id', 'user_id', 'target', 'output_path', 'install', 'git_commit', 'git_remote', 'status', 'log', 'started_at', 'finished_at'])]
 class GenerationRun extends Model
 {
     /** @use HasFactory<GenerationRunFactory> */
@@ -34,6 +34,7 @@ class GenerationRun extends Model
     {
         return [
             'install' => 'boolean',
+            'git_commit' => 'boolean',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
         ];

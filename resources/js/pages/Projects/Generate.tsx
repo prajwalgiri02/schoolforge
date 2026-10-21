@@ -6,13 +6,13 @@ import { ProjectLayout } from '@/studio/ProjectLayout';
 import { FieldError } from '@/studio/StudioLayout';
 import type { ProjectSummary, Target } from '@/studio/types';
 
-type Run = { id: number; target: string; outputPath: string; install: boolean; status: 'queued' | 'running' | 'succeeded' | 'failed'; log: string | null; createdAt: string; finishedAt: string | null };
+type Run = { id: number; target: string; outputPath: string; install: boolean; gitCommit: boolean; status: 'queued' | 'running' | 'succeeded' | 'failed'; log: string | null; createdAt: string; finishedAt: string | null };
 
 type Props = {
     project: ProjectSummary;
     validation: { ok: boolean; errors: string[]; warnings: string[]; pageCount: number };
     targets: Target[];
-    defaults: { target: string; outputPath: string; isExisting: boolean };
+    defaults: { target: string; outputPath: string; isExisting: boolean; gitRemote: string | null };
     runs: Run[];
 };
 
@@ -38,7 +38,7 @@ function RunLog({ run }: { run: Run }) {
 }
 
 export default function Generate({ project, validation, targets, defaults, runs }: Props) {
-    const form = useForm({ target: defaults.target, output_path: defaults.outputPath, install: false });
+    const form = useForm({ target: defaults.target, output_path: defaults.outputPath, install: false, git_commit: Boolean(defaults.gitRemote), git_remote: defaults.gitRemote ?? '' });
     const errors = form.errors as Record<string, string | undefined>;
     const active = runs.some((run) => run.status === 'queued' || run.status === 'running');
     const poll = usePoll(1500, { only: ['runs'] }, { autoStart: false });
@@ -122,6 +122,27 @@ export default function Generate({ project, validation, targets, defaults, runs 
                             </span>
                         </span>
                     </label>
+                    <div className="space-y-3 rounded-lg border border-zinc-200 p-4">
+                        <label className="flex items-start gap-3 text-sm">
+                            <input type="checkbox" checked={form.data.git_commit} onChange={(event) => form.setData('git_commit', event.target.checked)} className="mt-0.5 h-4 w-4 rounded border-zinc-300" />
+                            <span>
+                                <span className="font-medium">Commit to git</span>
+                                <span className="block text-zinc-500">Creates a git repository in the folder (if needed) and commits the result, so you can see what changed between versions.</span>
+                            </span>
+                        </label>
+                        {form.data.git_commit && (
+                            <div className="pl-7">
+                                <label htmlFor="git_remote" className="mb-1.5 block text-sm font-medium">
+                                    Push to repository <span className="font-normal text-zinc-400">(optional)</span>
+                                </label>
+                                <input id="git_remote" value={form.data.git_remote} onChange={(event) => form.setData('git_remote', event.target.value)} placeholder="https://github.com/you/school-site.git" className={`${inputClass} font-mono`} />
+                                <FieldError message={errors.git_remote} />
+                                <p className="mt-1.5 text-xs text-zinc-500">
+                                    Uses this computer’s git login. Connect the repository to {form.data.target === 'nextjs' ? 'Vercel or Netlify' : 'Laravel Cloud or Forge'} and every push deploys the site. See SCHOOLFORGE.md in the project for step-by-step deploy guides.
+                                </p>
+                            </div>
+                        )}
+                    </div>
                     {errors.config && <p className="text-sm text-red-600">{errors.config}</p>}
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <a href={`/projects/${project.slug}/config.json`} className={buttonClass.secondary}>
@@ -143,7 +164,7 @@ export default function Generate({ project, validation, targets, defaults, runs 
                                         <div className="min-w-0">
                                             <p className="truncate font-mono text-sm">{run.outputPath}</p>
                                             <p className="text-xs text-zinc-500">
-                                                {run.target} · {new Date(run.createdAt).toLocaleString()} {run.install ? '· with install' : ''}
+                                                {run.target} · {new Date(run.createdAt).toLocaleString()} {run.install ? '· with install' : ''} {run.gitCommit ? '· git' : ''}
                                             </p>
                                         </div>
                                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[run.status]}`}>

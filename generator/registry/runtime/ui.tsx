@@ -132,8 +132,23 @@ export function initials(name: string): string {
 }
 
 /**
+ * srcset for images uploaded through SchoolForge, which are stored as `<name>.r.webp`
+ * plus `<name>.<width>.webp` copies (see ImageOptimizer.php). Other images get none.
+ */
+export function responsiveSrcSet(src: string): string | undefined {
+    if (!src.endsWith('.r.webp')) {
+        return undefined;
+    }
+
+    const base = src.slice(0, -'.r.webp'.length);
+
+    return [480, 960, 1440].map((width) => `${base}.${width}.webp ${width}w`).concat(`${src} 1920w`).join(', ');
+}
+
+/**
  * Renders an image, or a themed artwork placeholder when no image is configured,
  * so a school can launch before its photography is ready. Pass icon="none" for backgrounds.
+ * Set `priority` for the main image above the fold so it loads first.
  */
 export function Media({
     src,
@@ -141,15 +156,32 @@ export function Media({
     className,
     icon = 'graduation-cap',
     label,
+    sizes = '100vw',
+    priority = false,
 }: {
     src?: ImageRef;
     alt: string;
     className?: string;
     icon?: string;
     label?: string;
+    sizes?: string;
+    priority?: boolean;
 }) {
     if (src) {
-        return <img src={src} alt={alt} loading="lazy" className={cn('h-full w-full object-cover', className)} />;
+        const srcSet = responsiveSrcSet(src);
+
+        return (
+            <img
+                src={src}
+                srcSet={srcSet}
+                sizes={srcSet ? sizes : undefined}
+                alt={alt}
+                loading={priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : undefined}
+                decoding="async"
+                className={cn('h-full w-full object-cover', className)}
+            />
+        );
     }
 
     return (
@@ -166,7 +198,9 @@ export function Media({
 
 export function Avatar({ src, name, className }: { src?: ImageRef; name: string; className?: string }) {
     if (src) {
-        return <img src={src} alt={name} loading="lazy" className={cn('rounded-full object-cover', className)} />;
+        const srcSet = responsiveSrcSet(src);
+
+        return <img src={src} srcSet={srcSet} sizes={srcSet ? '96px' : undefined} alt={name} loading="lazy" decoding="async" className={cn('rounded-full object-cover', className)} />;
     }
 
     return (

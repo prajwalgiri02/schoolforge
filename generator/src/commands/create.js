@@ -34,6 +34,8 @@ ${target.name === 'nextjs' ? 'npm install' : 'composer install && npm install &&
 ${devCommand}
 \`\`\`
 
+To put the site online, follow [DEPLOY.md](DEPLOY.md).
+
 ## Edit content
 ${
     target.name === 'nextjs'

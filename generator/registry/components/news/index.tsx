@@ -65,7 +65,7 @@ export default function News({ section, site }: NewsProps) {
                     {news.map((item) => (
                         <article key={item.slug} className="school-card group flex flex-col overflow-hidden">
                             <div className="aspect-[16/10] overflow-hidden">
-                                <Media src={item.image} alt={item.title} icon="megaphone" className="transition duration-500 group-hover:scale-105" />
+                                <Media sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" src={item.image} alt={item.title} icon="megaphone" className="transition duration-500 group-hover:scale-105" />
                             </div>
                             <div className="flex flex-1 flex-col p-6">
                                 <time className="text-sm font-medium text-accent-strong" dateTime={item.date}>

@@ -1,0 +1,42 @@
+# Deploying {{schoolName}}
+
+This is a Next.js site. Every page is prerendered, so it is fast and cheap to host.
+
+Before deploying, set `seo.siteUrl` in `school.config.json` to the live address
+(e.g. `https://www.myschool.edu.np`) and run `schoolforge sync`. It is used for the
+sitemap, canonical links and share previews.
+
+## Option 1: Vercel (recommended, free tier available)
+
+1. Push this folder to a GitHub repository. SchoolForge Studio can do it for you:
+   tick **Commit to git** on the Generate tab and enter the repository URL.
+2. On https://vercel.com, choose **Add New → Project** and import the repository.
+   No settings are needed; Vercel detects Next.js.
+3. Under **Settings → Domains**, add the school's domain and follow the DNS instructions.
+4. Optional: set `CONTACT_WEBHOOK_URL` under **Settings → Environment Variables** to
+   receive contact form enquiries (Zapier, Make, Slack, a CRM...).
+
+Every push to the repository redeploys the site automatically.
+
+## Option 2: Netlify
+
+Import the repository at https://app.netlify.com. The Next.js runtime is detected
+automatically. Add the domain under **Domain management**.
+
+## Option 3: Your own server with Docker
+
+```bash
+docker build -t school-site .
+docker run -d --restart unless-stopped -p 3000:3000 school-site
+```
+
+Put a reverse proxy with HTTPS in front of port 3000 (Caddy does this in one line:
+`reverse_proxy localhost:3000`).
+
+## Option 4: Any Node.js host
+
+```bash
+npm install
+npm run build
+npm start          # serves on port 3000
+```

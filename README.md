@@ -67,6 +67,24 @@ The generator also works on its own from the command line. See [generator/README
 
 Studio is meant to run on your own machine or a private server. It writes to folders you choose and, with code editing on, to the component registry, so do not expose it publicly.
 
+## Backups
+
+`php artisan studio:backup` writes a zip of every school, login, uploaded image and the
+theme/component registry to `storage/app/private/backups`, and runs nightly when the
+scheduler is running (`php artisan schedule:work`, or a cron entry for
+`php artisan schedule:run`). Restore with `php artisan studio:backup --restore=path/to/backup.zip`.
+
+Generated Laravel sites have the same feature as `php artisan school:backup`.
+
+## Deploying generated sites
+
+On the Generate tab, tick **Commit to git** and enter a repository URL. Studio then commits
+the codebase and pushes it, ready for Vercel or Netlify (Next.js) or Laravel Cloud or Forge
+(Laravel). Each project also has a `DEPLOY.md` with step-by-step guides and a Docker setup.
+
+Existing generated projects can be brought up to date with `schoolforge upgrade`, or by
+generating again into the same folder. Files edited by hand are kept.
+
 ## Tests
 
 ```bash

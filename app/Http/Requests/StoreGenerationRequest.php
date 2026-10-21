@@ -32,6 +32,8 @@ class StoreGenerationRequest extends FormRequest
             'target' => ['required', Rule::in(array_column(app(Generator::class)->registry()['targets'], 'name'))],
             'output_path' => ['required', 'string', 'max:500'],
             'install' => ['nullable', 'boolean'],
+            'git_commit' => ['nullable', 'boolean'],
+            'git_remote' => ['nullable', 'string', 'max:500', 'regex:/^(https:\/\/[^\s]+|git@[^\s:]+:[^\s]+|ssh:\/\/[^\s]+|\/[^\s]+)$/'],
         ];
     }
 
@@ -42,7 +44,7 @@ class StoreGenerationRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return ['output_path' => 'folder'];
+        return ['output_path' => 'folder', 'git_remote' => 'repository URL'];
     }
 
     /**
@@ -88,6 +90,18 @@ class StoreGenerationRequest extends FormRequest
                     $validator->errors()->add('config', 'Fix these problems first: '.implode(' ', $preview['errors']));
                 }
             },
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'git_remote.regex' => 'Use a repository URL such as https://github.com/you/school-site.git or git@github.com:you/school-site.git.',
         ];
     }
 

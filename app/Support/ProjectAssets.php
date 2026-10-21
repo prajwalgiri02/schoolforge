@@ -31,7 +31,12 @@ class ProjectAssets
             }
         });
 
-        return array_values(array_unique(array_filter($files, fn (string $file): bool => Storage::disk('public')->exists($file))));
+        return collect($files)
+            ->flatMap(fn (string $file): array => [$file, ...ImageOptimizer::variantsOf($file)])
+            ->unique()
+            ->filter(fn (string $file): bool => Storage::disk('public')->exists($file))
+            ->values()
+            ->all();
     }
 
     /**

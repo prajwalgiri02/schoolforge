@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { copyTemplateDir, exists, isEmptyDir, readJson, writeJson } from '../fsutil.js';
+import { copyTemplateDir, exists, isEmptyDir, readJson, renderTemplateFiles, writeJson } from '../fsutil.js';
 import { TARGETS_DIR } from '../paths.js';
 import { commandExists, run } from '../run.js';
 
@@ -67,6 +67,17 @@ export default {
         }
 
         run('composer', ['require', 'inertiajs/inertia-laravel:^3.0', '--no-interaction'], { cwd: projectDir, log });
+    },
+
+    /**
+     * App files `schoolforge sync` keeps up to date (local edits are preserved).
+     */
+    appFiles(vars) {
+        return renderTemplateFiles(path.join(dir, 'files'), vars);
+    },
+
+    mergePackageJson(projectDir) {
+        mergePackageJson(projectDir);
     },
 
     scaffold(projectDir, vars) {

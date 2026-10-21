@@ -80,7 +80,7 @@ export default function Gallery({ section, site }: GalleryProps) {
                                 variant === 'masonry' ? (index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/3]') : 'aspect-square',
                             )}
                         >
-                            <Media src={item.src} alt={item.caption ?? 'Gallery image'} label={item.caption} icon="camera" className="transition duration-500 group-hover:scale-105" />
+                            <Media sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" src={item.src} alt={item.caption ?? 'Gallery image'} label={item.caption} icon="camera" className="transition duration-500 group-hover:scale-105" />
                             {item.caption && (
                                 <span className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-4 text-sm text-white transition group-hover:translate-y-0">
                                     {item.caption}

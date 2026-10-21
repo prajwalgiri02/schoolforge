@@ -107,7 +107,7 @@ class GenerationTest extends TestCase
     public function test_job_generates_a_project_and_copies_uploads(): void
     {
         Storage::fake('public');
-        $upload = UploadedFile::fake()->image('campus.jpg')->store('studio/2026/10', 'public');
+        $upload = substr($this->post('/uploads', ['file' => UploadedFile::fake()->image('campus.jpg', 2400, 1600)])->json('url'), strlen('/storage/'));
 
         $project = Project::factory()->example()->create();
         $project->update(['config' => [...$project->config, 'hero' => [...$project->config['hero'], 'image' => '/storage/'.$upload]]]);
@@ -118,10 +118,11 @@ class GenerationTest extends TestCase
 
         $run->refresh();
         $this->assertSame(GenerationRun::STATUS_SUCCEEDED, $run->status, $run->log);
-        $this->assertStringContainsString('Copied 1 uploaded image', $run->log);
+        $this->assertStringContainsString('Copied 4 uploaded image', $run->log, 'the image and its three responsive copies');
         $this->assertFileExists("{$output}/.schoolforge.json");
         $this->assertFileExists("{$output}/src/school/components/hero/index.tsx");
         $this->assertFileExists("{$output}/public/storage/{$upload}");
+        $this->assertFileExists("{$output}/public/storage/".str_replace('.r.webp', '.960.webp', $upload));
         $this->assertSame($output, $project->fresh()->output_path);
 
         $project->update(['config' => [...$project->fresh()->config, 'school' => [...$project->config['school'], 'name' => 'Renamed School']]]);
@@ -130,6 +131,40 @@ class GenerationTest extends TestCase
 
         $this->assertSame(GenerationRun::STATUS_SUCCEEDED, $sync->fresh()->status, $sync->fresh()->log);
         $this->assertSame('Renamed School', json_decode(File::get("{$output}/src/school/site.json"), true)['school']['name']);
+    }
+
+    public function test_generated_project_is_committed_and_pushed(): void
+    {
+        $project = Project::factory()->create();
+        $remote = "{$this->outputRoot}/remote.git";
+        File::ensureDirectoryExists($remote);
+        exec('git init --bare -q '.escapeshellarg($remote));
+        $output = "{$this->outputRoot}/published";
+
+        $this->post("/projects/{$project->slug}/generate", ['target' => 'nextjs', 'output_path' => $output, 'git_commit' => true, 'git_remote' => $remote])->assertSessionHasNoErrors();
+
+        $run = GenerationRun::query()->sole();
+        $this->assertSame(GenerationRun::STATUS_SUCCEEDED, $run->status, $run->log);
+        $this->assertSame($remote, $project->fresh()->git_remote);
+        $this->assertStringContainsString('git push', $run->log);
+
+        $files = shell_exec('git --git-dir='.escapeshellarg($remote).' ls-tree -r --name-only main');
+        $this->assertStringContainsString('src/school/site.json', $files);
+        $this->assertStringContainsString('Update '.$project->name, shell_exec('git --git-dir='.escapeshellarg($remote).' log -1 --format=%s main'));
+
+        $again = GenerationRun::factory()->for($project)->create(['output_path' => $output, 'git_commit' => true, 'git_remote' => $remote]);
+        GenerateSchoolProject::dispatchSync($again);
+        $this->assertSame(GenerationRun::STATUS_SUCCEEDED, $again->fresh()->status, $again->fresh()->log);
+        $this->assertStringContainsString('Nothing new to commit', $again->fresh()->log);
+    }
+
+    public function test_repository_urls_are_validated(): void
+    {
+        Queue::fake();
+        $project = Project::factory()->create();
+
+        $this->post("/projects/{$project->slug}/generate", ['target' => 'nextjs', 'output_path' => "{$this->outputRoot}/x", 'git_commit' => true, 'git_remote' => 'not a url; rm -rf /'])
+            ->assertSessionHasErrors('git_remote');
     }
 
     public function test_failed_generation_is_recorded(): void

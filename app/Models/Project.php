@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
  *
  * @property array<string, mixed> $config
  */
-#[Fillable(['name', 'slug', 'config', 'output_path'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote'])]
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */

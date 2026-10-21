@@ -98,6 +98,7 @@ class ProjectContentTest extends TestCase
         $response = $this->post('/uploads', ['file' => UploadedFile::fake()->image('logo.png')])->assertCreated();
 
         $this->assertStringStartsWith('/storage/studio/', $response->json('url'));
-        $this->assertCount(1, Storage::disk('public')->allFiles('studio'));
+        $this->assertStringEndsWith('.r.webp', $response->json('url'));
+        $this->assertCount(4, Storage::disk('public')->allFiles('studio'));
     }
 }

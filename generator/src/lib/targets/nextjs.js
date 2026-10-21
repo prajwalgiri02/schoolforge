@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { copyTemplateDir } from '../fsutil.js';
+import { copyTemplateDir, exists, readJson, renderTemplateFiles, writeJson } from '../fsutil.js';
 import { TARGETS_DIR } from '../paths.js';
 import { commandExists, run } from '../run.js';
 
@@ -14,6 +14,39 @@ export default {
 
     scaffold(projectDir, vars) {
         return copyTemplateDir(path.join(dir, 'files'), projectDir, vars);
+    },
+
+    /**
+     * App files `schoolforge sync` keeps up to date (local edits are preserved).
+     * package.json is merged instead, so a school's own dependencies survive.
+     */
+    appFiles(vars) {
+        const files = renderTemplateFiles(path.join(dir, 'files'), vars);
+        files.delete('package.json');
+
+        return files;
+    },
+
+    /**
+     * Adds or raises the dependencies and scripts the current template needs.
+     */
+    mergePackageJson(projectDir, vars) {
+        const file = path.join(projectDir, 'package.json');
+        const template = JSON.parse(renderTemplateFiles(path.join(dir, 'files'), vars).get('package.json').toString());
+
+        if (!exists(file)) {
+            writeJson(file, template);
+
+            return;
+        }
+
+        const pkg = readJson(file);
+
+        for (const key of ['dependencies', 'devDependencies', 'scripts']) {
+            pkg[key] = { ...(pkg[key] ?? {}), ...template[key] };
+        }
+
+        writeJson(file, pkg);
     },
 
     install(projectDir, { build = false, log }) {

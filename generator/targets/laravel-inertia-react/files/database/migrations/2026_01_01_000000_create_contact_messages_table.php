@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('subject', 120);
             $table->text('message');
             $table->string('ip_address', 45)->nullable();
-            $table->timestamp('read_at')->nullable()->index();
             $table->timestamps();
         });
     }

@@ -36,12 +36,14 @@ class ProjectGenerateController extends Controller
                 'target' => $project->target(),
                 'outputPath' => $outputPath,
                 'isExisting' => File::exists($outputPath.'/.schoolforge.json'),
+                'gitRemote' => $project->git_remote,
             ],
             'runs' => fn () => $project->generationRuns()->latest()->limit(5)->get()->map(fn (GenerationRun $run): array => [
                 'id' => $run->id,
                 'target' => $run->target,
                 'outputPath' => $run->output_path,
                 'install' => $run->install,
+                'gitCommit' => $run->git_commit,
                 'status' => $run->status,
                 'log' => $run->log,
                 'createdAt' => $run->created_at->toIso8601String(),
@@ -63,8 +65,14 @@ class ProjectGenerateController extends Controller
             'target' => $request->validated('target'),
             'output_path' => $request->outputPath(),
             'install' => $request->boolean('install'),
+            'git_commit' => $request->boolean('git_commit'),
+            'git_remote' => $request->boolean('git_commit') ? $request->validated('git_remote') : null,
             'status' => GenerationRun::STATUS_QUEUED,
         ]);
+
+        if ($request->boolean('git_commit')) {
+            $project->update(['git_remote' => $request->validated('git_remote')]);
+        }
 
         GenerateSchoolProject::dispatch($run);
 

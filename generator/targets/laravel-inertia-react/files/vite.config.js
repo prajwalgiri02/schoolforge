@@ -19,6 +19,10 @@ export default defineConfig({
         tailwindcss(),
         react(),
     ],
+    ssr: {
+        // Bundle every dependency into bootstrap/ssr so the SSR server runs with node alone (see Dockerfile).
+        noExternal: true,
+    },
     resolve: {
         alias: {
             '@': path.resolve(root, 'resources/js'),
