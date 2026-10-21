@@ -1,23 +1,28 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { defaultLocale, sites } from '@/school/sites';
+import { defaultLocale } from '@/school/sites';
+import { getSite } from './content';
 import { siteUrl } from './site-url';
 import './globals.css';
 
-const site = sites[defaultLocale];
+export async function generateMetadata(): Promise<Metadata> {
+    const site = await getSite();
 
-export const metadata: Metadata = {
-    metadataBase: new URL(siteUrl),
-    title: { default: site.school.name, template: `%s | ${site.school.name}` },
-    description: site.school.about?.summary ?? site.school.tagline,
-    applicationName: site.school.name,
-    keywords: site.seo?.keywords,
-    icons: site.school.favicon ? { icon: site.school.favicon, apple: site.school.favicon } : undefined,
-    verification: site.seo?.googleSiteVerification ? { google: site.seo.googleSiteVerification } : undefined,
-    openGraph: { siteName: site.school.name, locale: 'en', type: 'website' },
-};
+    return {
+        metadataBase: new URL(siteUrl),
+        title: { default: site.school.name, template: `%s | ${site.school.name}` },
+        description: site.school.about?.summary ?? site.school.tagline,
+        applicationName: site.school.name,
+        keywords: site.seo?.keywords,
+        icons: site.school.favicon ? { icon: site.school.favicon, apple: site.school.favicon } : undefined,
+        verification: site.seo?.googleSiteVerification ? { google: site.seo.googleSiteVerification } : undefined,
+        openGraph: { siteName: site.school.name, locale: 'en', type: 'website' },
+    };
+}
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+    const site = await getSite();
+
     return (
         <html lang={defaultLocale}>
             <head>

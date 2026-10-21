@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { defaultLocale, sites } from '@/school/sites';
+import { getSite, isHeadless } from '../../content';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,14 +8,14 @@ export const dynamic = 'force-dynamic';
  * static, so if this answers the site is up; it also reports whether the
  * optional form webhooks are configured.
  */
-export function GET() {
-    const site = sites[defaultLocale];
+export async function GET() {
+    const site = await getSite();
 
     return NextResponse.json({
         status: 'ok',
         checkedAt: new Date().toISOString(),
         checks: [
-            { name: 'site', status: 'ok', message: `${site.pages.length} pages are being served.` },
+            { name: 'site', status: 'ok', message: `${site.pages.length} pages are being served${isHeadless ? ', with content from SchoolForge Studio' : ''}.` },
             {
                 name: 'forms',
                 status: process.env.FORMS_WEBHOOK_URL && process.env.CONTACT_WEBHOOK_URL ? 'ok' : 'warning',

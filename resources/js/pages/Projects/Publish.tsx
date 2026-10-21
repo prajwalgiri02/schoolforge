@@ -1,12 +1,14 @@
 import { Link, router, useForm, usePage } from '@inertiajs/react';
-import { CircleCheck, Download, ExternalLink, Globe, Inbox, Mail, Trash2, TriangleAlert } from 'lucide-react';
-import type { FormEvent } from 'react';
+import { CircleCheck, Copy, Download, ExternalLink, Globe, Inbox, KeyRound, Mail, Trash2, TriangleAlert } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { ProjectLayout } from '@/studio/ProjectLayout';
 import { FieldError } from '@/studio/StudioLayout';
 import type { ProjectSummary, StudioSharedProps } from '@/studio/types';
 
 type Hosting = { publishedAt: string | null; changedSincePublished: boolean; url: string | null; domain: string | null; subdomain: string | null; serverHost: string };
+
+type Headless = { enabled: boolean; contentUrl: string; token: string | null; revalidateUrl: string | null; isNextjs: boolean };
 
 type Submission = { id: number; form: string; reference: string; data: Record<string, string | boolean>; files: string[]; read: boolean; createdAt: string };
 
@@ -22,11 +24,77 @@ function headline(name: string): string {
     return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (letter) => letter.toUpperCase());
 }
 
-export default function Publish({ project, hosting, submissions, unread }: { project: ProjectSummary; hosting: Hosting; submissions: Paginated<Submission>; unread: number }) {
+function HeadlessSection({ project, headless, canEdit }: { project: ProjectSummary; headless: Headless; canEdit: boolean }) {
+    const [copied, setCopied] = useState(false);
+    const env = `SCHOOLFORGE_CONTENT_URL=${headless.contentUrl}\nSCHOOLFORGE_CONTENT_TOKEN=${headless.token ?? ''}`;
+
+    const copy = async () => {
+        await navigator.clipboard?.writeText(env);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 className="flex items-center gap-2 font-semibold">
+                        <KeyRound className="h-5 w-5" /> Headless content API
+                    </h2>
+                    <p className="mt-1 max-w-xl text-sm text-zinc-500">
+                        A generated Next.js site can read its content from Studio instead of its own files. Publishing here then refreshes the live site, with no rebuild. Theme and component changes still need generating and deploying.
+                    </p>
+                </div>
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${headless.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-600'}`}>{headless.enabled ? 'On' : 'Off'}</span>
+            </div>
+            {!headless.isNextjs && <p className="mt-3 text-sm text-amber-800">This school’s framework is Laravel, which edits content in its own admin panel; the API is for Next.js sites.</p>}
+            {headless.enabled && headless.token && (
+                <div className="mt-4 space-y-2">
+                    <p className="text-sm">Set these environment variables on the website’s host (e.g. Vercel → Settings → Environment Variables), then redeploy once:</p>
+                    <pre className="overflow-x-auto rounded-lg bg-zinc-950 p-4 font-mono text-xs leading-relaxed text-zinc-100">{env}</pre>
+                    <p className="text-xs text-zinc-500">
+                        {headless.revalidateUrl ? (
+                            <>
+                                After each publish Studio asks <span className="font-mono">{headless.revalidateUrl}</span> to refresh.
+                            </>
+                        ) : (
+                            'Set the site URL under Content → SEO so Studio can tell the website to refresh after each publish.'
+                        )}{' '}
+                        Keep the token secret.
+                    </p>
+                </div>
+            )}
+            {canEdit && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                    {headless.enabled ? (
+                        <>
+                            <button type="button" onClick={copy} className={buttonClass.secondary}>
+                                <Copy className="h-4 w-4" /> {copied ? 'Copied' : 'Copy variables'}
+                            </button>
+                            <button type="button" onClick={() => window.confirm('Issue a new token? The website stops loading content until you update SCHOOLFORGE_CONTENT_TOKEN.') && router.post(`/projects/${project.slug}/headless`, {}, { preserveScroll: true })} className={buttonClass.secondary}>
+                                New token
+                            </button>
+                            <button type="button" onClick={() => router.delete(`/projects/${project.slug}/headless`, { preserveScroll: true })} className={buttonClass.danger}>
+                                Turn off
+                            </button>
+                        </>
+                    ) : (
+                        <button type="button" onClick={() => router.post(`/projects/${project.slug}/headless`, {}, { preserveScroll: true })} className={buttonClass.secondary}>
+                            Turn on
+                        </button>
+                    )}
+                </div>
+            )}
+        </section>
+    );
+}
+
+export default function Publish({ project, hosting, headless, submissions, unread }: { project: ProjectSummary; hosting: Hosting; headless: Headless; submissions: Paginated<Submission>; unread: number }) {
     const { auth } = usePage<StudioSharedProps>().props;
     const domainForm = useForm({ domain: hosting.domain ?? '' });
     const publishForm = useForm({});
     const canHost = Boolean(hosting.domain || hosting.subdomain);
+    const canPublish = canHost || headless.enabled;
     const base = `/projects/${project.slug}`;
 
     const saveDomain = (event: FormEvent) => {
@@ -53,9 +121,9 @@ export default function Publish({ project, hosting, submissions, unread }: { pro
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h2 className="flex items-center gap-2 font-semibold">
-                                <Globe className="h-5 w-5" /> Host the website with Studio
+                                <Globe className="h-5 w-5" /> Publish the website
                             </h2>
-                            <p className="mt-1 max-w-xl text-sm text-zinc-500">Studio serves the published version of the school to visitors, with its pages, search engine sitemap and working forms. Changes you make here go live when you publish again.</p>
+                            <p className="mt-1 max-w-xl text-sm text-zinc-500">Publishing puts the school as it is now live. Studio serves it on the school’s domain, with its pages, search engine sitemap and working forms, and a headless Next.js site loads it. Later changes go live when you publish again.</p>
                         </div>
                         {hosting.publishedAt ? (
                             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Live</span>
@@ -82,7 +150,7 @@ export default function Publish({ project, hosting, submissions, unread }: { pro
 
                     {auth.user?.canEdit && (
                         <div className="mt-5 flex flex-wrap gap-3">
-                            <button type="button" disabled={!canHost || publishForm.processing} onClick={() => publishForm.post(`${base}/publish`, { preserveScroll: true })} className={buttonClass.primary}>
+                            <button type="button" disabled={!canPublish || publishForm.processing} onClick={() => publishForm.post(`${base}/publish`, { preserveScroll: true })} className={buttonClass.primary}>
                                 {publishForm.processing ? 'Publishing…' : hosting.publishedAt ? 'Publish changes' : 'Publish'}
                             </button>
                             {hosting.publishedAt && (
@@ -92,7 +160,7 @@ export default function Publish({ project, hosting, submissions, unread }: { pro
                             )}
                         </div>
                     )}
-                    {!canHost && <p className="mt-3 text-sm text-zinc-500">Set a domain below to publish.</p>}
+                    {!canPublish && <p className="mt-3 text-sm text-zinc-500">Set a domain below, or turn on the headless content API, to publish.</p>}
                 </section>
 
                 <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -120,6 +188,8 @@ export default function Publish({ project, hosting, submissions, unread }: { pro
                         </p>
                     </form>
                 </section>
+
+                <HeadlessSection project={project} headless={headless} canEdit={Boolean(auth.user?.canEdit)} />
 
                 <section className="rounded-xl border border-zinc-200 bg-white shadow-sm">
                     <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">

@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { sites } from '@/school/sites';
+import { getSites } from './content';
 import { siteUrl } from './site-url';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    return Object.values(sites).flatMap((site) => {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    return Object.values(await getSites()).flatMap((site) => {
         const base = `${siteUrl}${site.i18n?.basePath ?? ''}`;
         const articleDates = Object.fromEntries((site.content.news ?? []).map((item) => [`/news/${item.slug}`, item.date]));
 

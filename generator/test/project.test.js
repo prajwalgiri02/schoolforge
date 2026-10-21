@@ -35,7 +35,7 @@ describe('Next.js project lifecycle', () => {
     });
 
     it('scaffolds the app, school runtime and generated files', () => {
-        for (const file of ['package.json', 'src/app/[[...slug]]/page.tsx', 'src/app/api/contact/route.ts', 'src/school/adapter.tsx', 'src/school/runtime/ui.tsx', 'src/school/components/hero/index.tsx', 'school.config.json', 'SCHOOLFORGE.md', '.gitignore']) {
+        for (const file of ['package.json', 'src/app/[[...slug]]/page.tsx', 'src/app/api/contact/route.ts', 'src/app/api/health/route.ts', 'src/app/api/revalidate/route.ts', 'src/app/content.ts', 'src/school/adapter.tsx', 'src/school/runtime/ui.tsx', 'src/school/components/hero/index.tsx', 'school.config.json', 'SCHOOLFORGE.md', '.gitignore']) {
             assert.ok(fs.existsSync(path.join(dir, file)), `${file} exists`);
         }
 

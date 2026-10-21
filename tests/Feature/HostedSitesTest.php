@@ -97,7 +97,7 @@ class HostedSitesTest extends TestCase
         $project = Project::factory()->create();
         $this->actingAs(User::factory()->create());
 
-        $this->post("http://studio.test/projects/{$project->slug}/publish")->assertSessionHas('error', 'Set a domain for the school first.');
+        $this->post("http://studio.test/projects/{$project->slug}/publish")->assertSessionHas('error', 'Set a domain for the school, or turn on the headless content API, first.');
 
         $project->update(['domain' => 'broken.edu.np', 'config' => [...$project->config, 'theme' => 'no-such-theme']]);
         $this->post("http://studio.test/projects/{$project->slug}/publish")->assertSessionHas('error');

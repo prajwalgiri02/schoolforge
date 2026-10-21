@@ -44,3 +44,16 @@ npm install
 npm run build
 npm start          # serves on port 3000
 ```
+
+## Editing content without redeploying (SchoolForge Studio)
+
+The site can read its content from SchoolForge Studio instead of the files it
+was generated with. In Studio, open the school's **Publish** tab, turn on the
+**Headless content API** and set the two variables it shows
+(`SCHOOLFORGE_CONTENT_URL` and `SCHOOLFORGE_CONTENT_TOKEN`) on the host. Then each
+time the school is published in Studio, the site refreshes its pages within
+seconds; set `seo.siteUrl` so Studio knows where to send the refresh. If Studio
+cannot be reached, the site keeps serving the content it was built with.
+
+Theme, colours and components still come from the generated code: change those
+in Studio, then generate and deploy again.

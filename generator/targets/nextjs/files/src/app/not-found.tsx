@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { defaultLocale, sites } from '@/school/sites';
+import { getSite } from './content';
 
-const site = sites[defaultLocale];
+export default async function NotFound() {
+    const site = await getSite();
 
-export default function NotFound() {
     return (
         <main className={`school-site theme-${site.theme.name} flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center text-foreground`}>
             <p className="school-eyebrow text-accent-strong">Error 404</p>

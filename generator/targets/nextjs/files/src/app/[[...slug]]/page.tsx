@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { PageRenderer } from '@/school/runtime/page-renderer';
 import { findPage } from '@/school/runtime/pages';
 import { jsonLdScript, pageMeta } from '@/school/runtime/seo';
-import { defaultLocale, sites } from '@/school/sites';
+import { defaultLocale } from '@/school/sites';
+import { getSites } from '../content';
 import { siteUrl } from '../site-url';
 
 type Params = Promise<{ slug?: string[] }>;
@@ -11,7 +12,8 @@ type Params = Promise<{ slug?: string[] }>;
 /**
  * Splits /ne/about into the Nepali site and /about; other paths use the default language.
  */
-function resolve(slug: string[] | undefined) {
+async function resolve(slug: string[] | undefined) {
+    const sites = await getSites();
     const [first, ...rest] = slug ?? [];
     const locale = first && first !== defaultLocale && sites[first] ? first : defaultLocale;
     const segments = locale === defaultLocale ? (slug ?? []) : rest;
@@ -20,10 +22,11 @@ function resolve(slug: string[] | undefined) {
     return { site, page: findPage(site, `/${segments.join('/')}`) };
 }
 
-export const dynamicParams = false;
+/** Pages published later in SchoolForge Studio (headless mode) are rendered on first visit. */
+export const dynamicParams = true;
 
-export function generateStaticParams(): { slug: string[] }[] {
-    return Object.values(sites).flatMap((site) => {
+export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
+    return Object.values(await getSites()).flatMap((site) => {
         const prefix = site.i18n?.basePath ? [site.i18n.basePath.slice(1)] : [];
 
         return site.pages.map((page) => ({ slug: [...prefix, ...(page.slug === '/' ? [] : page.slug.slice(1).split('/'))] }));
@@ -31,7 +34,7 @@ export function generateStaticParams(): { slug: string[] }[] {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-    const { site, page } = resolve((await params).slug);
+    const { site, page } = await resolve((await params).slug);
 
     if (!page) {
         return {};
@@ -50,7 +53,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function SchoolPage({ params }: { params: Params }) {
-    const { site, page } = resolve((await params).slug);
+    const { site, page } = await resolve((await params).slug);
 
     if (!page) {
         notFound();

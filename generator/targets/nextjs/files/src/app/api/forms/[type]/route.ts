@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { formFields, forms, newReference, validateFields, type FileInfo, type FormType } from '@/school/runtime/forms';
-import { defaultLocale, sites } from '@/school/sites';
+import { defaultLocale } from '@/school/sites';
+import { getSites } from '../../../content';
 
 type Params = Promise<{ type: string }>;
 
@@ -24,6 +25,7 @@ export async function POST(request: Request, { params }: { params: Params }) {
     }
 
     const locale = String(input.get('locale') ?? defaultLocale);
+    const sites = await getSites();
     const site = sites[locale] ?? sites[defaultLocale];
     const fields = formFields(formType);
     const values: Record<string, string> = {};

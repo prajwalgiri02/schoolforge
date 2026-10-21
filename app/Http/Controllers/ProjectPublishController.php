@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\SiteSubmission;
 use App\Services\Generator;
+use App\Support\HeadlessContent;
 use App\Support\HostedSites;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ProjectPublishController extends Controller
 {
-    public function show(Project $project, ProjectPresenter $presenter): Response
+    public function show(Request $request, Project $project, ProjectPresenter $presenter): Response
     {
         $submissions = $project->siteSubmissions()->latest('id')->paginate(25);
 
@@ -35,6 +36,13 @@ class ProjectPublishController extends Controller
                 'domain' => $project->domain,
                 'subdomain' => config('studio.hosting_domain') ? $project->slug.'.'.HostedSites::normalizeHost(config('studio.hosting_domain')) : null,
                 'serverHost' => HostedSites::studioHost(),
+            ],
+            'headless' => [
+                'enabled' => HeadlessContent::isEnabled($project),
+                'contentUrl' => HeadlessContent::contentUrl($project),
+                'token' => $request->user()->can('edit-projects') ? $project->content_token : null,
+                'revalidateUrl' => HeadlessContent::revalidateUrl($project),
+                'isNextjs' => $project->target() === 'nextjs',
             ],
             'submissions' => $submissions->through(fn (SiteSubmission $submission): array => [
                 'id' => $submission->id,
@@ -54,8 +62,10 @@ class ProjectPublishController extends Controller
      */
     public function store(Project $project, Generator $generator): RedirectResponse
     {
-        if (HostedSites::hostsFor($project) === []) {
-            return back()->with('error', 'Set a domain for the school first.');
+        $isHosted = HostedSites::hostsFor($project) !== [];
+
+        if (! $isHosted && ! HeadlessContent::isEnabled($project)) {
+            return back()->with('error', 'Set a domain for the school, or turn on the headless content API, first.');
         }
 
         try {
@@ -64,7 +74,28 @@ class ProjectPublishController extends Controller
             return back()->with('error', 'The school has problems to fix before it can be published: '.$exception->getMessage());
         }
 
-        return back()->with('success', "{$project->name} is live at ".HostedSites::url($project).'.');
+        return back()->with('success', implode(' ', array_filter([
+            $isHosted ? "{$project->name} is live at ".HostedSites::url($project).'.' : "{$project->name} is published.",
+            HeadlessContent::isEnabled($project) ? HeadlessContent::refreshSite($project) : null,
+        ])));
+    }
+
+    /**
+     * Turns on the content API for a Next.js site (or issues a new token).
+     */
+    public function enableHeadless(Project $project): RedirectResponse
+    {
+        $hadToken = HeadlessContent::isEnabled($project);
+        HeadlessContent::enable($project);
+
+        return back()->with('success', $hadToken ? 'New token issued. Update SCHOOLFORGE_CONTENT_TOKEN on the website; the old token no longer works.' : 'Headless content API turned on.');
+    }
+
+    public function disableHeadless(Project $project): RedirectResponse
+    {
+        HeadlessContent::disable($project);
+
+        return back()->with('success', 'Headless content API turned off. The website keeps the content it was built with.');
     }
 
     public function destroy(Project $project): RedirectResponse

@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
  * @property array{languages: list<string>, locales: array<string, array<string, mixed>>, configHash: string}|null $published_site
  */
 #[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template', 'domain', 'published_at', 'published_site', 'plan_id', 'paid_until', 'billing_email'])]
-#[Hidden(['published_site'])]
+#[Hidden(['published_site', 'content_token'])]
 class Project extends Model
 {
     /** Overrides the automatic description of the next saved change. */
@@ -43,6 +43,7 @@ class Project extends Model
             'published_at' => 'datetime',
             'published_site' => 'array',
             'paid_until' => 'date',
+            'content_token' => 'encrypted',
         ];
     }
 
