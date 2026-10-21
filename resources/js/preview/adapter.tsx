@@ -115,11 +115,11 @@ export async function lookupApplication(reference: string, _email: string): Prom
     return { reference: reference.toUpperCase(), status: 'reviewing', updatedAt: new Date().toISOString() };
 }
 
-export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+export type SubscribePayload = { email: string; locale?: string };
 
 export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
-    if (!payload.email && !payload.phone) {
-        return { ok: false, errors: { email: 'Enter an email address or a mobile number.' } };
+    if (!payload.email) {
+        return { ok: false, errors: { email: 'Enter your email address.' } };
     }
 
     if (!hosted) {
@@ -129,49 +129,4 @@ export async function subscribe(payload: SubscribePayload): Promise<ContactResul
     const { status, data } = await send('/_school/subscribe', JSON.stringify(payload), true);
 
     return status === 201 ? { ok: true } : { ok: false, errors: firstErrors(data, status) };
-}
-
-export type ExamSummary = { id: number; name: string };
-
-export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
-
-export async function listExams(): Promise<ExamSummary[]> {
-    if (hosted) {
-        return [];
-    }
-
-    return [{ id: 1, name: 'Annual Examination (sample)' }];
-}
-
-export async function lookupResult(_exam: number, symbol: string, _dob: string): Promise<ResultSheet | null> {
-    return {
-        exam: 'Annual Examination (sample)',
-        symbolNumber: symbol,
-        studentName: 'Sample Student',
-        class: '10 A',
-        gpa: '3.75',
-        result: 'Passed',
-        subjects: ['English', 'Nepali', 'Mathematics', 'Science', 'Social Studies'].map((subject, index) => ({ subject, grade: ['A+', 'A', 'B+', 'A', 'A+'][index] })),
-    };
-}
-
-export type PaymentGateway = { id: string; label: string };
-
-export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
-
-export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
-
-export async function paymentGateways(): Promise<PaymentGateway[]> {
-    if (hosted) {
-        return [];
-    }
-
-    return [
-        { id: 'esewa', label: 'eSewa' },
-        { id: 'khalti', label: 'Khalti' },
-    ];
-}
-
-export async function startPayment(_payload: PaymentPayload): Promise<PaymentStart> {
-    return { ok: false, message: hosted ? 'Online payments are not available on this website yet.' : 'Payments are simulated in the preview.' };
 }

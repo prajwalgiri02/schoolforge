@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildSites, buildThemeCss, slugify, usedComponents, validateConfig } from './config.js';
+import { buildSites, buildThemeCss, RETIRED_COMPONENTS, slugify, usedComponents, validateConfig } from './config.js';
 import { exists, hashContents, hashFile, listFiles, readJson, removeFile, writeFile, writeJson } from './fsutil.js';
 import { LOCK_FILE, PROJECT_CONFIG_FILE, RUNTIME_DIR } from './paths.js';
 import { getComponent, getTheme, listComponents } from './registry.js';
@@ -159,7 +159,7 @@ export function syncProject(projectDir, { config, force = false, extraComponents
     const { defaultLocale, sites, warnings } = buildSites(config, theme, { resolveComponent });
     const site = sites[defaultLocale];
     const drop = new Set(dropComponents);
-    const wanted = new Set([...(lock.components ?? []), ...usedComponents(site), ...extraComponents].filter((name) => !drop.has(name)));
+    const wanted = new Set([...(lock.components ?? []), ...usedComponents(site), ...extraComponents].filter((name) => !drop.has(name) && !RETIRED_COMPONENTS.has(name)));
     const missing = [...wanted].filter((name) => !knownNames.has(name));
 
     if (missing.length > 0) {

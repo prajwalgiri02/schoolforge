@@ -20,7 +20,6 @@ class SubscriberFactory extends Factory
     {
         return [
             'email' => fake()->unique()->safeEmail(),
-            'phone' => '98'.fake()->unique()->numerify('########'),
             'locale' => 'en',
             'token' => Str::random(40),
         ];

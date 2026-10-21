@@ -118,7 +118,7 @@ class StaffSecurityTest extends TestCase
         $this->actingAs($editor)->get('/admin/messages')->assertOk();
         $this->actingAs($editor)->get('/admin/submissions')->assertOk();
         $this->actingAs($editor)->get('/admin/account')->assertOk();
-        foreach (['/admin/staff', '/admin/payments', '/admin/results', '/admin/alerts'] as $url) {
+        foreach (['/admin/staff', '/admin/alerts'] as $url) {
             $this->actingAs($editor)->get($url)->assertForbidden();
         }
 

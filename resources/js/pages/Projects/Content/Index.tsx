@@ -11,7 +11,7 @@ const groups: { title: string; keys: string[] }[] = [
     { title: 'Academics & campus', keys: ['programs', 'facilities', 'faculty', 'achievements'] },
     { title: 'Gallery & media', keys: ['gallery', 'albums', 'videos'] },
     { title: 'People & community', keys: ['jobs', 'alumni'] },
-    { title: 'News & admissions', keys: ['news', 'events', 'notices', 'admissions', 'fees', 'faqs', 'downloads'] },
+    { title: 'News & admissions', keys: ['news', 'events', 'notices', 'admissions', 'faqs', 'downloads'] },
 ];
 
 export default function ContentIndex({ project, sections }: { project: ProjectSummary; sections: SectionSummary[] }) {

@@ -122,27 +122,43 @@ describe('buildSite', () => {
             videos: [{ title: 'Tour' }, { title: 'Tour', url: 'youtube.com/watch?v=1' }],
             news: [{ title: 'Win', tags: 'sports' }],
             campuses: [{ address: 'Baluwatar' }],
-            fees: [{ name: 'Tuition', amount: '5,000' }],
         }).join('\n');
 
         assert.match(errors, /news\[0\]\.tags must be a list of words/);
         assert.match(errors, /campuses\[0\]\.name is required/);
-        assert.match(errors, /fees\[0\]\.amount must be a positive number/);
         assert.match(errors, /albums slug "sports" is used more than once/);
         assert.match(errors, /albums\[2\]\.photos must be a list of photos/);
         assert.match(errors, /videos\[0\]\.url is required/);
         assert.match(errors, /videos\[1\]\.url must be a full link/);
     });
 
-    it('builds Laravel-only pages such as exam results only for Laravel sites', () => {
+    it('builds Laravel-only sections such as the application tracker only for Laravel sites', () => {
         const slugsFor = (target) => buildSite({ ...minimal(), target, admissions: { open: true } }, getTheme('classic')).site;
         const laravel = slugsFor('laravel-inertia-react');
         const nextjs = slugsFor('nextjs');
 
-        assert.ok(laravel.pages.some((page) => page.slug === '/results'));
-        assert.ok(!nextjs.pages.some((page) => page.slug === '/results'));
+        assert.ok(!laravel.pages.some((page) => ['/results', '/pay-fees'].includes(page.slug)));
         assert.ok(laravel.pages.find((page) => page.slug === '/admissions').sections.some((section) => section.type === 'admission-status'));
         assert.ok(!nextjs.pages.find((page) => page.slug === '/admissions').sections.some((section) => section.type === 'admission-status'));
+    });
+
+    it('skips retired components that older configs still use', () => {
+        const config = {
+            ...minimal(),
+            pages: [
+                { slug: '/', title: 'Home', sections: [{ type: 'hero' }] },
+                { slug: '/pay-fees', title: 'Pay Fees', sections: [{ type: 'page-header' }, { type: 'fee-payment' }] },
+                { slug: '/about', title: 'About', sections: [{ type: 'page-header' }, { type: 'about' }, { type: 'result-lookup' }] },
+            ],
+        };
+
+        assert.deepEqual(validateConfig(config, { components: new Set(listComponents().map((component) => component.name)) }), []);
+
+        const { site, warnings } = buildSite(config, getTheme('classic'));
+
+        assert.deepEqual(site.pages.map((page) => page.slug), ['/', '/about']);
+        assert.deepEqual(site.pages[1].sections.map((section) => section.type), ['page-header', 'about']);
+        assert.ok(warnings.some((warning) => warning.includes('"fee-payment" is no longer available')));
     });
 
     it('warns about section settings a component does not have', () => {

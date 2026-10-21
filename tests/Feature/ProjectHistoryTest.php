@@ -117,7 +117,6 @@ class ProjectHistoryTest extends TestCase
             'events' => [['title' => 'Old', 'date' => '2020-01-01']],
             'admissions' => ['open' => true, 'deadline' => '2020-01-01'],
             'languages' => ['en', 'ne'],
-            'fees' => [['name' => 'Tuition']],
         ], ['pages' => [['slug' => '/']]]))->pluck('message');
 
         $this->assertTrue($checks->contains(fn (string $message): bool => str_contains($message, 'phone number or email')));
@@ -125,7 +124,6 @@ class ProjectHistoryTest extends TestCase
         $this->assertTrue($checks->contains(fn (string $message): bool => str_contains($message, '1 event already happened')));
         $this->assertTrue($checks->contains('Admissions are marked open but the deadline has passed.'));
         $this->assertTrue($checks->contains(fn (string $message): bool => str_starts_with($message, 'NE version: hero and admissions')));
-        $this->assertTrue($checks->contains(fn (string $message): bool => str_contains($message, 'need the Laravel framework')));
 
         $project = Project::factory()->create();
         $this->get("/projects/{$project->slug}/generate")->assertInertia(fn (Assert $page) => $page->has('checks'));

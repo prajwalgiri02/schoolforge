@@ -22,7 +22,7 @@ enum StaffRole: string
     public function description(): string
     {
         return match ($this) {
-            self::Admin => 'Everything, including staff accounts, payments, results and alerts.',
+            self::Admin => 'Everything, including staff accounts and news emails.',
             self::Editor => 'Website content, enquiries and applications.',
         };
     }

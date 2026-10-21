@@ -77,7 +77,7 @@ export async function lookupApplication(reference: string, email: string): Promi
     }
 }
 
-export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+export type SubscribePayload = { email: string; locale?: string };
 
 export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
     try {
@@ -89,79 +89,6 @@ export async function subscribe(payload: SubscribePayload): Promise<ContactResul
         }
 
         return { ok: false, errors: Object.fromEntries(Object.entries((body.errors ?? {}) as Record<string, string[]>).map(([field, messages]) => [field, messages[0]])) };
-    } catch {
-        return { ok: false };
-    }
-}
-
-export type ExamSummary = { id: number; name: string };
-
-export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
-
-export async function listExams(): Promise<ExamSummary[]> {
-    try {
-        const response = await fetch('/results/exams', { headers: csrfHeaders(), credentials: 'same-origin' });
-
-        return response.ok ? ((await response.json()) as ExamSummary[]) : [];
-    } catch {
-        return [];
-    }
-}
-
-export async function lookupResult(exam: number, symbol: string, dob: string): Promise<ResultSheet | null> {
-    try {
-        const response = await fetch(`/results/lookup?${new URLSearchParams({ exam: String(exam), symbol, dob })}`, { headers: csrfHeaders(), credentials: 'same-origin' });
-
-        return response.ok ? ((await response.json()) as ResultSheet) : null;
-    } catch {
-        return null;
-    }
-}
-
-export type PaymentGateway = { id: string; label: string };
-
-export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
-
-export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
-
-export async function paymentGateways(): Promise<PaymentGateway[]> {
-    try {
-        const response = await fetch('/payments/options', { headers: csrfHeaders(), credentials: 'same-origin' });
-
-        return response.ok ? ((await response.json()).gateways as PaymentGateway[]) : [];
-    } catch {
-        return [];
-    }
-}
-
-export async function startPayment(payload: PaymentPayload): Promise<PaymentStart> {
-    try {
-        const response = await fetch('/payments', { method: 'POST', headers: { ...csrfHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(payload), credentials: 'same-origin' });
-        const body = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-            return { ok: false, message: body.errors ? undefined : body.message, errors: Object.fromEntries(Object.entries((body.errors ?? {}) as Record<string, string[]>).map(([field, messages]) => [field, messages[0]])) };
-        }
-
-        if (body.redirect) {
-            window.location.assign(body.redirect);
-        } else if (body.form) {
-            // eSewa takes a signed form POST.
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = body.form.action;
-            Object.entries(body.form.fields as Record<string, string>).forEach(([name, value]) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = value;
-                form.appendChild(input);
-            });
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        return { ok: true };
     } catch {
         return { ok: false };
     }

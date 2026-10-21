@@ -66,7 +66,7 @@ export async function lookupApplication(_reference: string, _email: string): Pro
     return null;
 }
 
-export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+export type SubscribePayload = { email: string; locale?: string };
 
 export async function subscribe(payload: SubscribePayload): Promise<ContactResult> {
     try {
@@ -77,32 +77,4 @@ export async function subscribe(payload: SubscribePayload): Promise<ContactResul
     } catch {
         return { ok: false };
     }
-}
-
-export type ExamSummary = { id: number; name: string };
-
-export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
-
-/** Result lookup needs a database, which Next.js sites do not have. */
-export async function listExams(): Promise<ExamSummary[]> {
-    return [];
-}
-
-export async function lookupResult(_exam: number, _symbol: string, _dob: string): Promise<ResultSheet | null> {
-    return null;
-}
-
-export type PaymentGateway = { id: string; label: string };
-
-export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
-
-export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
-
-/** Online payments need a server to verify them, which Next.js sites do not have. */
-export async function paymentGateways(): Promise<PaymentGateway[]> {
-    return [];
-}
-
-export async function startPayment(_payload: PaymentPayload): Promise<PaymentStart> {
-    return { ok: false };
 }

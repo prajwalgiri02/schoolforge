@@ -55,7 +55,7 @@ This starts the website (port 8080), the SSR server, the queue worker and the
 scheduler, with the SQLite database and uploads in Docker volumes. Put a reverse
 proxy with HTTPS in front of port 8080.
 
-## Email, SMS and payments
+## Email
 
 Set `MAIL_*` in `.env` so the site can email the office, confirm applications and
 send alerts. Optional settings:
@@ -63,11 +63,6 @@ send alerts. Optional settings:
 | Variable | Purpose |
 | --- | --- |
 | `SCHOOL_CONTACT_RECIPIENT` | Office address that receives enquiries and applications |
-| `SPARROW_SMS_TOKEN` | Sparrow SMS token, to send alerts by SMS from Admin → Alerts |
-| `SPARROW_SMS_FROM` | Sparrow SMS sender identity (default `InfoAlert`) |
-| `ESEWA_PRODUCT_CODE`, `ESEWA_SECRET_KEY` | eSewa merchant code and secret key, to accept fees with eSewa |
-| `KHALTI_SECRET_KEY` | Khalti live secret key, to accept fees with Khalti |
-| `ESEWA_LIVE`, `KHALTI_LIVE` | Set to `true` when the keys are live (otherwise the test gateways are used) |
 
 Alerts are sent by the queue worker, so keep it running.
 

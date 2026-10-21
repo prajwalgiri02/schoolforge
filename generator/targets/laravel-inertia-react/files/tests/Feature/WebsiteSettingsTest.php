@@ -131,7 +131,7 @@ class WebsiteSettingsTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/admin')->assertInertia(fn (Assert $page) => $page
             ->where('stats.0', ['label' => 'New enquiries', 'value' => 2, 'href' => '/admin/messages'])
             ->where('stats.1.value', 1)
-            ->has('stats', 5));
+            ->has('stats', 4));
 
         $this->actingAs(User::factory()->create(['role' => 'editor']))->get('/admin')->assertInertia(fn (Assert $page) => $page->has('stats', 3));
     }

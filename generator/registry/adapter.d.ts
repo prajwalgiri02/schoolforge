@@ -27,25 +27,6 @@ export declare function submitForm(type: string, data: FormData): Promise<FormRe
 
 export declare function lookupApplication(reference: string, email: string): Promise<ApplicationStatus | null>;
 
-export type SubscribePayload = { email?: string; phone?: string; locale?: string };
+export type SubscribePayload = { email: string; locale?: string };
 
 export declare function subscribe(payload: SubscribePayload): Promise<ContactResult>;
-
-export type ExamSummary = { id: number; name: string };
-
-export type ResultSheet = { exam: string; symbolNumber: string; studentName: string; class: string | null; gpa: string | null; result: string | null; subjects: { subject: string; grade: string }[] };
-
-export declare function listExams(): Promise<ExamSummary[]>;
-
-export declare function lookupResult(exam: number, symbol: string, dob: string): Promise<ResultSheet | null>;
-
-export type PaymentGateway = { id: string; label: string };
-
-export type PaymentPayload = { gateway: string; purpose: string; amount: string; student_name: string; class?: string; payer_name: string; email: string; phone?: string };
-
-export type PaymentStart = { ok: boolean; errors?: Record<string, string>; message?: string };
-
-export declare function paymentGateways(): Promise<PaymentGateway[]>;
-
-/** Starts a payment and, when it succeeds, sends the browser to the gateway. */
-export declare function startPayment(payload: PaymentPayload): Promise<PaymentStart>;

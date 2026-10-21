@@ -169,7 +169,8 @@ class HostedSitesTest extends TestCase
         $this->postJson('http://riverside.edu.np/_school/contact', ['name' => '', 'email' => 'nope'])->assertUnprocessable()->assertJsonValidationErrors(['name', 'email', 'message']);
         $this->postJson('http://riverside.edu.np/_school/contact', ['name' => 'Sita', 'email' => 'sita@example.com', 'subject' => 'Admissions', 'message' => 'When do classes start?'])->assertCreated();
         $this->postJson('http://riverside.edu.np/_school/subscribe', [])->assertUnprocessable();
-        $this->postJson('http://riverside.edu.np/_school/subscribe', ['phone' => '9801234567'])->assertCreated();
+        $this->postJson('http://riverside.edu.np/_school/subscribe', ['phone' => '9801234567'])->assertUnprocessable();
+        $this->postJson('http://riverside.edu.np/_school/subscribe', ['email' => 'parent@example.com'])->assertCreated();
 
         $this->assertSame(['contact', 'subscribe'], $project->siteSubmissions()->orderBy('id')->pluck('form')->all());
         $messages = Mail::mailer('array')->getSymfonyTransport()->messages();

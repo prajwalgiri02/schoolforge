@@ -4,6 +4,9 @@ import { readJson } from './fsutil.js';
 
 export const TARGETS = ['nextjs', 'laravel-inertia-react'];
 
+/** Components that no longer exist. Older configs may still use them; those sections are skipped. */
+export const RETIRED_COMPONENTS = new Set(['fee-payment', 'result-lookup']);
+
 export const CONTENT_KEYS = [
     'hero',
     'announcement',
@@ -16,7 +19,6 @@ export const CONTENT_KEYS = [
     'albums',
     'videos',
     'campuses',
-    'fees',
     'jobs',
     'downloads',
     'alumni',
@@ -29,7 +31,7 @@ export const CONTENT_KEYS = [
     'faqs',
 ];
 
-const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'albums', 'videos', 'campuses', 'fees', 'jobs', 'downloads', 'alumni', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
+const COLLECTION_KEYS = ['stats', 'programs', 'facilities', 'faculty', 'gallery', 'albums', 'videos', 'campuses', 'jobs', 'downloads', 'alumni', 'news', 'events', 'notices', 'testimonials', 'achievements', 'faqs'];
 
 const COLLECTION_REQUIRED_FIELDS = {
     stats: ['label', 'value'],
@@ -39,7 +41,6 @@ const COLLECTION_REQUIRED_FIELDS = {
     albums: ['title'],
     videos: ['title', 'url'],
     campuses: ['name'],
-    fees: ['name'],
     jobs: ['title'],
     downloads: ['title', 'file'],
     alumni: ['name'],
@@ -226,12 +227,6 @@ export function validateConfig(config, { components = null } = {}) {
         }
     });
 
-    (Array.isArray(config.fees) ? config.fees : []).forEach((fee, index) => {
-        if (fee?.amount !== undefined && !(typeof fee.amount === 'number' && fee.amount > 0)) {
-            errors.push(`fees[${index}].amount must be a positive number of rupees, e.g. 5000 (got "${fee.amount}").`);
-        }
-    });
-
     (Array.isArray(config.videos) ? config.videos : []).forEach((video, index) => {
         if (typeof video?.url === 'string' && !/^https?:\/\//.test(video.url)) {
             errors.push(`videos[${index}].url must be a full link such as https://www.youtube.com/watch?v=... (got "${video.url}").`);
@@ -269,7 +264,7 @@ export function validateConfig(config, { components = null } = {}) {
                     page.sections.forEach((section, sectionIndex) => {
                         if (!isObject(section) || typeof section.type !== 'string') {
                             errors.push(`pages[${index}].sections[${sectionIndex}] needs a "type".`);
-                        } else if (components && !components.has(section.type)) {
+                        } else if (components && !components.has(section.type) && !RETIRED_COMPONENTS.has(section.type)) {
                             errors.push(`pages[${index}].sections[${sectionIndex}] uses unknown component "${section.type}".`);
                         }
                     });
@@ -505,6 +500,12 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
         const sections = [];
 
         page.sections.forEach((raw, index) => {
+            if (RETIRED_COMPONENTS.has(raw.type)) {
+                warnings.push(`${page.slug} section ${index + 1}: "${raw.type}" is no longer available; the section is skipped.`);
+
+                return;
+            }
+
             const { section, component } = resolveSection(raw, `${page.slug} section ${index + 1}`);
 
             if (usingPreset && !isSatisfied(component)) {
@@ -514,7 +515,9 @@ export function buildSite(originalConfig, theme, { resolveComponent = getCompone
             sections.push(section);
         });
 
-        if (usingPreset && page.slug !== '/' && sections.every((section) => STRUCTURAL_SECTIONS.has(section.type))) {
+        const onlyRetired = page.sections.some((section) => RETIRED_COMPONENTS.has(section.type)) && sections.every((section) => STRUCTURAL_SECTIONS.has(section.type));
+
+        if (page.slug !== '/' && (onlyRetired || (usingPreset && sections.every((section) => STRUCTURAL_SECTIONS.has(section.type))))) {
             continue;
         }
 

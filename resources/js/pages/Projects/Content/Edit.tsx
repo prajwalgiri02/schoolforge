@@ -26,7 +26,6 @@ const previewPaths: Record<string, string> = {
     contact: '/contact',
     campuses: '/contact',
     jobs: '/careers',
-    fees: '/pay-fees',
     downloads: '/downloads',
     alumni: '/alumni',
     programs: '/academics',

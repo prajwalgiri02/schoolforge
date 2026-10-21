@@ -115,11 +115,10 @@ class HostedSiteController extends Controller
         $this->throttle($request, $project);
 
         $validated = $request->validate([
-            'email' => ['nullable', 'required_without:phone', 'email', 'max:190'],
-            'phone' => ['nullable', 'required_without:email', 'string', 'max:20'],
-        ], ['email.required_without' => 'Enter an email address or a mobile number.']);
+            'email' => ['required', 'email', 'max:190'],
+        ]);
 
-        $this->store($project, 'subscribe', 'SUB', array_filter($validated));
+        $this->store($project, 'subscribe', 'SUB', $validated);
 
         return response()->json(['ok' => true], 201);
     }

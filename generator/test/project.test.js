@@ -98,6 +98,19 @@ describe('Next.js project lifecycle', () => {
         assert.ok(!readLock(dir).components.includes('rich-text'));
     });
 
+    it('drops retired components that an older project still lists', () => {
+        const lock = readLock(dir);
+        fs.writeFileSync(path.join(dir, '.schoolforge.json'), JSON.stringify({ ...lock, components: [...lock.components, 'fee-payment'] }));
+        const config = readJson(dir, 'school.config.json');
+        config.pages.push({ slug: '/results', title: 'Results', sections: [{ type: 'page-header' }, { type: 'result-lookup' }] });
+        fs.writeFileSync(path.join(dir, 'school.config.json'), JSON.stringify(config));
+
+        sync({ projectDir: dir, log: quiet });
+
+        assert.ok(!readLock(dir).components.includes('fee-payment'));
+        assert.ok(!readJson(dir, 'src/school/site.json').pages.some((page) => page.slug === '/results'));
+    });
+
     it('rejects unknown components and pages', () => {
         assert.throws(() => add({ projectDir: dir, names: ['unicorn'], log: quiet }), /not in the registry/);
         assert.throws(() => add({ projectDir: dir, names: ['faq'], page: '/missing', log: quiet }), /Page "\/missing" not found/);

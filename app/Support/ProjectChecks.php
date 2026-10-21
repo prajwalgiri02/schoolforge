@@ -94,10 +94,6 @@ class ProjectChecks
             }
         }
 
-        if ($target === 'nextjs' && filled($config['fees'] ?? null)) {
-            $add('tip', 'Online fee payments, exam results and the application tracker need the Laravel framework; Next.js sites skip those pages.', 'fees');
-        }
-
         if ($target === 'nextjs' && (filled($config['jobs'] ?? null) || ($config['admissions']['open'] ?? false))) {
             $add('tip', 'On Next.js, set FORMS_WEBHOOK_URL when deploying so online applications reach the school (see DEPLOY.md).', null);
         }

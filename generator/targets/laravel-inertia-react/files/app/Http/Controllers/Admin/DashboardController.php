@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
 use App\Models\FormSubmission;
-use App\Models\Payment;
 use App\Models\SiteContent;
 use App\Models\Subscriber;
 use App\Support\ContentSchema;
@@ -44,7 +43,6 @@ class DashboardController extends Controller
                 ['label' => 'New enquiries', 'value' => ContactMessage::query()->whereNull('read_at')->count(), 'href' => '/admin/messages'],
                 ['label' => 'Applications to review', 'value' => FormSubmission::query()->whereNull('reviewed_at')->count(), 'href' => '/admin/submissions'],
                 ['label' => 'Enquiries in 30 days', 'value' => ContactMessage::query()->where('created_at', '>=', now()->subDays(30))->count(), 'href' => '/admin/messages'],
-                $request->user()->isAdmin() ? ['label' => 'Fees this month (NPR)', 'value' => (float) Payment::query()->where('status', 'paid')->where('paid_at', '>=', now()->startOfMonth())->sum('amount'), 'href' => '/admin/payments'] : null,
                 $request->user()->isAdmin() ? ['label' => 'Subscribers', 'value' => Subscriber::query()->active()->count(), 'href' => '/admin/alerts'] : null,
             ])),
             'unreadMessages' => ContactMessage::query()->whereNull('read_at')->count(),

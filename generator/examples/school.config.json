@@ -398,25 +398,6 @@
             "description": "A calm, play-based campus for our youngest learners."
         }
     ],
-    "fees": [
-        {
-            "name": "Admission fee",
-            "amount": 15000,
-            "description": "One-time fee for new students"
-        },
-        {
-            "name": "Monthly tuition (Grades 1–5)",
-            "amount": 6500
-        },
-        {
-            "name": "Monthly tuition (Grades 6–10)",
-            "amount": 8000
-        },
-        {
-            "name": "Exam fee",
-            "amount": 1200
-        }
-    ],
     "jobs": [
         {
             "title": "Secondary Science Teacher",

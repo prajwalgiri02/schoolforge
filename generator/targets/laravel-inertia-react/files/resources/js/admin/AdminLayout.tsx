@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BellRing, CircleCheck, ExternalLink, Globe, GraduationCap, Inbox, LayoutDashboard, LogOut, Mail, UserCog, Users, Wallet, X } from 'lucide-react';
+import { BellRing, CircleCheck, ExternalLink, Globe, Inbox, LayoutDashboard, LogOut, Mail, UserCog, Users, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
 
@@ -51,8 +51,6 @@ export function AdminLayout({ title, actions, children }: { title: string; actio
                         {navItem('/admin/submissions', 'Applications', <Inbox className="h-4 w-4" />)}
                         {auth.user?.isAdmin && (
                             <>
-                                {navItem('/admin/results', 'Results', <GraduationCap className="h-4 w-4" />)}
-                                {navItem('/admin/payments', 'Payments', <Wallet className="h-4 w-4" />)}
                                 {navItem('/admin/alerts', 'Alerts', <BellRing className="h-4 w-4" />)}
                                 {navItem('/admin/staff', 'Staff', <Users className="h-4 w-4" />)}
                             </>

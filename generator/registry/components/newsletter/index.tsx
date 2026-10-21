@@ -16,7 +16,7 @@ export default function Newsletter({ section, site }: SectionProps) {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         setState({ status: 'sending', errors: {} });
-        const result = await subscribe({ email: String(data.get('email') ?? '').trim(), phone: String(data.get('phone') ?? '').trim(), locale: site.i18n?.locale });
+        const result = await subscribe({ email: String(data.get('email') ?? '').trim(), locale: site.i18n?.locale });
         setState(result.ok ? { status: 'done', errors: {} } : { status: 'idle', errors: result.errors ?? { email: t(site, 'formFailed') } });
     }
 
@@ -33,16 +33,11 @@ export default function Newsletter({ section, site }: SectionProps) {
                         <CheckCircle2 className="h-6 w-6 text-accent" aria-hidden="true" /> {t(site, 'subscribed')}
                     </p>
                 ) : (
-                    <form onSubmit={handleSubmit} noValidate className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                    <form onSubmit={handleSubmit} noValidate className="grid gap-3 sm:grid-cols-[1fr_auto]">
                         <label>
                             <span className="sr-only">{t(site, 'email')}</span>
                             <input name="email" type="email" autoComplete="email" placeholder={t(site, 'email')} className={fieldClass} />
                             {state.errors.email && <span className="mt-1 block text-sm text-accent">{state.errors.email}</span>}
-                        </label>
-                        <label>
-                            <span className="sr-only">{t(site, 'mobileForSms')}</span>
-                            <input name="phone" type="tel" autoComplete="tel" placeholder={t(site, 'mobileForSms')} className={fieldClass} />
-                            {state.errors.phone && <span className="mt-1 block text-sm text-accent">{state.errors.phone}</span>}
                         </label>
                         <button type="submit" disabled={state.status === 'sending'} className="school-button h-fit bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition hover:brightness-110 disabled:opacity-60">
                             {t(site, 'subscribe')}

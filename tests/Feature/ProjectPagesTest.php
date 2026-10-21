@@ -100,4 +100,22 @@ class ProjectPagesTest extends TestCase
         $this->assertFalse($sections[1]['link']);
         $this->assertSame(['label' => 'Apply', 'href' => '/admissions'], $sections[2]['primary']);
     }
+
+    public function test_retired_sections_are_taken_out_of_saved_site_maps(): void
+    {
+        $project = Project::factory()->create();
+        $project->update(['config' => [...$project->config, 'pages' => [
+            ['slug' => '/', 'title' => 'Home', 'sections' => [['type' => 'hero'], ['type' => 'result-lookup']]],
+            ['slug' => '/pay-fees', 'title' => 'Pay Fees', 'sections' => [['type' => 'page-header'], ['type' => 'fee-payment']]],
+            ['slug' => '/about', 'title' => 'About', 'sections' => [['type' => 'page-header'], ['type' => 'about']]],
+        ]]]);
+        $untouched = Project::factory()->create();
+
+        (require database_path('migrations/2026_10_21_140527_remove_retired_sections_from_projects.php'))->up();
+
+        $pages = $project->fresh()->config['pages'];
+        $this->assertSame(['/', '/about'], array_column($pages, 'slug'));
+        $this->assertSame([['type' => 'hero']], $pages[0]['sections']);
+        $this->assertSame($untouched->config, $untouched->fresh()->config);
+    }
 }
