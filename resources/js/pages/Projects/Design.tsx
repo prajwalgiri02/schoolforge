@@ -11,6 +11,8 @@ type Design = {
     colors: Record<string, string>;
     fonts: { heading: string | null; body: string | null };
     variants: Record<string, string>;
+    languages: string[];
+    calendars: Record<string, string>;
 };
 
 type Props = {
@@ -19,6 +21,7 @@ type Props = {
     themeDetails: Record<string, { colors: Record<string, string>; variants: Record<string, string> }>;
     components: ComponentSummary[];
     design: Design;
+    availableLanguages: Record<string, string>;
 };
 
 const colorTokens: { key: string; label: string }[] = [
@@ -36,13 +39,20 @@ const colorTokens: { key: string; label: string }[] = [
     { key: 'border', label: 'Borders' },
 ];
 
-export default function DesignPage({ project, themes, themeDetails, components, design }: Props) {
+export default function DesignPage({ project, themes, themeDetails, components, design, availableLanguages }: Props) {
     const form = useForm({
         theme: design.theme,
         colors: { ...design.colors } as Record<string, string>,
         fonts: { heading: design.fonts.heading ?? '', body: design.fonts.body ?? '' },
         variants: { ...design.variants } as Record<string, string>,
+        languages: [...design.languages],
+        calendars: { ...design.calendars } as Record<string, string>,
     });
+
+    const toggleLanguage = (code: string, enabled: boolean) => {
+        const languages = enabled ? [...form.data.languages, code] : form.data.languages.filter((item) => item !== code);
+        form.setData('languages', languages.length > 0 ? languages : form.data.languages);
+    };
     const errors = form.errors as Record<string, string | undefined>;
     const themeColors = themeDetails[form.data.theme]?.colors ?? {};
     const themeVariants = themeDetails[form.data.theme]?.variants ?? {};
@@ -167,6 +177,45 @@ export default function DesignPage({ project, themes, themeDetails, components, 
                             </div>
                         ))}
                     </div>
+                </section>
+
+                <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                    <h2 className="font-semibold">Languages</h2>
+                    <p className="mt-1 text-sm text-zinc-500">
+                        The first language is the default. Each extra language gets its own pages (e.g. /ne/about) and a language switcher; translate content with the language tabs on the Content tab.
+                    </p>
+                    <div className="mt-5 space-y-3">
+                        {Object.entries(availableLanguages).map(([code, label]) => {
+                            const enabled = form.data.languages.includes(code);
+                            const isDefault = form.data.languages[0] === code;
+
+                            return (
+                                <div key={code} className="flex flex-wrap items-center gap-4 rounded-lg border border-zinc-200 px-4 py-3">
+                                    <label className="flex min-w-48 items-center gap-3 text-sm font-medium">
+                                        <input type="checkbox" checked={enabled} disabled={isDefault && form.data.languages.length === 1} onChange={(event) => toggleLanguage(code, event.target.checked)} className="h-4 w-4 rounded border-zinc-300" />
+                                        {label}
+                                        {isDefault && <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">default</span>}
+                                    </label>
+                                    {enabled && !isDefault && (
+                                        <button type="button" onClick={() => form.setData('languages', [code, ...form.data.languages.filter((item) => item !== code)])} className="text-xs font-medium text-indigo-600 hover:underline">
+                                            Make default
+                                        </button>
+                                    )}
+                                    {enabled && (
+                                        <label className="ml-auto flex items-center gap-2 text-sm text-zinc-600">
+                                            Dates
+                                            <select value={form.data.calendars[code] ?? ''} onChange={(event) => form.setData('calendars', { ...form.data.calendars, [code]: event.target.value })} className="rounded-lg border border-zinc-300 py-1 pl-2 pr-8 text-sm">
+                                                <option value="">Default ({code === 'ne' ? 'Bikram Sambat' : 'Gregorian'})</option>
+                                                <option value="ad">Gregorian (AD)</option>
+                                                <option value="bs">Bikram Sambat (BS)</option>
+                                            </select>
+                                        </label>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <FieldError message={errors.languages} />
                 </section>
 
                 <div className="sticky bottom-0 -mx-4 flex justify-end border-t border-zinc-200 bg-zinc-50/95 px-4 py-4 backdrop-blur sm:mx-0 sm:px-0">

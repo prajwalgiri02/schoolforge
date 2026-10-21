@@ -39,7 +39,10 @@ class ProjectDesignController extends Controller
                     'body' => $this->fontName($project->config['fonts']['body'] ?? null),
                 ],
                 'variants' => (object) ($project->config['variants'] ?? []),
+                'languages' => $project->config['languages'] ?? ['en'],
+                'calendars' => (object) ($project->config['calendars'] ?? []),
             ],
+            'availableLanguages' => UpdateProjectDesignRequest::LANGUAGES,
         ]);
     }
 
@@ -58,6 +61,19 @@ class ProjectDesignController extends Controller
 
         $fonts = array_filter($request->validated('fonts') ?? [], fn ($value): bool => filled($value));
         $fonts === [] ? Arr::forget($config, 'fonts') : $config['fonts'] = $fonts;
+
+        $languages = $request->validated('languages') ?? ['en'];
+        $languages === ['en'] ? Arr::forget($config, 'languages') : $config['languages'] = $languages;
+        $calendars = array_intersect_key(array_filter($request->validated('calendars') ?? []), array_flip($languages));
+        $calendars === [] ? Arr::forget($config, 'calendars') : $config['calendars'] = $calendars;
+
+        if (isset($config['translations'])) {
+            $config['translations'] = array_intersect_key($config['translations'], array_flip(array_slice($languages, 1)));
+
+            if ($config['translations'] === []) {
+                unset($config['translations']);
+            }
+        }
 
         $project->update(['config' => $config]);
 

@@ -1,6 +1,7 @@
 import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import { Container, SmartLink, cn } from '../../runtime/ui';
 import { SocialIcon, socialLabels } from '../../runtime/icons';
+import { localizeDigits, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type FooterProps = SectionProps<{ quickLinks?: { label: string; href: string }[] }>;
@@ -45,7 +46,7 @@ export default function Footer({ section, site }: FooterProps) {
                     </nav>
                     {socialRow}
                     <p className="text-xs text-muted-foreground">
-                        © {year} {school.name}. All rights reserved.
+                        © {year} {school.name}. {t(site, 'allRightsReserved')}
                     </p>
                 </Container>
             </footer>
@@ -61,13 +62,13 @@ export default function Footer({ section, site }: FooterProps) {
                     {school.about?.summary && <p className="mt-5 max-w-md leading-relaxed opacity-80">{school.about.summary}</p>}
                     {(school.affiliation || school.established) && (
                         <p className="mt-5 text-sm opacity-70">
-                            {[school.established && `Established ${school.established}`, school.affiliation].filter(Boolean).join(' · ')}
+                            {[school.established && t(site, 'established', { year: localizeDigits(site, school.established) }), school.affiliation].filter(Boolean).join(' · ')}
                         </p>
                     )}
                     <div className="mt-6">{socialRow}</div>
                 </div>
                 <div>
-                    <p className="school-eyebrow mb-5 text-accent">Quick Links</p>
+                    <p className="school-eyebrow mb-5 text-accent">{t(site, 'quickLinks')}</p>
                     <ul className="space-y-3">
                         {quickLinks.map((link) => (
                             <li key={link.href}>
@@ -79,7 +80,7 @@ export default function Footer({ section, site }: FooterProps) {
                     </ul>
                 </div>
                 <div>
-                    <p className="school-eyebrow mb-5 text-accent">Contact</p>
+                    <p className="school-eyebrow mb-5 text-accent">{t(site, 'contact')}</p>
                     <ul className="space-y-4 text-sm">
                         {contact.address && (
                             <li className="flex gap-3 opacity-85">
@@ -111,7 +112,7 @@ export default function Footer({ section, site }: FooterProps) {
             <div className={cn('border-t border-current/15')}>
                 <Container className="flex flex-col items-center justify-between gap-2 py-6 text-xs opacity-70 sm:flex-row">
                     <p>
-                        © {year} {school.name}. All rights reserved.
+                        © {year} {school.name}. {t(site, 'allRightsReserved')}
                     </p>
                     {school.tagline && <p>{school.tagline}</p>}
                 </Container>

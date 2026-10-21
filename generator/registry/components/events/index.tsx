@@ -1,5 +1,6 @@
 import { Clock, MapPin } from 'lucide-react';
-import { Container, Section, SectionHeading, dateParts, limitItems } from '../../runtime/ui';
+import { Container, Section, SectionHeading, limitItems } from '../../runtime/ui';
+import { siteDateParts, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Events({ section, site }: SectionProps) {
@@ -15,10 +16,10 @@ export default function Events({ section, site }: SectionProps) {
     return (
         <Section tone="muted">
             <Container className="max-w-5xl">
-                <SectionHeading eyebrow={section.eyebrow ?? 'Calendar'} title={section.title ?? 'Upcoming events'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'calendar')} title={section.title ?? t(site, 'upcomingEvents')} subtitle={section.subtitle} />
                 <ol className="space-y-4">
                     {events.map((event) => {
-                        const { day, month, year } = dateParts(event.date);
+                        const { day, month, year } = siteDateParts(site, event.date);
 
                         return (
                             <li key={`${event.date}-${event.title}`} className="school-card flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:p-6">

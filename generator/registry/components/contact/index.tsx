@@ -4,6 +4,7 @@ import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { submitContact, type ContactPayload } from '../../adapter';
 import { Container, Section, SectionHeading, cn } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type Status = { state: 'idle' | 'sending' | 'sent' | 'error'; errors: Record<string, string> };
@@ -31,10 +32,10 @@ export default function Contact({ section, site }: SectionProps) {
     }
 
     const details = [
-        contact.address && { icon: MapPin, label: 'Visit us', value: contact.address },
-        contact.phone?.length && { icon: Phone, label: 'Call us', value: contact.phone.join(', '), href: `tel:${contact.phone[0].replace(/\s/g, '')}` },
-        contact.email?.length && { icon: Mail, label: 'Email us', value: contact.email.join(', '), href: `mailto:${contact.email[0]}` },
-        contact.hours && { icon: Clock, label: 'Office hours', value: contact.hours },
+        contact.address && { icon: MapPin, label: t(site, 'visitUs'), value: contact.address },
+        contact.phone?.length && { icon: Phone, label: t(site, 'callUs'), value: contact.phone.join(', '), href: `tel:${contact.phone[0].replace(/\s/g, '')}` },
+        contact.email?.length && { icon: Mail, label: t(site, 'emailUs'), value: contact.email.join(', '), href: `mailto:${contact.email[0]}` },
+        contact.hours && { icon: Clock, label: t(site, 'officeHours'), value: contact.hours },
     ].filter(Boolean) as { icon: typeof MapPin; label: string; value: string; href?: string }[];
 
     const error = (field: string) => status.errors[field] && <p className="mt-1 text-sm text-red-600">{status.errors[field]}</p>;
@@ -42,7 +43,7 @@ export default function Contact({ section, site }: SectionProps) {
     return (
         <Section>
             <Container>
-                <SectionHeading eyebrow={section.eyebrow ?? 'Get in touch'} title={section.title ?? 'We’d love to hear from you'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'getInTouch')} title={section.title ?? t(site, 'contactTitle')} subtitle={section.subtitle} />
                 <div className="grid gap-10 lg:grid-cols-[2fr_3fr]">
                     <div className="space-y-6">
                         {details.map((item) => (
@@ -64,42 +65,42 @@ export default function Contact({ section, site }: SectionProps) {
                         ))}
                         {contact.mapEmbedUrl && (
                             <div className="aspect-[4/3] overflow-hidden rounded-card border border-border">
-                                <iframe src={contact.mapEmbedUrl} title={`Map of ${site.school.name}`} className="h-full w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                                <iframe src={contact.mapEmbedUrl} title={t(site, 'mapOf', { school: site.school.name })} className="h-full w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
                             </div>
                         )}
                     </div>
                     <form onSubmit={handleSubmit} className="school-card space-y-5 p-6 md:p-8" noValidate>
                         <div className="grid gap-5 sm:grid-cols-2">
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium">Full name</span>
+                                <span className="mb-1.5 block text-sm font-medium">{t(site, 'fullName')}</span>
                                 <input name="name" required autoComplete="name" className={fieldClass} />
                                 {error('name')}
                             </label>
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium">Email</span>
+                                <span className="mb-1.5 block text-sm font-medium">{t(site, 'email')}</span>
                                 <input name="email" type="email" required autoComplete="email" className={fieldClass} />
                                 {error('email')}
                             </label>
                         </div>
                         <div className="grid gap-5 sm:grid-cols-2">
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium">Phone (optional)</span>
+                                <span className="mb-1.5 block text-sm font-medium">{t(site, 'phoneOptional')}</span>
                                 <input name="phone" type="tel" autoComplete="tel" className={fieldClass} />
                                 {error('phone')}
                             </label>
                             <label className="block">
-                                <span className="mb-1.5 block text-sm font-medium">Subject</span>
+                                <span className="mb-1.5 block text-sm font-medium">{t(site, 'subject')}</span>
                                 <select name="subject" className={fieldClass} defaultValue="Admissions enquiry">
-                                    <option>Admissions enquiry</option>
-                                    <option>Campus visit</option>
-                                    <option>General question</option>
-                                    <option>Careers</option>
+                                    <option value="Admissions enquiry">{t(site, 'admissionsEnquiry')}</option>
+                                    <option value="Campus visit">{t(site, 'campusVisit')}</option>
+                                    <option value="General question">{t(site, 'generalQuestion')}</option>
+                                    <option value="Careers">{t(site, 'careers')}</option>
                                 </select>
                                 {error('subject')}
                             </label>
                         </div>
                         <label className="block">
-                            <span className="mb-1.5 block text-sm font-medium">Message</span>
+                            <span className="mb-1.5 block text-sm font-medium">{t(site, 'message')}</span>
                             <textarea name="message" required rows={5} className={fieldClass} />
                             {error('message')}
                         </label>
@@ -108,11 +109,11 @@ export default function Contact({ section, site }: SectionProps) {
                             disabled={status.state === 'sending'}
                             className="school-button inline-flex items-center gap-2 bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-60"
                         >
-                            <Send className="h-4 w-4" aria-hidden="true" /> {status.state === 'sending' ? 'Sending…' : 'Send message'}
+                            <Send className="h-4 w-4" aria-hidden="true" /> {status.state === 'sending' ? t(site, 'sending') : t(site, 'sendMessage')}
                         </button>
                         <p role="status" className={cn('text-sm', status.state === 'sent' ? 'text-green-700' : 'text-red-600')}>
-                            {status.state === 'sent' && 'Thank you! Our team will get back to you shortly.'}
-                            {status.state === 'error' && Object.keys(status.errors).length === 0 && 'Something went wrong. Please try again or call us.'}
+                            {status.state === 'sent' && t(site, 'messageSent')}
+                            {status.state === 'error' && Object.keys(status.errors).length === 0 && t(site, 'messageFailed')}
                         </p>
                     </form>
                 </div>

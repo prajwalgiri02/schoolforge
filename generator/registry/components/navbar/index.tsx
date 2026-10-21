@@ -3,6 +3,7 @@
 import { Menu, Phone, Mail, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useCurrentPath } from '../../adapter';
+import { languageNames, t, unlocalizedPath } from '../../runtime/i18n';
 import { isActivePath } from '../../runtime/pages';
 import { ButtonLink, Container, SmartLink, cn } from '../../runtime/ui';
 import { SocialIcon, socialLabels } from '../../runtime/icons';
@@ -63,10 +64,11 @@ function UtilityBar({ site }: { site: SiteData }) {
 
 export default function Navbar({ section, site }: NavbarProps) {
     const variant = section.variant ?? 'classic';
-    const currentPath = useCurrentPath();
+    const fullPath = useCurrentPath();
+    const currentPath = unlocalizedPath(site, fullPath.split('?')[0]);
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const cta = section.cta === false ? null : (section.cta ?? (site.content.admissions?.open !== false && site.pages.some((p) => p.slug === '/admissions') ? { label: 'Apply Now', href: '/admissions' } : null));
+    const cta = section.cta === false ? null : (section.cta ?? (site.content.admissions?.open !== false && site.pages.some((p) => p.slug === '/admissions') ? { label: t(site, 'applyNow'), href: '/admissions' } : null));
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 12);
@@ -77,6 +79,23 @@ export default function Navbar({ section, site }: NavbarProps) {
     }, []);
 
     useEffect(() => setOpen(false), [currentPath]);
+
+    const languages = site.i18n && site.i18n.locales.length > 1 && (
+        <nav aria-label={t(site, 'language')} className="flex items-center gap-1 text-xs font-semibold">
+            {site.i18n.locales.map((language) => (
+                <SmartLink
+                    key={language.code}
+                    href={`${language.basePath}${currentPath === '/' && language.basePath ? '' : currentPath}` || '/'}
+                    localized={false}
+                    hrefLang={language.code}
+                    lang={language.code}
+                    className={cn('rounded-full px-2.5 py-1 transition', language.code === site.i18n?.locale ? 'bg-primary text-primary-foreground' : 'text-foreground/70 hover:text-primary')}
+                >
+                    {languageNames[language.code] ?? language.code.toUpperCase()}
+                </SmartLink>
+            ))}
+        </nav>
+    );
 
     const links = site.navigation.map((item) => {
         const active = isActivePath(currentPath, item.href);
@@ -99,6 +118,7 @@ export default function Navbar({ section, site }: NavbarProps) {
     const mobileMenu = open && (
         <div className="border-t border-border bg-background lg:hidden">
             <Container className="flex flex-col py-4">
+                {languages && <div className="mb-2">{languages}</div>}
                 {site.navigation.map((item) => (
                     <SmartLink
                         key={item.href}
@@ -122,7 +142,7 @@ export default function Navbar({ section, site }: NavbarProps) {
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-button text-foreground lg:hidden"
             aria-expanded={open}
-            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-label={open ? t(site, 'closeMenu') : t(site, 'openMenu')}
             onClick={() => setOpen((value) => !value)}
         >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -135,13 +155,14 @@ export default function Navbar({ section, site }: NavbarProps) {
                 <Container className="flex items-center justify-between py-4 lg:flex-col lg:gap-4 lg:py-6">
                     <Brand site={site} />
                     {toggle}
-                    <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
+                    <nav aria-label={t(site, 'mainMenu')} className="hidden items-center gap-7 lg:flex">
                         {links}
                         {cta && (
                             <SmartLink href={cta.href} className="school-eyebrow border-b-2 border-accent pb-1 text-primary">
                                 {cta.label}
                             </SmartLink>
                         )}
+                        {languages}
                     </nav>
                 </Container>
                 {mobileMenu}
@@ -154,7 +175,7 @@ export default function Navbar({ section, site }: NavbarProps) {
             <header className={cn('sticky top-0 z-40 transition-all', scrolled || open ? 'bg-background/90 shadow-sm backdrop-blur' : 'bg-background')}>
                 <Container className="flex items-center justify-between py-4">
                     <Brand site={site} />
-                    <nav aria-label="Main" className="hidden items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 lg:flex">
+                    <nav aria-label={t(site, 'mainMenu')} className="hidden items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 lg:flex">
                         {site.navigation.map((item) => (
                             <SmartLink
                                 key={item.href}
@@ -169,6 +190,7 @@ export default function Navbar({ section, site }: NavbarProps) {
                         ))}
                     </nav>
                     <div className="flex items-center gap-2">
+                        {languages && <div className="hidden lg:block">{languages}</div>}
                         {cta && (
                             <ButtonLink href={cta.href} size="sm" className="hidden sm:inline-flex">
                                 {cta.label}
@@ -188,10 +210,11 @@ export default function Navbar({ section, site }: NavbarProps) {
             <div className={cn('border-b border-border bg-background transition-shadow', scrolled && 'shadow-md')}>
                 <Container className="flex items-center justify-between py-4">
                     <Brand site={site} />
-                    <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
+                    <nav aria-label={t(site, 'mainMenu')} className="hidden items-center gap-6 lg:flex">
                         {links}
                     </nav>
                     <div className="flex items-center gap-2">
+                        {languages && <div className="hidden lg:block">{languages}</div>}
                         {cta && (
                             <ButtonLink href={cta.href} variant="accent" size="sm" className="hidden sm:inline-flex">
                                 {cta.label}

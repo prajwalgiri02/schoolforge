@@ -1,5 +1,6 @@
 import { Bell, FileText } from 'lucide-react';
-import { Container, Section, SectionHeading, SmartLink, cn, formatDate, limitItems } from '../../runtime/ui';
+import { Container, Section, SectionHeading, SmartLink, cn, limitItems } from '../../runtime/ui';
+import { formatSiteDate, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Notices({ section, site }: SectionProps) {
@@ -15,7 +16,7 @@ export default function Notices({ section, site }: SectionProps) {
     return (
         <Section>
             <Container className="max-w-4xl">
-                <SectionHeading eyebrow={section.eyebrow ?? 'Notice Board'} title={section.title ?? 'Notices & circulars'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'noticeBoard')} title={section.title ?? t(site, 'noticesTitle')} subtitle={section.subtitle} />
                 <div className="school-card divide-y divide-border">
                     {notices.map((notice) => {
                         const body = (
@@ -25,9 +26,9 @@ export default function Notices({ section, site }: SectionProps) {
                                 </span>
                                 <span className="flex-1">
                                     <span className="font-semibold">{notice.title}</span>
-                                    {notice.important && <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent-strong">Important</span>}
+                                    {notice.important && <span className="ml-2 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent-strong">{t(site, 'important')}</span>}
                                 </span>
-                                {notice.date && <time className="shrink-0 text-sm text-muted-foreground">{formatDate(notice.date)}</time>}
+                                {notice.date && <time className="shrink-0 text-sm text-muted-foreground">{formatSiteDate(site, notice.date)}</time>}
                             </>
                         );
 

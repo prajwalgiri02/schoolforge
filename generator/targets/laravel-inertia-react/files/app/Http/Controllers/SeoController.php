@@ -15,12 +15,16 @@ class SeoController extends Controller
         $siteUrl = $site->siteUrl();
         $articleDates = collect($site->data()['content']['news'] ?? [])->mapWithKeys(fn (array $item): array => ['/news/'.$item['slug'] => $item['date'] ?? null]);
 
-        $urls = collect($site->data()['pages'])->map(fn (array $page): string => sprintf(
-            "  <url>\n    <loc>%s</loc>%s\n    <priority>%s</priority>\n  </url>",
-            e($page['slug'] === '/' ? $siteUrl : $siteUrl.$page['slug']),
-            $articleDates->get($page['slug']) ? "\n    <lastmod>".e($articleDates->get($page['slug'])).'</lastmod>' : '',
-            $page['slug'] === '/' ? '1.0' : (str_starts_with($page['slug'], '/news/') ? '0.6' : '0.8'),
-        ));
+        $urls = collect($site->locales())->flatMap(function (string $locale) use ($site, $siteUrl, $articleDates) {
+            $base = $siteUrl.($locale === $site->defaultLocale() ? '' : "/{$locale}");
+
+            return collect($site->data($locale)['pages'])->map(fn (array $page): string => sprintf(
+                "  <url>\n    <loc>%s</loc>%s\n    <priority>%s</priority>\n  </url>",
+                e($page['slug'] === '/' ? $base : $base.$page['slug']),
+                $articleDates->get($page['slug']) ? "\n    <lastmod>".e($articleDates->get($page['slug'])).'</lastmod>' : '',
+                $page['slug'] === '/' ? '1.0' : (str_starts_with($page['slug'], '/news/') ? '0.6' : '0.8'),
+            ));
+        });
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
             .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n"

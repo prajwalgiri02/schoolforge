@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SiteContent;
 use App\Support\ContentSchema;
+use App\Support\TranslationMerger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -47,9 +48,21 @@ class ExportSchoolContent extends Command
         }
 
         foreach ($overrides as $override) {
-            if (ContentSchema::find($override->key) !== null) {
-                $config = ContentSchema::apply($config, $override->key, $override->value, configShape: true);
+            [$locale, $key] = str_contains($override->key, ':') ? explode(':', $override->key, 2) : [null, $override->key];
+
+            if (ContentSchema::find($key) === null) {
+                continue;
             }
+
+            if ($locale === null) {
+                $config = ContentSchema::apply($config, $key, $override->value, configShape: true);
+
+                continue;
+            }
+
+            $translation = $config['translations'][$locale] ?? [];
+            $merged = TranslationMerger::merge(ContentSchema::valueFrom($translation, $key, configShape: true), $override->value);
+            $config['translations'][$locale] = ContentSchema::apply($translation, $key, $merged, configShape: true);
         }
 
         File::put($path, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");

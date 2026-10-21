@@ -131,6 +131,28 @@ export function validateConfig(config, { components = null } = {}) {
         errors.push(`admissions.deadline must use YYYY-MM-DD (got "${config.admissions.deadline}").`);
     }
 
+    const languages = config.languages ?? ['en'];
+
+    if (!Array.isArray(languages) || languages.length === 0 || languages.some((code) => typeof code !== 'string' || !/^[a-z]{2}$/.test(code))) {
+        errors.push('languages must be a list of two-letter language codes, e.g. ["en", "ne"]. The first is the default.');
+    } else if (new Set(languages).size !== languages.length) {
+        errors.push('languages must not repeat a language.');
+    } else {
+        for (const code of Object.keys(config.translations ?? {})) {
+            if (!languages.includes(code)) {
+                errors.push(`translations.${code} is for a language that is not listed in languages.`);
+            } else if (code === languages[0]) {
+                errors.push(`translations.${code} is the default language; put that content at the top level instead.`);
+            }
+        }
+
+        for (const [code, calendar] of Object.entries(config.calendars ?? {})) {
+            if (!['ad', 'bs'].includes(calendar)) {
+                errors.push(`calendars.${code} must be "ad" or "bs".`);
+            }
+        }
+    }
+
     if (config.seo !== undefined) {
         if (!isObject(config.seo)) {
             errors.push('seo must be an object.');
@@ -227,7 +249,87 @@ const STRUCTURAL_SECTIONS = new Set(['page-header', 'cta', 'rich-text']);
  * Turns a school config plus its theme into the normalized site data that the
  * generated app renders. Pure: does not touch the filesystem except to read registry manifests.
  */
-export function buildSite(config, theme, { resolveComponent = getComponent } = {}) {
+function isPlainObject(value) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * Lays a translation over content: objects merge key by key, lists of objects
+ * merge item by item (so untranslated items and fields such as images are kept),
+ * and anything else is replaced when the translation provides a value.
+ * Mirrors TranslationMerger::merge() in the Laravel target.
+ */
+export function mergeTranslation(base, overlay) {
+    if (overlay === undefined || overlay === null || overlay === '') {
+        return base;
+    }
+
+    if (isPlainObject(base) && isPlainObject(overlay)) {
+        const result = { ...base };
+
+        for (const [key, value] of Object.entries(overlay)) {
+            result[key] = mergeTranslation(base[key], value);
+        }
+
+        return result;
+    }
+
+    if (Array.isArray(base) && Array.isArray(overlay) && base.some(isPlainObject)) {
+        return base.map((item, index) => mergeTranslation(item, overlay[index])).concat(overlay.slice(base.length));
+    }
+
+    return overlay;
+}
+
+export const DEFAULT_CALENDARS = { ne: 'bs' };
+
+export function siteLanguages(config) {
+    const languages = config.languages ?? ['en'];
+
+    return { languages, defaultLocale: languages[0] };
+}
+
+/**
+ * The config as seen in one language: its translation laid over the default content.
+ */
+export function localizedConfig(config, locale) {
+    const { defaultLocale } = siteLanguages(config);
+
+    if (!locale || locale === defaultLocale) {
+        return config;
+    }
+
+    const { pages: _pages, navigation, ...translation } = config.translations?.[locale] ?? {};
+    const localized = mergeTranslation(config, translation);
+
+    return navigation ? { ...localized, navigation } : localized;
+}
+
+/**
+ * Builds the site once per language. Returns { defaultLocale, sites: { code: site }, warnings }.
+ */
+export function buildSites(config, theme, options = {}) {
+    const { languages, defaultLocale } = siteLanguages(config);
+    const sites = {};
+    let warnings = [];
+
+    for (const locale of languages) {
+        const result = buildSite(config, theme, { ...options, locale });
+        sites[locale] = result.site;
+
+        if (locale === defaultLocale) {
+            warnings = result.warnings;
+        }
+    }
+
+    return { defaultLocale, sites, warnings };
+}
+
+export function buildSite(originalConfig, theme, { resolveComponent = getComponent, locale } = {}) {
+    const { languages, defaultLocale } = siteLanguages(originalConfig);
+    const currentLocale = locale && languages.includes(locale) ? locale : defaultLocale;
+    const config = localizedConfig(originalConfig, currentLocale);
+    const pageTranslations = currentLocale === defaultLocale ? {} : (originalConfig.translations?.[currentLocale]?.pages ?? {});
     const preset = getPreset('default-site');
     const usingPreset = !config.pages && !theme.pages;
     const pageSource = structuredClone(config.pages ?? theme.pages ?? preset.pages);
@@ -314,6 +416,16 @@ export function buildSite(config, theme, { resolveComponent = getComponent } = {
         footer: (layout.footer ?? []).map((section, index) => resolveSection(section, `layout footer ${index + 1}`).section),
     };
 
+    for (const page of pages) {
+        const translation = pageTranslations[page.slug] ?? {};
+
+        Object.assign(page, Object.fromEntries(Object.entries(translation).filter(([key, value]) => ['title', 'navLabel', 'description'].includes(key) && value)));
+
+        if (translation.title && !translation.navLabel && page.navLabel) {
+            page.navLabel = translation.title;
+        }
+    }
+
     const navigation =
         config.navigation ??
         pages.filter((page) => page.showInNav && !page.slug.startsWith('/news/')).map((page) => ({ label: page.navLabel ?? page.title, href: page.slug }));
@@ -331,6 +443,13 @@ export function buildSite(config, theme, { resolveComponent = getComponent } = {
         navigation,
         layout: resolvedLayout,
         pages,
+        i18n: {
+            locale: currentLocale,
+            defaultLocale,
+            locales: languages.map((code) => ({ code, label: code, basePath: code === defaultLocale ? '' : `/${code}` })),
+            calendar: originalConfig.calendars?.[currentLocale] ?? DEFAULT_CALENDARS[currentLocale] ?? 'ad',
+            basePath: currentLocale === defaultLocale ? '' : `/${currentLocale}`,
+        },
         seo: {
             siteUrl: config.seo?.siteUrl ? String(config.seo.siteUrl).replace(/\/+$/, '') : null,
             image: config.seo?.image ?? content.hero?.image ?? school.logo ?? null,

@@ -13,13 +13,20 @@ class SchoolPageController extends Controller
      */
     public function __invoke(SchoolSite $site, ?string $path = null): Response
     {
-        $slug = '/'.trim((string) $path, '/');
-        $page = $site->findPage($slug);
+        $segments = array_values(array_filter(explode('/', (string) $path), fn (string $segment): bool => $segment !== ''));
+        $locale = $site->defaultLocale();
+
+        if (isset($segments[0]) && $segments[0] !== $locale && in_array($segments[0], $site->locales(), true)) {
+            $locale = array_shift($segments);
+        }
+
+        $slug = '/'.implode('/', $segments);
+        $page = $site->findPage($slug, $locale);
 
         abort_if($page === null, 404);
 
         return Inertia::render('School/Page', [
-            'site' => $site->data(),
+            'site' => $site->data($locale),
             'slug' => $slug,
             'siteUrl' => $site->siteUrl(),
         ]);

@@ -12,6 +12,8 @@ type Props = {
     sectionKey: string;
     section: SectionDefinition;
     value: Item | Item[];
+    locale: string;
+    languages: string[];
     icons: string[];
     sections: { key: string; label: string }[];
 };
@@ -37,10 +39,14 @@ const previewPaths: Record<string, string> = {
  * Keyed by section so switching sections starts a fresh editor with that section's data.
  */
 export default function EditContent(props: Props) {
-    return <Editor key={props.sectionKey} {...props} />;
+    return <Editor key={`${props.sectionKey}:${props.locale}`} {...props} />;
 }
 
-function Editor({ project, sectionKey, section, value: initialValue, icons, sections }: Props) {
+const languageNames: Record<string, string> = { en: 'English', ne: 'नेपाली' };
+
+function Editor({ project, sectionKey, section, value: initialValue, locale, languages, icons, sections }: Props) {
+    const isTranslation = locale !== languages[0];
+    const query = isTranslation ? `?locale=${locale}` : '';
     const errors = usePage().props.errors as Record<string, string | undefined>;
     const [value, setValue] = useState<Item | Item[]>(initialValue);
     const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialValue));
@@ -61,7 +67,7 @@ function Editor({ project, sectionKey, section, value: initialValue, icons, sect
     const submit = (event: FormEvent) => {
         event.preventDefault();
         router.put(
-            `/projects/${project.slug}/content/${sectionKey}`,
+            `/projects/${project.slug}/content/${sectionKey}${query}`,
             { value },
             {
                 preserveScroll: true,
@@ -80,7 +86,7 @@ function Editor({ project, sectionKey, section, value: initialValue, icons, sect
     );
 
     return (
-        <ProjectLayout project={project} title={section.label} previewPath={previewPaths[sectionKey] ?? ''}>
+        <ProjectLayout project={project} title={section.label} previewPath={`${isTranslation ? `/${locale}` : ''}${previewPaths[sectionKey] ?? ''}`}>
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <Link href={`/projects/${project.slug}/content`} className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100" aria-label="All content">
@@ -90,7 +96,7 @@ function Editor({ project, sectionKey, section, value: initialValue, icons, sect
                         <select
                             aria-label="Content section"
                             value={sectionKey}
-                            onChange={(event) => router.visit(`/projects/${project.slug}/content/${event.target.value}`)}
+                            onChange={(event) => router.visit(`/projects/${project.slug}/content/${event.target.value}${query}`)}
                             className="rounded-lg border-0 bg-transparent py-0 pl-0 pr-8 text-lg font-semibold focus:ring-0"
                         >
                             {sections.map((item) => (
@@ -104,6 +110,20 @@ function Editor({ project, sectionKey, section, value: initialValue, icons, sect
                 </div>
                 {saveButton}
             </div>
+            {languages.length > 1 && (
+                <div className="mb-6 flex flex-wrap items-center gap-2">
+                    {languages.map((code, index) => (
+                        <Link
+                            key={code}
+                            href={`/projects/${project.slug}/content/${sectionKey}${index === 0 ? '' : `?locale=${code}`}`}
+                            className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}
+                        >
+                            {languageNames[code] ?? code.toUpperCase()}
+                        </Link>
+                    ))}
+                    {isTranslation && <span className="text-xs text-zinc-500">Fields you leave unchanged keep showing the {languageNames[languages[0]] ?? languages[0]} text.</span>}
+                </div>
+            )}
             <UploadUrlContext.Provider value="/uploads">
                 <form id="content-form" onSubmit={submit} className="space-y-6">
                     {errorCount > 0 && (

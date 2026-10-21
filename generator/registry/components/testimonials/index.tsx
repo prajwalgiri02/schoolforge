@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, Container, Section, SectionHeading, cn, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Testimonials({ section, site }: SectionProps) {
@@ -16,8 +17,8 @@ export default function Testimonials({ section, site }: SectionProps) {
 
     const heading = (
         <SectionHeading
-            eyebrow={section.eyebrow ?? 'Testimonials'}
-            title={section.title ?? 'Voices of our community'}
+            eyebrow={section.eyebrow ?? t(site, 'testimonials')}
+            title={section.title ?? t(site, 'testimonialsTitle')}
             subtitle={section.subtitle}
             invert={variant === 'carousel'}
         />
@@ -45,18 +46,18 @@ export default function Testimonials({ section, site }: SectionProps) {
                         <div className="mt-10 flex items-center justify-center gap-4">
                             <button
                                 type="button"
-                                aria-label="Previous testimonial"
+                                aria-label={t(site, 'previousTestimonial')}
                                 onClick={() => setIndex((value) => (value - 1 + testimonials.length) % testimonials.length)}
                                 className="flex h-10 w-10 items-center justify-center rounded-full border border-current/30 hover:bg-white/10"
                             >
                                 <ChevronLeft className="h-5 w-5" />
                             </button>
                             <div className="flex gap-2">
-                                {testimonials.map((t, dot) => (
+                                {testimonials.map((testimonial, dot) => (
                                     <button
-                                        key={t.name}
+                                        key={testimonial.name}
                                         type="button"
-                                        aria-label={`Show testimonial ${dot + 1}`}
+                                        aria-label={t(site, 'showTestimonial', { number: dot + 1 })}
                                         aria-current={dot === index}
                                         onClick={() => setIndex(dot)}
                                         className={cn('h-2.5 rounded-full transition-all', dot === index ? 'w-8 bg-accent' : 'w-2.5 bg-current/30')}
@@ -65,7 +66,7 @@ export default function Testimonials({ section, site }: SectionProps) {
                             </div>
                             <button
                                 type="button"
-                                aria-label="Next testimonial"
+                                aria-label={t(site, 'nextTestimonial')}
                                 onClick={() => setIndex((value) => (value + 1) % testimonials.length)}
                                 className="flex h-10 w-10 items-center justify-center rounded-full border border-current/30 hover:bg-white/10"
                             >

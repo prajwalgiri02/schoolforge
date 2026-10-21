@@ -1,5 +1,6 @@
 import { ButtonLink, Container, Media, Section, SectionHeading, limitItems } from '../../runtime/ui';
 import { Icon } from '../../runtime/icons';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type FacilitiesProps = SectionProps<{ link?: { label: string; href: string } | false }>;
@@ -13,12 +14,12 @@ export default function Facilities({ section, site }: FacilitiesProps) {
     }
 
     const isPreview = typeof section.limit === 'number' && (site.content.facilities?.length ?? 0) > section.limit;
-    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/facilities') ? { label: 'View all facilities', href: '/facilities' } : null));
+    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/facilities') ? { label: t(site, 'viewAllFacilities'), href: '/facilities' } : null));
     const heading = (
         <SectionHeading
-            eyebrow={section.eyebrow ?? 'Campus & Facilities'}
-            title={section.title ?? 'Spaces designed for learning'}
-            subtitle={section.subtitle ?? 'Modern, safe and inspiring environments where every learner can thrive.'}
+            eyebrow={section.eyebrow ?? t(site, 'facilitiesEyebrow')}
+            title={section.title ?? t(site, 'facilitiesTitle')}
+            subtitle={section.subtitle ?? t(site, 'facilitiesSubtitle')}
         />
     );
     const footer = link && (

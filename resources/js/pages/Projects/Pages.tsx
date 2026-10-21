@@ -10,8 +10,14 @@ type Section = { type: string; variant?: string; title?: string; subtitle?: stri
 
 type Page = { slug: string; title: string; navLabel?: string; description?: string; showInNav?: boolean; sections: Section[] };
 
+type PageTranslation = { title?: string; navLabel?: string; description?: string };
+
+type Translations = Record<string, Record<string, PageTranslation>>;
+
 type Props = {
     project: ProjectSummary;
+    languages: string[];
+    pageTranslations: Translations;
     isCustom: boolean;
     pages: Page[];
     components: ComponentSummary[];
@@ -39,11 +45,13 @@ function slugify(value: string): string {
  */
 const lastSelectedSlug: Record<string, string> = {};
 
+const languageNames: Record<string, string> = { en: 'English', ne: 'नेपाली' };
+
 export default function PagesEditor(props: Props) {
     return <Editor key={String(props.isCustom)} {...props} />;
 }
 
-function Editor({ project, isCustom, pages: initialPages, components, themeVariants }: Props) {
+function Editor({ project, isCustom, pages: initialPages, components, themeVariants, languages, pageTranslations }: Props) {
     const errors = usePage().props.errors as Record<string, string | undefined>;
     const [pages, setPages] = useState<Page[]>(initialPages);
     const [selected, setSelectedIndex] = useState(() => Math.max(0, initialPages.findIndex((item) => item.slug === lastSelectedSlug[project.slug])));
@@ -51,7 +59,8 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
     const [newPageTitle, setNewPageTitle] = useState('');
     const [newSectionType, setNewSectionType] = useState(components[0]?.name ?? '');
     const [processing, setProcessing] = useState(false);
-    const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialPages));
+    const [translations, setTranslations] = useState<Translations>(() => Object.fromEntries(languages.slice(1).map((code) => [code, { ...(pageTranslations[code] ?? {}) }])));
+    const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify([initialPages, translations]));
     const page = pages[selected] ?? pages[0];
     const selectPage = (index: number, slug = pages[index]?.slug ?? '/') => {
         lastSelectedSlug[project.slug] = slug;
@@ -59,15 +68,28 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
     };
     const labels = Object.fromEntries(components.map((component) => [component.name, component.label]));
     const variantsOf = Object.fromEntries(components.map((component) => [component.name, component.variants]));
-    const isDirty = JSON.stringify(pages) !== savedSnapshot;
+    const isDirty = JSON.stringify([pages, translations]) !== savedSnapshot;
 
     const updatePage = (patch: Partial<Page>) => {
         if (patch.slug !== undefined) {
             lastSelectedSlug[project.slug] = patch.slug;
+            const from = page.slug;
+            const to = patch.slug;
+            setTranslations(
+                Object.fromEntries(
+                    Object.entries(translations).map(([code, bySlug]) => {
+                        const { [from]: moved, ...rest } = bySlug;
+
+                        return [code, moved ? { ...rest, [to]: moved } : rest];
+                    }),
+                ),
+            );
         }
 
         setPages(pages.map((item, index) => (index === selected ? { ...item, ...patch } : item)));
     };
+    const updateTranslation = (code: string, patch: PageTranslation) =>
+        setTranslations({ ...translations, [code]: { ...translations[code], [page.slug]: { ...translations[code]?.[page.slug], ...patch } } });
     const updateSection = (sectionIndex: number, patch: Partial<Section>) =>
         updatePage({ sections: page.sections.map((section, index) => (index === sectionIndex ? { ...section, ...patch } : section)) });
 
@@ -97,12 +119,12 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
         event.preventDefault();
         router.put(
             `/projects/${project.slug}/pages`,
-            { pages },
+            { pages, translations },
             {
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
                 onFinish: () => setProcessing(false),
-                onSuccess: () => setSavedSnapshot(JSON.stringify(pages)),
+                onSuccess: () => setSavedSnapshot(JSON.stringify([pages, translations])),
             },
         );
     };
@@ -209,6 +231,29 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                     <input id="page-description" value={page.description ?? ''} onChange={(event) => updatePage({ description: event.target.value })} className={inputClass} />
                                 </div>
                             </div>
+                            {languages.slice(1).map((code) => (
+                                <fieldset key={code} className="mt-5 grid gap-4 border-t border-zinc-100 pt-4 sm:grid-cols-2">
+                                    <legend className="sr-only">{languageNames[code] ?? code}</legend>
+                                    <div>
+                                        <label htmlFor={`page-title-${code}`} className="mb-1.5 block text-sm font-medium">
+                                            Page title <span className="font-normal text-zinc-400">({languageNames[code] ?? code})</span>
+                                        </label>
+                                        <input id={`page-title-${code}`} lang={code} value={translations[code]?.[page.slug]?.title ?? ''} placeholder={page.title} onChange={(event) => updateTranslation(code, { title: event.target.value })} className={inputClass} />
+                                    </div>
+                                    <div>
+                                        <label htmlFor={`page-nav-${code}`} className="mb-1.5 block text-sm font-medium">
+                                            Menu label <span className="font-normal text-zinc-400">({languageNames[code] ?? code})</span>
+                                        </label>
+                                        <input id={`page-nav-${code}`} lang={code} value={translations[code]?.[page.slug]?.navLabel ?? ''} placeholder={translations[code]?.[page.slug]?.title || page.navLabel || page.title} onChange={(event) => updateTranslation(code, { navLabel: event.target.value })} className={inputClass} />
+                                    </div>
+                                    <div className="sm:col-span-2">
+                                        <label htmlFor={`page-description-${code}`} className="mb-1.5 block text-sm font-medium">
+                                            Description <span className="font-normal text-zinc-400">({languageNames[code] ?? code})</span>
+                                        </label>
+                                        <input id={`page-description-${code}`} lang={code} value={translations[code]?.[page.slug]?.description ?? ''} placeholder={page.description} onChange={(event) => updateTranslation(code, { description: event.target.value })} className={inputClass} />
+                                    </div>
+                                </fieldset>
+                            ))}
                             {page.slug !== '/' && (
                                 <button type="button" onClick={removePage} className={`${buttonClass.danger} mt-4`}>
                                     <Trash2 className="h-4 w-4" /> Delete page

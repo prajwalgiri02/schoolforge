@@ -45,7 +45,7 @@ export function describeRegistry() {
  * Validates a config and, when valid, returns the site data and resolved design
  * tokens exactly as a generated project would render them.
  */
-export function previewData(config) {
+export function previewData(config, locale = null) {
     const components = new Set(listComponents().map((component) => component.name));
     const errors = validateConfig(config, { components });
 
@@ -54,7 +54,7 @@ export function previewData(config) {
     }
 
     const theme = getTheme(config.theme ?? 'classic');
-    const { site, warnings } = buildSite(config, theme);
+    const { site, warnings } = buildSite(config, theme, { locale });
 
     return { ok: true, errors: [], warnings, site, tokens: resolveTokens(theme, config), extraCss: theme.extraCss };
 }

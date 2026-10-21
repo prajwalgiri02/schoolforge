@@ -32,7 +32,8 @@
         "classmap": [
             "generator/targets/laravel-inertia-react/files/app/Support/ContentSchema.php",
             "generator/targets/laravel-inertia-react/files/app/Support/ImageOptimizer.php",
-            "generator/targets/laravel-inertia-react/files/app/Support/Backup.php"
+            "generator/targets/laravel-inertia-react/files/app/Support/Backup.php",
+            "generator/targets/laravel-inertia-react/files/app/Support/TranslationMerger.php"
         ]
     },
     "autoload-dev": {

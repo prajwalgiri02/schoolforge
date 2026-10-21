@@ -69,3 +69,15 @@
 .school-section:where([data-flush]) {
     padding-block: 0;
 }
+
+/* Devanagari joins letters into conjuncts, so wide tracking and capitals do not apply. */
+.school-site:lang(ne) .school-eyebrow,
+.school-site:lang(ne) .school-button {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.school-site:lang(ne) .school-heading {
+    letter-spacing: 0;
+    line-height: 1.35;
+}

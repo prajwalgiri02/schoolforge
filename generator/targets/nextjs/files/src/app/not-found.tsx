@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import siteData from '@/school/site.json';
-import type { SiteData } from '@/school/runtime/types';
+import { defaultLocale, sites } from '@/school/sites';
 
-const site = siteData as unknown as SiteData;
+const site = sites[defaultLocale];
 
 export default function NotFound() {
     return (

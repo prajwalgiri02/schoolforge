@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from '../adapter';
+import { SmartLink } from './link';
 import { Icon } from './icons';
 import type { ImageRef } from './types';
 
@@ -7,27 +7,7 @@ export function cn(...classes: (string | false | null | undefined)[]): string {
     return classes.filter(Boolean).join(' ');
 }
 
-export function isInternalHref(href: string): boolean {
-    return href.startsWith('/') && !href.startsWith('//');
-}
-
-export function SmartLink({ href, className, children, ...rest }: { href: string; className?: string; children: ReactNode; 'aria-label'?: string }) {
-    if (isInternalHref(href)) {
-        return (
-            <Link href={href} className={className} {...rest}>
-                {children}
-            </Link>
-        );
-    }
-
-    const external = /^https?:\/\//.test(href);
-
-    return (
-        <a href={href} className={className} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} {...rest}>
-            {children}
-        </a>
-    );
-}
+export { isInternalHref, SmartLink } from './link';
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
     return <div className={cn('mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8', className)}>{children}</div>;

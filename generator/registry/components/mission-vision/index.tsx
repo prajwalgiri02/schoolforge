@@ -1,14 +1,15 @@
 import { Eye, Heart, Target } from 'lucide-react';
 import { Container, Section, SectionHeading } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function MissionVision({ section, site }: SectionProps) {
     const about = site.school.about ?? {};
     const values = about.values ?? [];
     const cards = [
-        about.mission && { icon: Target, title: 'Our Mission', text: about.mission },
-        about.vision && { icon: Eye, title: 'Our Vision', text: about.vision },
-        values.length > 0 && { icon: Heart, title: 'Our Values', text: values.map((value) => value.title).join(' · ') },
+        about.mission && { icon: Target, title: t(site, 'ourMission'), text: about.mission },
+        about.vision && { icon: Eye, title: t(site, 'ourVision'), text: about.vision },
+        values.length > 0 && { icon: Heart, title: t(site, 'ourValues'), text: values.map((value) => value.title).join(' · ') },
     ].filter(Boolean) as { icon: typeof Target; title: string; text: string }[];
 
     if (cards.length === 0) {
@@ -18,7 +19,7 @@ export default function MissionVision({ section, site }: SectionProps) {
     return (
         <Section tone="muted">
             <Container>
-                <SectionHeading eyebrow={section.eyebrow ?? 'What guides us'} title={section.title ?? 'Mission, Vision & Values'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'whatGuidesUs')} title={section.title ?? t(site, 'missionVisionValues')} subtitle={section.subtitle} />
                 <div className="grid gap-6 md:grid-cols-3">
                     {cards.map((card) => (
                         <article key={card.title} className="school-card p-8">

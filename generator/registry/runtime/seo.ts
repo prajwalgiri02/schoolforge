@@ -5,6 +5,8 @@ export type PageMeta = {
     title: string;
     description: string;
     url: string;
+    /** The same page in every language, for hreflang links. */
+    alternates: { locale: string; url: string }[];
     image: string | null;
     type: 'website' | 'article';
     keywords: string[];
@@ -81,7 +83,9 @@ export function schoolJsonLd(site: SiteData, siteUrl: string): Record<string, un
  * share image and structured data. Shared by the Next.js and Laravel targets.
  */
 export function pageMeta(site: SiteData, page: PageDefinition, siteUrl: string): PageMeta {
-    const url = page.slug === '/' ? siteUrl : `${siteUrl}${page.slug}`;
+    const pageUrl = (basePath: string) => (page.slug === '/' ? `${siteUrl}${basePath}` : `${siteUrl}${basePath}${page.slug}`);
+    const url = pageUrl(site.i18n?.basePath ?? '');
+    const alternates = (site.i18n?.locales ?? []).length > 1 ? (site.i18n?.locales ?? []).map((language) => ({ locale: language.code, url: pageUrl(language.basePath) })) : [];
     const articleSlug = page.sections.find((section) => section.type === 'article')?.newsSlug as string | undefined;
     const article = articleSlug ? site.content.news?.find((item) => item.slug === articleSlug) : undefined;
     const image = absoluteUrl(siteUrl, article?.image ?? site.seo?.image ?? null);
@@ -108,6 +112,7 @@ export function pageMeta(site: SiteData, page: PageDefinition, siteUrl: string):
         title: pageTitle(site, page),
         description: pageDescription(site, page),
         url,
+        alternates,
         image,
         type: article ? 'article' : 'website',
         keywords: site.seo?.keywords ?? [],

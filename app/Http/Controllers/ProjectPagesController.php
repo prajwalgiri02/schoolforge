@@ -32,6 +32,10 @@ class ProjectPagesController extends Controller
                 ->map(fn (array $component): array => Arr::only($component, ['name', 'label', 'description', 'variants']))
                 ->values(),
             'themeVariants' => (object) array_merge($theme['variants'] ?? [], $project->config['variants'] ?? []),
+            'languages' => $project->config['languages'] ?? ['en'],
+            'pageTranslations' => (object) collect($project->config['translations'] ?? [])
+                ->map(fn (array $translation): object => (object) ($translation['pages'] ?? []))
+                ->all(),
         ]);
     }
 
@@ -40,7 +44,27 @@ class ProjectPagesController extends Controller
      */
     public function update(UpdateProjectPagesRequest $request, Project $project): RedirectResponse
     {
-        $project->update(['config' => [...$project->config, 'pages' => $request->pages()]]);
+        $config = [...$project->config, 'pages' => $request->pages()];
+        $locales = array_slice($config['languages'] ?? ['en'], 1);
+        $pageTranslations = $request->pageTranslations($locales);
+
+        foreach ($locales as $locale) {
+            if (isset($pageTranslations[$locale])) {
+                $config['translations'][$locale]['pages'] = $pageTranslations[$locale];
+            } else {
+                Arr::forget($config, "translations.{$locale}.pages");
+
+                if (($config['translations'][$locale] ?? null) === []) {
+                    unset($config['translations'][$locale]);
+                }
+            }
+        }
+
+        if (($config['translations'] ?? null) === []) {
+            unset($config['translations']);
+        }
+
+        $project->update(['config' => $config]);
 
         return back()->with('success', 'Pages saved.');
     }

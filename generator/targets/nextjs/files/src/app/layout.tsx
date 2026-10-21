@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import siteData from '@/school/site.json';
-import type { SiteData } from '@/school/runtime/types';
+import { defaultLocale, sites } from '@/school/sites';
 import { siteUrl } from './site-url';
 import './globals.css';
 
-const site = siteData as unknown as SiteData;
+const site = sites[defaultLocale];
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
-        <html lang="en">
+        <html lang={defaultLocale}>
             <head>
                 {site.theme.fontImports?.length ? (
                     <>

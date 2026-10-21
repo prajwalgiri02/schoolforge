@@ -1,4 +1,6 @@
 import { sectionComponents } from '../registry';
+import { t } from './i18n';
+import { LocaleProvider } from './link';
 import type { PageDefinition, SectionBlock, SiteData } from './types';
 
 function MissingSection({ type }: { type: string }) {
@@ -34,9 +36,10 @@ export function SectionList({ sections, site, page, debug = false }: ListProps) 
  */
 export function PageRenderer({ site, page, debug = false }: { site: SiteData; page: PageDefinition; debug?: boolean }) {
     return (
-        <div className={`school-site theme-${site.theme.name} flex min-h-screen flex-col bg-background font-body text-foreground antialiased`}>
+        <LocaleProvider basePath={site.i18n?.basePath ?? ''}>
+        <div lang={site.i18n?.locale ?? 'en'} className={`school-site theme-${site.theme.name} flex min-h-screen flex-col bg-background font-body text-foreground antialiased`}>
             <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-background focus:px-4 focus:py-2">
-                Skip to content
+                {t(site, 'skipToContent')}
             </a>
             <SectionList sections={site.layout.header} site={site} page={page} debug={debug} />
             <main id="main" className="flex-1">
@@ -44,5 +47,6 @@ export function PageRenderer({ site, page, debug = false }: { site: SiteData; pa
             </main>
             <SectionList sections={site.layout.footer} site={site} page={page} debug={debug} />
         </div>
+        </LocaleProvider>
     );
 }

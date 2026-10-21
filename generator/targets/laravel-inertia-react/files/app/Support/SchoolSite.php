@@ -14,44 +14,113 @@ use RuntimeException;
 class SchoolSite
 {
     /**
-     * @var array{school: array<string, mixed>, content: array<string, mixed>, theme: array<string, mixed>, navigation: list<array{label: string, href: string}>, layout: array<string, mixed>, pages: list<array{slug: string, title: string, description?: string, sections: list<array<string, mixed>>}>}|null
+     * Site data per language, after admin edits.
+     *
+     * @var array<string, array<string, mixed>>
      */
-    private ?array $data = null;
+    private array $data = [];
 
     public function __construct(private readonly string $path) {}
 
     /**
-     * @return array{school: array<string, mixed>, content: array<string, mixed>, theme: array<string, mixed>, navigation: list<array{label: string, href: string}>, layout: array<string, mixed>, pages: list<array{slug: string, title: string, description?: string, sections: list<array<string, mixed>>}>}
+     * Site data for a language (default language when null), with admin edits applied.
+     *
+     * @return array{school: array<string, mixed>, content: array<string, mixed>, theme: array<string, mixed>, navigation: list<array{label: string, href: string}>, layout: array<string, mixed>, pages: list<array{slug: string, title: string, description?: string, sections: list<array<string, mixed>>}>, i18n?: array<string, mixed>}
      */
-    public function data(): array
+    public function data(?string $locale = null): array
     {
-        if ($this->data === null) {
-            $site = $this->fileData();
+        $locale = $locale !== null && in_array($locale, $this->locales(), true) ? $locale : $this->defaultLocale();
 
-            foreach ($this->overrides() as $key => $value) {
-                if (ContentSchema::find($key) !== null) {
-                    $site = ContentSchema::apply($site, $key, $value);
-                }
-            }
+        return $this->data[$locale] ??= $locale === $this->defaultLocale() ? $this->defaultData() : $this->translatedData($locale);
+    }
 
-            $this->data = $this->withArticlePages($site);
-        }
-
-        return $this->data;
+    public function defaultLocale(): string
+    {
+        return $this->fileData()['i18n']['defaultLocale'] ?? 'en';
     }
 
     /**
-     * The generated site data without admin edits.
+     * @return list<string>
+     */
+    public function locales(): array
+    {
+        return array_column($this->fileData()['i18n']['locales'] ?? [], 'code') ?: [$this->defaultLocale()];
+    }
+
+    /**
+     * What a translated section looks like before admin translation edits: the
+     * default-language value with the translation from school.config.json laid over it.
+     */
+    public function translationBase(string $locale, string $key): mixed
+    {
+        return TranslationMerger::merge(
+            ContentSchema::valueFrom($this->data(), $key),
+            ContentSchema::valueFrom($this->translations()[$locale] ?? [], $key, configShape: true),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function defaultData(): array
+    {
+        $site = $this->fileData();
+
+        foreach ($this->overrides() as $key => $value) {
+            if (ContentSchema::find($key) !== null) {
+                $site = ContentSchema::apply($site, $key, $value);
+            }
+        }
+
+        return $this->withArticlePages($site);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function translatedData(string $locale): array
+    {
+        $site = $this->fileData($locale);
+        $overrides = $this->overrides();
+
+        foreach (array_keys(ContentSchema::sections()) as $key) {
+            $value = TranslationMerger::merge($this->translationBase($locale, $key), $overrides["{$locale}:{$key}"] ?? null);
+            $site = ContentSchema::apply($site, $key, $value);
+        }
+
+        return $this->withArticlePages($site);
+    }
+
+    /**
+     * The generated site data (for a language) without admin edits.
      *
      * @return array<string, mixed>
      */
-    public function fileData(): array
+    public function fileData(?string $locale = null): array
     {
-        if (! File::exists($this->path)) {
+        $path = $locale === null ? $this->path : dirname($this->path)."/site.{$locale}.json";
+
+        if (! File::exists($path)) {
+            if ($locale !== null) {
+                return $this->fileData();
+            }
+
             throw new RuntimeException("School site data not found at [{$this->path}]. Run `schoolforge sync` in the project root.");
         }
 
-        return json_decode(File::get($this->path), true, flags: JSON_THROW_ON_ERROR);
+        return json_decode(File::get($path), true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Translations from school.config.json (config shape), keyed by language.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function translations(): array
+    {
+        $path = dirname($this->path).'/translations.json';
+
+        return File::exists($path) ? json_decode(File::get($path), true, flags: JSON_THROW_ON_ERROR) : [];
     }
 
     /**
@@ -59,15 +128,15 @@ class SchoolSite
      */
     public function refresh(): void
     {
-        $this->data = null;
+        $this->data = [];
     }
 
     /**
      * @return array{slug: string, title: string, description?: string, sections: list<array<string, mixed>>}|null
      */
-    public function findPage(string $slug): ?array
+    public function findPage(string $slug, ?string $locale = null): ?array
     {
-        foreach ($this->data()['pages'] as $page) {
+        foreach ($this->data($locale)['pages'] as $page) {
             if ($page['slug'] === $slug) {
                 return $page;
             }

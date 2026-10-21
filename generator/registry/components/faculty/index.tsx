@@ -1,4 +1,5 @@
 import { Avatar, Container, Media, Section, SectionHeading, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Faculty({ section, site }: SectionProps) {
@@ -11,14 +12,14 @@ export default function Faculty({ section, site }: SectionProps) {
 
     const heading = (
         <SectionHeading
-            eyebrow={section.eyebrow ?? 'Our People'}
-            title={section.title ?? 'Meet our faculty'}
-            subtitle={section.subtitle ?? 'Experienced, caring educators who know every learner by name.'}
+            eyebrow={section.eyebrow ?? t(site, 'ourPeople')}
+            title={section.title ?? t(site, 'facultyTitle')}
+            subtitle={section.subtitle ?? t(site, 'facultySubtitle')}
         />
     );
 
     if (variant === 'compact') {
-        const departments = Array.from(new Set(faculty.map((member) => member.department ?? 'Faculty')));
+        const departments = Array.from(new Set(faculty.map((member) => member.department ?? t(site, 'facultyDepartment'))));
 
         return (
             <Section>
@@ -30,7 +31,7 @@ export default function Faculty({ section, site }: SectionProps) {
                                 <h3 className="school-eyebrow mb-5 border-b border-border pb-3 text-accent-strong">{department}</h3>
                                 <ul className="grid gap-5 sm:grid-cols-2">
                                     {faculty
-                                        .filter((member) => (member.department ?? 'Faculty') === department)
+                                        .filter((member) => (member.department ?? t(site, 'facultyDepartment')) === department)
                                         .map((member) => (
                                             <li key={member.name} className="flex items-center gap-4">
                                                 <Avatar src={member.photo} name={member.name} className="h-14 w-14 shrink-0" />

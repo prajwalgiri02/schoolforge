@@ -30,7 +30,7 @@ Registry
 
 Machine-readable (JSON on stdout, used by SchoolForge Studio)
   inspect                             Themes (with resolved tokens), components and targets
-  preview [-c <config> | -c -]        Validate a config and print site data + design tokens
+  preview [-c <config> | -c -] [--locale ne]  Validate a config and print site data + design tokens
 
 ${createHelp}`;
 
@@ -44,6 +44,7 @@ const options = {
     variants: { type: 'string' },
     from: { type: 'string' },
     label: { type: 'string' },
+    locale: { type: 'string' },
     'skip-install': { type: 'boolean' },
     build: { type: 'boolean' },
     force: { type: 'boolean' },
@@ -105,7 +106,7 @@ export async function main(argv) {
             printJson(describeRegistry());
             break;
         case 'preview':
-            printJson(previewData(readConfigArgument(values.config ?? rest[0])));
+            printJson(previewData(readConfigArgument(values.config ?? rest[0]), values.locale));
             break;
         case 'list':
             list({ what: rest[0] });

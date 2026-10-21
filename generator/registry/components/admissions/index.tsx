@@ -1,5 +1,6 @@
 import { CalendarDays, CircleCheck, Download } from 'lucide-react';
-import { ButtonLink, Container, Section, SectionHeading, formatDate } from '../../runtime/ui';
+import { ButtonLink, Container, Section, SectionHeading } from '../../runtime/ui';
+import { formatSiteDate, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Admissions({ section, site }: SectionProps) {
@@ -11,19 +12,19 @@ export default function Admissions({ section, site }: SectionProps) {
 
     const steps = admissions.steps ?? [];
     const requirements = admissions.requirements ?? [];
-    const cta = admissions.cta ?? { label: 'Enquire now', href: '/contact' };
+    const cta = admissions.cta ?? { label: t(site, 'enquireNow'), href: '/contact' };
 
     return (
         <Section>
             <Container>
                 <SectionHeading
-                    eyebrow={section.eyebrow ?? (admissions.open === false ? 'Admissions' : 'Admissions Open')}
-                    title={section.title ?? 'Join our school community'}
+                    eyebrow={section.eyebrow ?? (admissions.open === false ? t(site, 'admissions') : t(site, 'admissionsOpen'))}
+                    title={section.title ?? t(site, 'admissionsTitle')}
                     subtitle={section.subtitle ?? admissions.intro}
                 />
                 {admissions.deadline && (
                     <p className="mx-auto -mt-4 mb-12 flex w-fit items-center gap-2 rounded-full bg-accent/20 px-5 py-2 text-sm font-semibold text-accent-strong">
-                        <CalendarDays className="h-4 w-4" aria-hidden="true" /> Applications close {formatDate(admissions.deadline, { day: 'numeric', month: 'long', year: 'numeric' })}
+                        <CalendarDays className="h-4 w-4" aria-hidden="true" /> {t(site, 'applicationsClose', { date: formatSiteDate(site, admissions.deadline, 'long') })}
                     </p>
                 )}
                 <div className="grid gap-12 lg:grid-cols-[3fr_2fr]">
@@ -45,7 +46,7 @@ export default function Admissions({ section, site }: SectionProps) {
                     <aside className="school-card h-fit p-8">
                         {requirements.length > 0 && (
                             <>
-                                <h3 className="school-heading text-xl">Documents required</h3>
+                                <h3 className="school-heading text-xl">{t(site, 'documentsRequired')}</h3>
                                 <ul className="mt-5 space-y-3">
                                     {requirements.map((requirement) => (
                                         <li key={requirement} className="flex gap-3 text-foreground/85">
@@ -61,7 +62,7 @@ export default function Admissions({ section, site }: SectionProps) {
                             </ButtonLink>
                             {admissions.feeStructureUrl && (
                                 <ButtonLink href={admissions.feeStructureUrl} variant="outline">
-                                    <Download className="h-4 w-4" aria-hidden="true" /> Fee structure
+                                    <Download className="h-4 w-4" aria-hidden="true" /> {t(site, 'feeStructure')}
                                 </ButtonLink>
                             )}
                         </div>

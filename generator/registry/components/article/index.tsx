@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
-import { Container, Media, SmartLink, formatDate } from '../../runtime/ui';
+import { Container, Media, SmartLink } from '../../runtime/ui';
+import { formatSiteDate, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type ArticleProps = SectionProps<{ newsSlug?: string }>;
@@ -15,10 +16,10 @@ export default function Article({ section, site }: ArticleProps) {
         <article className="bg-background py-14 md:py-20">
             <Container className="max-w-3xl">
                 <SmartLink href="/news" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to news
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {t(site, 'backToNews')}
                 </SmartLink>
                 <time className="mt-8 block text-sm font-semibold text-accent-strong" dateTime={article.date}>
-                    {formatDate(article.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    {formatSiteDate(site, article.date, 'full')}
                 </time>
                 <h1 className="school-heading mt-3 text-4xl md:text-5xl">{article.title}</h1>
                 {article.excerpt && <p className="mt-5 text-xl leading-relaxed text-muted-foreground">{article.excerpt}</p>}

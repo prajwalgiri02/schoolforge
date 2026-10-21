@@ -22,7 +22,8 @@ class SeoTest extends TestCase
         $response = $this->get('/sitemap.xml')->assertOk()->assertHeader('Content-Type', 'application/xml; charset=UTF-8');
 
         $xml = simplexml_load_string($response->getContent());
-        $this->assertCount(count($site->data()['pages']), $xml->url);
+        $expected = array_sum(array_map(fn (string $locale): int => count($site->data($locale)['pages']), $site->locales()));
+        $this->assertCount($expected, $xml->url);
         $this->assertSame($site->siteUrl(), (string) $xml->url[0]->loc);
     }
 

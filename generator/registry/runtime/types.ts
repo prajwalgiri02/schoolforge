@@ -106,6 +106,18 @@ export type SeoSettings = {
     googleSiteVerification: string | null;
 };
 
+export type LocaleInfo = {
+    /** Language shown on this page, e.g. 'ne'. */
+    locale: string;
+    defaultLocale: string;
+    /** Every language the site offers, with the path prefix of each. */
+    locales: { code: string; label: string; basePath: string }[];
+    /** 'bs' shows dates in Bikram Sambat. */
+    calendar: 'ad' | 'bs';
+    /** '' for the default language, '/ne' etc. otherwise. */
+    basePath: string;
+};
+
 export type SiteData = {
     school: SchoolProfile;
     content: SiteContent;
@@ -114,6 +126,7 @@ export type SiteData = {
     layout: { header: SectionBlock[]; footer: SectionBlock[] };
     pages: PageDefinition[];
     seo?: SeoSettings;
+    i18n?: LocaleInfo;
 };
 
 export type SectionProps<Extra extends Record<string, unknown> = Record<string, never>> = {

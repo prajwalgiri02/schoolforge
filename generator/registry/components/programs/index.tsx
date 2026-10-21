@@ -1,5 +1,6 @@
 import { ArrowRight, Check } from 'lucide-react';
 import { ButtonLink, Container, Media, Section, SectionHeading, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type ProgramsProps = SectionProps<{ link?: { label: string; href: string } | false }>;
@@ -13,12 +14,12 @@ export default function Programs({ section, site }: ProgramsProps) {
     }
 
     const isPreview = typeof section.limit === 'number' && (site.content.programs?.length ?? 0) > section.limit;
-    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/academics') ? { label: 'Explore all programs', href: '/academics' } : null));
+    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/academics') ? { label: t(site, 'exploreAllPrograms'), href: '/academics' } : null));
     const heading = (
         <SectionHeading
-            eyebrow={section.eyebrow ?? 'Academics'}
-            title={section.title ?? 'Programs that shape futures'}
-            subtitle={section.subtitle ?? 'A balanced curriculum that pairs academic rigour with creativity, character and care.'}
+            eyebrow={section.eyebrow ?? t(site, 'academics')}
+            title={section.title ?? t(site, 'programsTitle')}
+            subtitle={section.subtitle ?? t(site, 'programsSubtitle')}
         />
     );
 

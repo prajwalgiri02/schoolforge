@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { Container, Section, SectionHeading, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Faq({ section, site }: SectionProps) {
@@ -12,7 +13,7 @@ export default function Faq({ section, site }: SectionProps) {
     return (
         <Section tone="muted">
             <Container className="max-w-3xl">
-                <SectionHeading eyebrow={section.eyebrow ?? 'FAQ'} title={section.title ?? 'Frequently asked questions'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'faq')} title={section.title ?? t(site, 'faqTitle')} subtitle={section.subtitle} />
                 <div className="space-y-3">
                     {faqs.map((faq, index) => (
                         <details key={faq.question} className="school-card group p-0" open={index === 0}>

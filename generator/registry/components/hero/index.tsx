@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { ButtonLink, Container, Media } from '../../runtime/ui';
+import { localizeDigits, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type HeroProps = SectionProps<{ image?: string }>;
@@ -10,7 +11,7 @@ export default function Hero({ section, site }: HeroProps) {
     const hero = site.content.hero ?? {};
     const title = section.title ?? hero.title ?? school.tagline ?? school.name;
     const subtitle = section.subtitle ?? hero.subtitle ?? school.about?.summary;
-    const eyebrow = section.eyebrow ?? [school.type, school.established && `Since ${school.established}`].filter(Boolean).join(' · ');
+    const eyebrow = section.eyebrow ?? [school.type, school.established && t(site, 'since', { year: localizeDigits(site, school.established) })].filter(Boolean).join(' · ');
     const image = section.image ?? hero.image;
     const primary = hero.primaryCta;
     const secondary = hero.secondaryCta;

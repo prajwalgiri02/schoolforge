@@ -1,5 +1,6 @@
 import { Quote } from 'lucide-react';
 import { Avatar, Container, Media, Section } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type PrincipalProps = SectionProps<{ mode?: 'summary' | 'full' }>;
@@ -13,7 +14,7 @@ export default function PrincipalMessage({ section, site }: PrincipalProps) {
     }
 
     const message = section.mode === 'summary' ? principal.message.slice(0, 1) : principal.message;
-    const heading = section.title ?? "Principal's Message";
+    const heading = section.title ?? t(site, 'principalsMessage');
 
     if (variant === 'quote') {
         return (
@@ -48,7 +49,7 @@ export default function PrincipalMessage({ section, site }: PrincipalProps) {
                     </div>
                 </div>
                 <div>
-                    <p className="school-eyebrow mb-3 text-accent-strong">{section.eyebrow ?? 'From the desk of the principal'}</p>
+                    <p className="school-eyebrow mb-3 text-accent-strong">{section.eyebrow ?? t(site, 'fromThePrincipal')}</p>
                     <h2 className="school-heading text-3xl md:text-4xl">{heading}</h2>
                     <span className="school-rule mt-5" aria-hidden="true" />
                     <div className="school-prose mt-6 text-lg leading-relaxed text-foreground/85">

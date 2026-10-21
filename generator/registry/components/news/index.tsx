@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react';
-import { ButtonLink, Container, Media, Section, SectionHeading, SmartLink, formatDate, limitItems } from '../../runtime/ui';
+import { ButtonLink, Container, Media, Section, SectionHeading, SmartLink, limitItems } from '../../runtime/ui';
+import { formatSiteDate, t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type NewsProps = SectionProps<{ link?: { label: string; href: string } | false }>;
@@ -15,8 +16,8 @@ export default function News({ section, site }: NewsProps) {
 
     const hasArticle = (slug: string) => site.pages.some((p) => p.slug === `/news/${slug}`);
     const isPreview = typeof section.limit === 'number' && sorted.length > section.limit;
-    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/news') ? { label: 'All news & updates', href: '/news' } : null));
-    const heading = <SectionHeading eyebrow={section.eyebrow ?? 'Latest News'} title={section.title ?? 'What’s happening at school'} subtitle={section.subtitle} />;
+    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/news') ? { label: t(site, 'allNews'), href: '/news' } : null));
+    const heading = <SectionHeading eyebrow={section.eyebrow ?? t(site, 'latestNews')} title={section.title ?? t(site, 'newsTitle')} subtitle={section.subtitle} />;
     const more = link && (
         <div className="mt-12 text-center">
             <ButtonLink href={link.href} variant="outline">
@@ -34,7 +35,7 @@ export default function News({ section, site }: NewsProps) {
                         {news.map((item) => (
                             <article key={item.slug} className="grid gap-2 py-7 sm:grid-cols-[9rem_1fr] sm:gap-8">
                                 <time className="text-sm font-semibold text-accent-strong" dateTime={item.date}>
-                                    {formatDate(item.date)}
+                                    {formatSiteDate(site, item.date)}
                                 </time>
                                 <div>
                                     <h3 className="school-heading text-xl">
@@ -69,13 +70,13 @@ export default function News({ section, site }: NewsProps) {
                             </div>
                             <div className="flex flex-1 flex-col p-6">
                                 <time className="text-sm font-medium text-accent-strong" dateTime={item.date}>
-                                    {formatDate(item.date, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    {formatSiteDate(site, item.date, 'long')}
                                 </time>
                                 <h3 className="school-heading mt-2 text-xl">{item.title}</h3>
                                 {item.excerpt && <p className="mt-3 flex-1 leading-relaxed text-muted-foreground">{item.excerpt}</p>}
                                 {hasArticle(item.slug) && (
                                     <SmartLink href={`/news/${item.slug}`} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                                        Read more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
+                                        {t(site, 'readMore')} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
                                     </SmartLink>
                                 )}
                             </div>

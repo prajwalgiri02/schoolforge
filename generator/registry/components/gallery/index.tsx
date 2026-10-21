@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { ButtonLink, Container, Media, Section, SectionHeading, cn, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type GalleryProps = SectionProps<{ filter?: boolean; link?: { label: string; href: string } | false }>;
@@ -16,7 +17,7 @@ export default function Gallery({ section, site }: GalleryProps) {
     const items = category ? all.filter((item) => item.category === category) : all;
     const showFilter = section.filter !== false && categories.length > 1 && !section.limit;
     const isPreview = typeof section.limit === 'number' && (site.content.gallery?.length ?? 0) > section.limit;
-    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/gallery') ? { label: 'Open the gallery', href: '/gallery' } : null));
+    const link = section.link === false ? null : (section.link ?? (isPreview && site.pages.some((p) => p.slug === '/gallery') ? { label: t(site, 'openGallery'), href: '/gallery' } : null));
 
     const close = useCallback(() => setActive(null), []);
     const step = useCallback((delta: number) => setActive((index) => (index === null ? null : (index + delta + items.length) % items.length)), [items.length]);
@@ -49,9 +50,9 @@ export default function Gallery({ section, site }: GalleryProps) {
     return (
         <Section>
             <Container>
-                <SectionHeading eyebrow={section.eyebrow ?? 'Gallery'} title={section.title ?? 'Life on campus'} subtitle={section.subtitle} />
+                <SectionHeading eyebrow={section.eyebrow ?? t(site, 'gallery')} title={section.title ?? t(site, 'galleryTitle')} subtitle={section.subtitle} />
                 {showFilter && (
-                    <div className="mb-10 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filter gallery">
+                    <div className="mb-10 flex flex-wrap justify-center gap-2" role="tablist" aria-label={t(site, 'filterGallery')}>
                         {[null, ...categories].map((value) => (
                             <button
                                 key={value ?? 'all'}
@@ -64,7 +65,7 @@ export default function Gallery({ section, site }: GalleryProps) {
                                     category === value ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground/75 hover:text-primary',
                                 )}
                             >
-                                {value ?? 'All'}
+                                {value ?? t(site, 'all')}
                             </button>
                         ))}
                     </div>
@@ -80,7 +81,7 @@ export default function Gallery({ section, site }: GalleryProps) {
                                 variant === 'masonry' ? (index % 3 === 0 ? 'aspect-[3/4]' : 'aspect-[4/3]') : 'aspect-square',
                             )}
                         >
-                            <Media sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" src={item.src} alt={item.caption ?? 'Gallery image'} label={item.caption} icon="camera" className="transition duration-500 group-hover:scale-105" />
+                            <Media sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" src={item.src} alt={item.caption ?? t(site, 'galleryImage')} label={item.caption} icon="camera" className="transition duration-500 group-hover:scale-105" />
                             {item.caption && (
                                 <span className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-4 text-sm text-white transition group-hover:translate-y-0">
                                     {item.caption}
@@ -98,20 +99,20 @@ export default function Gallery({ section, site }: GalleryProps) {
                 )}
             </Container>
             {current && (
-                <div role="dialog" aria-modal="true" aria-label={current.caption ?? 'Image preview'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={close}>
-                    <button type="button" onClick={close} aria-label="Close" className="absolute right-4 top-4 text-white/80 hover:text-white">
+                <div role="dialog" aria-modal="true" aria-label={current.caption ?? t(site, 'imagePreview')} className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={close}>
+                    <button type="button" onClick={close} aria-label={t(site, 'close')} className="absolute right-4 top-4 text-white/80 hover:text-white">
                         <X className="h-8 w-8" />
                     </button>
-                    <button type="button" onClick={(event) => (event.stopPropagation(), step(-1))} aria-label="Previous image" className="absolute left-4 text-white/80 hover:text-white">
+                    <button type="button" onClick={(event) => (event.stopPropagation(), step(-1))} aria-label={t(site, 'previousImage')} className="absolute left-4 text-white/80 hover:text-white">
                         <ChevronLeft className="h-10 w-10" />
                     </button>
                     <figure className="max-h-full w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
                         <div className="aspect-[16/10] overflow-hidden rounded-card">
-                            <Media src={current.src} alt={current.caption ?? 'Gallery image'} label={current.caption} icon="camera" className="object-contain" />
+                            <Media src={current.src} alt={current.caption ?? t(site, 'galleryImage')} label={current.caption} icon="camera" className="object-contain" />
                         </div>
                         {current.caption && <figcaption className="mt-4 text-center text-white/85">{current.caption}</figcaption>}
                     </figure>
-                    <button type="button" onClick={(event) => (event.stopPropagation(), step(1))} aria-label="Next image" className="absolute right-4 text-white/80 hover:text-white">
+                    <button type="button" onClick={(event) => (event.stopPropagation(), step(1))} aria-label={t(site, 'nextImage')} className="absolute right-4 text-white/80 hover:text-white">
                         <ChevronRight className="h-10 w-10" />
                     </button>
                 </div>

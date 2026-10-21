@@ -66,9 +66,9 @@ class Generator
      * @param  array<string, mixed>  $config
      * @return array{ok: bool, errors: list<string>, warnings: list<string>, site?: array<string, mixed>, tokens?: array<string, mixed>, extraCss?: string}
      */
-    public function preview(array $config): array
+    public function preview(array $config, ?string $locale = null): array
     {
-        return $this->json(['preview', '--config', '-'], json_encode($config, JSON_THROW_ON_ERROR));
+        return $this->json(['preview', '--config', '-', ...($locale ? ['--locale', $locale] : [])], json_encode($config, JSON_THROW_ON_ERROR));
     }
 
     public function newTheme(string $name, string $from, ?string $label = null): void

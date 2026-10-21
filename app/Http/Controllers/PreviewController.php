@@ -15,8 +15,11 @@ class PreviewController extends Controller
      */
     public function __invoke(Project $project, Generator $generator, ?string $path = null): Response
     {
-        $preview = $generator->preview($project->config);
-        $slug = '/'.trim((string) $path, '/');
+        $languages = $project->config['languages'] ?? ['en'];
+        $segments = array_values(array_filter(explode('/', (string) $path), fn (string $segment): bool => $segment !== ''));
+        $locale = isset($segments[0]) && $segments[0] !== $languages[0] && in_array($segments[0], $languages, true) ? array_shift($segments) : null;
+        $slug = '/'.implode('/', $segments);
+        $preview = $generator->preview($project->config, $locale);
 
         if (! $preview['ok']) {
             return Inertia::render('Preview', [

@@ -1,5 +1,6 @@
 import { CircleCheck } from 'lucide-react';
 import { ButtonLink, Container, Media, Section, cn } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type AboutProps = SectionProps<{ mode?: 'summary' | 'full'; link?: { label: string; href: string } | false; image?: string }>;
@@ -11,7 +12,7 @@ export default function About({ section, site }: AboutProps) {
     const about = school.about ?? {};
     const paragraphs = mode === 'full' ? (about.body ?? []) : (about.body ?? []).slice(0, 1);
     const values = (about.values ?? []).slice(0, mode === 'full' ? undefined : 4);
-    const link = section.link === false ? null : (section.link ?? (mode === 'summary' && site.pages.some((p) => p.slug === '/about') ? { label: 'Discover our story', href: '/about' } : null));
+    const link = section.link === false ? null : (section.link ?? (mode === 'summary' && site.pages.some((p) => p.slug === '/about') ? { label: t(site, 'discoverOurStory'), href: '/about' } : null));
     const image = section.image ?? about.image;
 
     if (!about.summary && paragraphs.length === 0) {
@@ -20,8 +21,8 @@ export default function About({ section, site }: AboutProps) {
 
     const text = (
         <div>
-            <p className="school-eyebrow mb-3 text-accent-strong">{section.eyebrow ?? `About ${school.shortName ?? school.name}`}</p>
-            <h2 className="school-heading text-3xl md:text-4xl">{section.title ?? school.tagline ?? `Welcome to ${school.name}`}</h2>
+            <p className="school-eyebrow mb-3 text-accent-strong">{section.eyebrow ?? t(site, 'aboutSchool', { school: school.shortName ?? school.name })}</p>
+            <h2 className="school-heading text-3xl md:text-4xl">{section.title ?? school.tagline ?? t(site, 'welcomeTo', { school: school.name })}</h2>
             <span className="school-rule mt-5" aria-hidden="true" />
             {about.summary && <p className="mt-6 text-lg leading-relaxed text-foreground/90">{about.summary}</p>}
             <div className="school-prose mt-4 leading-relaxed text-muted-foreground">
@@ -75,7 +76,7 @@ export default function About({ section, site }: AboutProps) {
                     {school.established && (
                         <div className="absolute -bottom-6 right-6 rounded-card bg-accent px-6 py-4 text-accent-foreground shadow-card">
                             <p className="school-heading text-3xl">{new Date().getFullYear() - Number(school.established)}+</p>
-                            <p className="text-xs font-semibold uppercase tracking-wider">Years of excellence</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider">{t(site, 'yearsOfExcellence')}</p>
                         </div>
                     )}
                 </div>

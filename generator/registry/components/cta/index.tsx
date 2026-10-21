@@ -1,14 +1,15 @@
 import { ButtonLink, Container } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { LinkItem, SectionProps } from '../../runtime/types';
 
 type CtaProps = SectionProps<{ primary?: LinkItem; secondary?: LinkItem }>;
 
 export default function Cta({ section, site }: CtaProps) {
     const variant = section.variant ?? 'banner';
-    const title = section.title ?? `Give your child the ${site.school.shortName ?? site.school.name} advantage`;
-    const subtitle = section.subtitle ?? site.content.admissions?.intro ?? 'Visit our campus, meet our teachers and see learning in action.';
-    const primary = section.primary ?? site.content.admissions?.cta ?? { label: 'Apply for admission', href: '/admissions' };
-    const secondary = section.secondary ?? { label: 'Book a campus visit', href: '/contact' };
+    const title = section.title ?? t(site, 'ctaTitle', { school: site.school.shortName ?? site.school.name });
+    const subtitle = section.subtitle ?? site.content.admissions?.intro ?? t(site, 'ctaSubtitle');
+    const primary = section.primary ?? site.content.admissions?.cta ?? { label: t(site, 'applyForAdmission'), href: '/admissions' };
+    const secondary = section.secondary ?? { label: t(site, 'bookCampusVisit'), href: '/contact' };
 
     if (variant === 'card') {
         return (

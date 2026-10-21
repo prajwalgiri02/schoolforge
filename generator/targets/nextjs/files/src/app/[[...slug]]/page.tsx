@@ -1,28 +1,37 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import siteData from '@/school/site.json';
 import { PageRenderer } from '@/school/runtime/page-renderer';
 import { findPage } from '@/school/runtime/pages';
 import { jsonLdScript, pageMeta } from '@/school/runtime/seo';
-import type { SiteData } from '@/school/runtime/types';
+import { defaultLocale, sites } from '@/school/sites';
 import { siteUrl } from '../site-url';
-
-const site = siteData as unknown as SiteData;
 
 type Params = Promise<{ slug?: string[] }>;
 
-function pathFrom(slug: string[] | undefined): string {
-    return `/${(slug ?? []).join('/')}`;
+/**
+ * Splits /ne/about into the Nepali site and /about; other paths use the default language.
+ */
+function resolve(slug: string[] | undefined) {
+    const [first, ...rest] = slug ?? [];
+    const locale = first && first !== defaultLocale && sites[first] ? first : defaultLocale;
+    const segments = locale === defaultLocale ? (slug ?? []) : rest;
+    const site = sites[locale];
+
+    return { site, page: findPage(site, `/${segments.join('/')}`) };
 }
 
 export const dynamicParams = false;
 
 export function generateStaticParams(): { slug: string[] }[] {
-    return site.pages.map((page) => ({ slug: page.slug === '/' ? [] : page.slug.slice(1).split('/') }));
+    return Object.values(sites).flatMap((site) => {
+        const prefix = site.i18n?.basePath ? [site.i18n.basePath.slice(1)] : [];
+
+        return site.pages.map((page) => ({ slug: [...prefix, ...(page.slug === '/' ? [] : page.slug.slice(1).split('/'))] }));
+    });
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-    const page = findPage(site, pathFrom((await params).slug));
+    const { site, page } = resolve((await params).slug);
 
     if (!page) {
         return {};
@@ -34,14 +43,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     return {
         title: { absolute: meta.title },
         description: meta.description,
-        alternates: { canonical: meta.url },
-        openGraph: { title: meta.title, description: meta.description, url: meta.url, type: meta.type, images },
+        alternates: { canonical: meta.url, languages: meta.alternates.length > 0 ? Object.fromEntries(meta.alternates.map((item) => [item.locale, item.url])) : undefined },
+        openGraph: { title: meta.title, description: meta.description, url: meta.url, type: meta.type, images, locale: site.i18n?.locale },
         twitter: { card: meta.image ? 'summary_large_image' : 'summary', title: meta.title, description: meta.description, images: meta.image ? [meta.image] : undefined },
     };
 }
 
 export default async function SchoolPage({ params }: { params: Params }) {
-    const page = findPage(site, pathFrom((await params).slug));
+    const { site, page } = resolve((await params).slug);
 
     if (!page) {
         notFound();

@@ -19,8 +19,12 @@ export default function SchoolPage({ site, slug, siteUrl }: { site: SiteData; sl
                 <meta name="description" content={meta.description} />
                 {meta.keywords.length > 0 && <meta name="keywords" content={meta.keywords.join(', ')} />}
                 <link rel="canonical" href={meta.url} />
+                {meta.alternates.map((alternate) => (
+                    <link key={alternate.locale} rel="alternate" hrefLang={alternate.locale} href={alternate.url} />
+                ))}
                 <meta property="og:site_name" content={site.school.name} />
                 <meta property="og:type" content={meta.type} />
+                {site.i18n && <meta property="og:locale" content={site.i18n.locale} />}
                 <meta property="og:title" content={meta.title} />
                 <meta property="og:description" content={meta.description} />
                 <meta property="og:url" content={meta.url} />

@@ -42,6 +42,11 @@ class UpdateProjectPagesRequest extends FormRequest
             'pages.*.sections.*.limit' => ['nullable', 'integer', 'min:1', 'max:100'],
             'pages.*.sections.*.paragraphs' => ['nullable', 'array', 'max:50'],
             'pages.*.sections.*.paragraphs.*' => ['string', 'max:5000'],
+            'translations' => ['nullable', 'array'],
+            'translations.*' => ['array'],
+            'translations.*.*.title' => ['nullable', 'string', 'max:120'],
+            'translations.*.*.navLabel' => ['nullable', 'string', 'max:40'],
+            'translations.*.*.description' => ['nullable', 'string', 'max:300'],
         ];
     }
 
@@ -106,5 +111,30 @@ class UpdateProjectPagesRequest extends FormRequest
             'showInNav' => (bool) ($page['showInNav'] ?? true),
             'sections' => array_values(array_map($clean, $page['sections'] ?? [])),
         ], $this->input('pages')));
+    }
+
+    /**
+     * Translated page titles for each of the given languages, keyed by page address.
+     * Pages that no longer exist and empty values are dropped.
+     *
+     * @param  list<string>  $locales
+     * @return array<string, array<string, array{title?: string, navLabel?: string, description?: string}>>
+     */
+    public function pageTranslations(array $locales): array
+    {
+        $slugs = array_column($this->input('pages'), 'slug');
+        $translations = [];
+
+        foreach ($locales as $locale) {
+            foreach ((array) $this->input("translations.{$locale}", []) as $slug => $values) {
+                $values = array_filter(array_intersect_key((array) $values, array_flip(['title', 'navLabel', 'description'])), fn ($value): bool => filled($value));
+
+                if (in_array($slug, $slugs, true) && $values !== []) {
+                    $translations[$locale][$slug] = $values;
+                }
+            }
+        }
+
+        return $translations;
     }
 }

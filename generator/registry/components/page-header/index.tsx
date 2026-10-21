@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { Container, Media, SmartLink } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 type PageHeaderProps = SectionProps<{ image?: string }>;
@@ -9,9 +10,9 @@ export default function PageHeader({ section, site, page }: PageHeaderProps) {
     const title = section.title ?? page.title;
     const subtitle = section.subtitle ?? page.description;
     const crumbs = (
-        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-sm opacity-80">
+        <nav aria-label={t(site, 'breadcrumb')} className="mb-4 flex items-center gap-1.5 text-sm opacity-80">
             <SmartLink href="/" className="hover:underline">
-                Home
+                {t(site, 'home')}
             </SmartLink>
             <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             <span aria-current="page">{page.navLabel ?? page.title}</span>

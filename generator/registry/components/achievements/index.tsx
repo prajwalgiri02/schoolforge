@@ -1,5 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { Container, Section, SectionHeading, limitItems } from '../../runtime/ui';
+import { t } from '../../runtime/i18n';
 import type { SectionProps } from '../../runtime/types';
 
 export default function Achievements({ section, site }: SectionProps) {
@@ -12,8 +13,8 @@ export default function Achievements({ section, site }: SectionProps) {
 
     const heading = (
         <SectionHeading
-            eyebrow={section.eyebrow ?? 'Achievements'}
-            title={section.title ?? 'Milestones we are proud of'}
+            eyebrow={section.eyebrow ?? t(site, 'achievements')}
+            title={section.title ?? t(site, 'achievementsTitle')}
             subtitle={section.subtitle}
         />
     );

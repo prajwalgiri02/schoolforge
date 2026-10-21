@@ -14,6 +14,8 @@ class UpdateProjectDesignRequest extends FormRequest
      *
      * @var list<string>
      */
+    public const LANGUAGES = ['en' => 'English', 'ne' => 'नेपाली (Nepali)'];
+
     public const COLOR_TOKENS = ['primary', 'primaryForeground', 'secondary', 'secondaryForeground', 'accent', 'accentForeground', 'background', 'foreground', 'muted', 'mutedForeground', 'surface', 'border'];
 
     /**
@@ -41,6 +43,10 @@ class UpdateProjectDesignRequest extends FormRequest
             'fonts.*' => ['nullable', 'string', 'max:80', 'regex:/^[A-Za-z0-9 ]+$/'],
             'variants' => ['nullable', 'array'],
             'variants.*' => ['nullable', 'string', 'max:40'],
+            'languages' => ['nullable', 'array', 'min:1'],
+            'languages.*' => ['distinct', Rule::in(array_keys(self::LANGUAGES))],
+            'calendars' => ['nullable', 'array'],
+            'calendars.*' => ['nullable', Rule::in(['ad', 'bs'])],
         ];
     }
 
