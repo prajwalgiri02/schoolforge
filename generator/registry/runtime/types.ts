@@ -99,6 +99,13 @@ export type ThemeMeta = {
     fontImports?: string[];
 };
 
+export type SeoSettings = {
+    siteUrl: string | null;
+    image: ImageRef;
+    keywords: string[];
+    googleSiteVerification: string | null;
+};
+
 export type SiteData = {
     school: SchoolProfile;
     content: SiteContent;
@@ -106,6 +113,7 @@ export type SiteData = {
     navigation: LinkItem[];
     layout: { header: SectionBlock[]; footer: SectionBlock[] };
     pages: PageDefinition[];
+    seo?: SeoSettings;
 };
 
 export type SectionProps<Extra extends Record<string, unknown> = Record<string, never>> = {

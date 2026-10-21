@@ -7,11 +7,12 @@ import { commandExists, run } from '../run.js';
 const dir = path.join(TARGETS_DIR, 'laravel-inertia-react');
 
 /** Skeleton files replaced by the TypeScript + Inertia entry points. */
-const obsoleteSkeletonFiles = ['resources/js/app.js', 'resources/js/bootstrap.js', 'resources/views/welcome.blade.php', 'vite.config.ts'];
+const obsoleteSkeletonFiles = ['resources/js/app.js', 'resources/js/bootstrap.js', 'resources/views/welcome.blade.php', 'vite.config.ts', 'public/robots.txt'];
 
 const frontendDependencies = {
     devDependencies: {
         '@inertiajs/react': '^3.0.0',
+        '@inertiajs/vite': '^3.0.0',
         '@types/react': '^19.2.0',
         '@types/react-dom': '^19.2.0',
         '@vitejs/plugin-react': '^6.0.0',
@@ -27,6 +28,7 @@ export function mergePackageJson(projectDir) {
     const pkg = exists(file) ? readJson(file) : { private: true, type: 'module', scripts: { build: 'vite build', dev: 'vite' } };
 
     pkg.devDependencies = { ...(pkg.devDependencies ?? {}), ...frontendDependencies.devDependencies };
+    pkg.scripts = { ...(pkg.scripts ?? {}), build: 'vite build && vite build --ssr', 'build:client': 'vite build' };
     pkg.devDependencies = Object.fromEntries(Object.entries(pkg.devDependencies).sort(([a], [b]) => a.localeCompare(b)));
     writeJson(file, pkg);
 }
@@ -102,6 +104,7 @@ export default {
             'php artisan school:admin you@school.edu   (creates your admin panel login)',
             'composer run dev   (or: php artisan serve + npm run dev)',
             'open http://localhost:8000 (website) and http://localhost:8000/admin (admin panel)',
+            'in production, keep `php artisan inertia:start-ssr` running so pages are rendered on the server for search engines',
         ];
     },
 };

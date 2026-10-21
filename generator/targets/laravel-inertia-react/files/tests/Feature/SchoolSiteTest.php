@@ -17,6 +17,7 @@ class SchoolSiteTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        config(['inertia.ssr.enabled' => false]);
     }
 
     public function test_every_generated_page_renders(): void

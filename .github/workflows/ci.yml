@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  studio:
+    name: Studio (Laravel + React)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: npm ci
+      - run: vendor/bin/pint --test
+      - run: npm run typecheck
+      - run: npm run build
+      - run: cp .env.example .env && php artisan key:generate
+      - run: php artisan test
+
+  generator:
+    name: Generator CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+        working-directory: generator
+
+  generated-nextjs:
+    name: Generated site (Next.js)
+    runs-on: ubuntu-latest
+    needs: generator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate and build every theme
+        run: |
+          for theme in classic modern playful elegant; do
+            node generator/bin/schoolforge.js create "$RUNNER_TEMP/next-$theme" --config generator/examples/school.config.json --theme "$theme" --skip-install
+          done
+          cd "$RUNNER_TEMP/next-classic" && npm install --no-audit --no-fund && npx tsc --noEmit && npm run build
+          for theme in modern playful elegant; do
+            cp -r "$RUNNER_TEMP/next-classic/node_modules" "$RUNNER_TEMP/next-$theme/"
+            (cd "$RUNNER_TEMP/next-$theme" && npm run build)
+          done
+
+  generated-laravel:
+    name: Generated site (Laravel + Inertia)
+    runs-on: ubuntu-latest
+    needs: generator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sqlite3, pdo_sqlite
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate with dependencies and production build
+        run: node generator/bin/schoolforge.js create "$RUNNER_TEMP/laravel-site" --config generator/examples/school.config.json --target laravel-inertia-react --theme modern --build
+      - name: Run the generated site's tests
+        working-directory: ${{ runner.temp }}/laravel-site
+        run: php artisan test
+      - name: Server-side rendering smoke test
+        working-directory: ${{ runner.temp }}/laravel-site
+        run: |
+          php artisan inertia:start-ssr &
+          php artisan serve --port=8000 &
+          sleep 5
+          curl -sf http://127.0.0.1:8000/ > home.html
+          grep -q '<h1' home.html
+          grep -q 'Riverside Heights School' home.html
+          grep -q 'application/ld+json' home.html
+          curl -sf http://127.0.0.1:8000/sitemap.xml | grep -q '<urlset'

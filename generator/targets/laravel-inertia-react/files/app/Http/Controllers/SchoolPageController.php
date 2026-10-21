@@ -21,6 +21,7 @@ class SchoolPageController extends Controller
         return Inertia::render('School/Page', [
             'site' => $site->data(),
             'slug' => $slug,
+            'siteUrl' => $site->siteUrl(),
         ]);
     }
 }

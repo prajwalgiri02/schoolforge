@@ -24,6 +24,7 @@ class AdminPanelTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        config(['inertia.ssr.enabled' => false]);
     }
 
     private function admin(): User

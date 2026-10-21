@@ -228,3 +228,15 @@ describe('machine-readable commands', () => {
         assert.equal(JSON.parse(output).ok, true);
     });
 });
+
+describe('seo settings', () => {
+    it('normalises the site URL and falls back to the hero image or logo', () => {
+        const { site } = buildSite({ ...minimal(), seo: { siteUrl: 'https://school.edu.np/', keywords: ['school'] }, school: { name: 'S', logo: '/logo.png' } }, getTheme('classic'));
+
+        assert.deepEqual(site.seo, { siteUrl: 'https://school.edu.np', image: '/logo.png', keywords: ['school'], googleSiteVerification: null });
+    });
+
+    it('rejects relative site URLs', () => {
+        assert.match(validateConfig({ ...minimal(), seo: { siteUrl: 'school.edu.np' } }).join('\n'), /seo\.siteUrl must be a full URL/);
+    });
+});

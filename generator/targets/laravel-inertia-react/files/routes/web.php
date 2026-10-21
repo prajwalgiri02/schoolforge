@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SessionController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\SchoolPageController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
@@ -30,6 +31,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::delete('messages/{message}', [AdminContactMessageController::class, 'destroy'])->name('messages.destroy');
     });
 });
+
+Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('school.sitemap');
+Route::get('robots.txt', [SeoController::class, 'robots'])->name('school.robots');
 
 Route::post('/contact', ContactMessageController::class)
     ->middleware('throttle:6,1')

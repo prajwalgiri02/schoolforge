@@ -63,6 +63,12 @@ class ContentSchema
                 self::field('linkedin', 'url', 'LinkedIn'),
                 self::field('tiktok', 'url', 'TikTok'),
             ]),
+            'seo' => self::section('Search & sharing', 'How the site appears on Google and when shared on Facebook or WhatsApp.', 'object', 'seo', [
+                self::field('siteUrl', 'text', 'Website address', help: 'The live address, e.g. https://www.myschool.edu.np. Used for the sitemap and share links.'),
+                self::field('image', 'image', 'Share image', help: 'Shown in link previews. Defaults to the home page banner or logo.'),
+                self::field('keywords', 'strings', 'Keywords', help: 'One per line, e.g. "school in Kathmandu".'),
+                self::field('googleSiteVerification', 'text', 'Google Search Console code'),
+            ]),
             'hero' => self::section('Home page banner', 'The large banner at the top of the home page.', 'object', 'content.hero', [
                 self::field('title', 'text', 'Headline'),
                 self::field('subtitle', 'textarea', 'Subtitle'),

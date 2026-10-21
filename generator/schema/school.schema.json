@@ -918,6 +918,34 @@
                     }
                 }
             }
+        },
+        "seo": {
+            "type": "object",
+            "description": "Search engine and social sharing settings.",
+            "properties": {
+                "siteUrl": {
+                    "type": "string",
+                    "description": "The live website address, e.g. https://www.myschool.edu.np. Used for the sitemap, canonical links and share previews."
+                },
+                "image": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "description": "Image shown when the site is shared on Facebook, WhatsApp, etc. Defaults to the hero image or logo."
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "googleSiteVerification": {
+                    "type": "string",
+                    "description": "Google Search Console verification code."
+                }
+            },
+            "additionalProperties": false
         }
     }
 }

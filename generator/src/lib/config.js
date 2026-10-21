@@ -131,6 +131,20 @@ export function validateConfig(config, { components = null } = {}) {
         errors.push(`admissions.deadline must use YYYY-MM-DD (got "${config.admissions.deadline}").`);
     }
 
+    if (config.seo !== undefined) {
+        if (!isObject(config.seo)) {
+            errors.push('seo must be an object.');
+        } else {
+            if (config.seo.siteUrl !== undefined && !/^https?:\/\/[^\s/]+/.test(String(config.seo.siteUrl))) {
+                errors.push(`seo.siteUrl must be a full URL such as https://www.myschool.edu.np (got "${config.seo.siteUrl}").`);
+            }
+
+            if (config.seo.keywords !== undefined && !Array.isArray(config.seo.keywords)) {
+                errors.push('seo.keywords must be an array of strings.');
+            }
+        }
+    }
+
     if (Array.isArray(config.news)) {
         const slugs = config.news.map((item) => item.slug ?? slugify(item.title ?? ''));
         const duplicate = slugs.find((slug, index) => slugs.indexOf(slug) !== index);
@@ -317,6 +331,12 @@ export function buildSite(config, theme, { resolveComponent = getComponent } = {
         navigation,
         layout: resolvedLayout,
         pages,
+        seo: {
+            siteUrl: config.seo?.siteUrl ? String(config.seo.siteUrl).replace(/\/+$/, '') : null,
+            image: config.seo?.image ?? content.hero?.image ?? school.logo ?? null,
+            keywords: config.seo?.keywords ?? [],
+            googleSiteVerification: config.seo?.googleSiteVerification ?? null,
+        },
     };
 
     return { site, warnings };

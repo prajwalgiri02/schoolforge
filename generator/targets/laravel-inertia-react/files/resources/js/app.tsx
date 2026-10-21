@@ -1,22 +1,12 @@
 import { createInertiaApp } from '@inertiajs/react';
-import type { ComponentType } from 'react';
-import { createRoot } from 'react-dom/client';
 
+/**
+ * One entry for the browser and for server-side rendering: the @inertiajs/vite
+ * plugin resolves pages from ./pages and builds the SSR server from this file.
+ */
 createInertiaApp({
     title: (title) => title,
-    resolve: (name) => {
-        const pages = import.meta.glob<{ default: ComponentType }>('./pages/**/*.tsx', { eager: true });
-        const page = pages[`./pages/${name}.tsx`];
-
-        if (!page) {
-            throw new Error(`Unknown Inertia page: ${name}`);
-        }
-
-        return page;
-    },
-    setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
-    },
+    pages: './pages',
     progress: {
         color: 'var(--color-accent)',
     },

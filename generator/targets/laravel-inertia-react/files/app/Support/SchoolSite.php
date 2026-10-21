@@ -76,6 +76,14 @@ class SchoolSite
         return null;
     }
 
+    /**
+     * The live site address: `seo.siteUrl` from the school config, or APP_URL.
+     */
+    public function siteUrl(): string
+    {
+        return rtrim($this->data()['seo']['siteUrl'] ?? url('/'), '/');
+    }
+
     public function schoolName(): string
     {
         return (string) $this->data()['school']['name'];
