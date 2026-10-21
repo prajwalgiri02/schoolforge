@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ExternalLink, FileText, LayoutTemplate, Paintbrush, RefreshCw, Rocket } from 'lucide-react';
+import { ExternalLink, FileText, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
 import { targetLabels, type ProjectSummary } from './types';
@@ -9,7 +9,16 @@ const tabs = [
     { key: 'design', label: 'Design', icon: Paintbrush },
     { key: 'pages', label: 'Pages', icon: LayoutTemplate },
     { key: 'generate', label: 'Generate', icon: Rocket },
+    { key: 'history', label: 'History', icon: History },
 ] as const;
+
+const devices = [
+    { key: 'desktop', label: 'Desktop', icon: Monitor, width: null },
+    { key: 'tablet', label: 'Tablet', icon: Tablet, width: 768 },
+    { key: 'phone', label: 'Phone', icon: Smartphone, width: 390 },
+] as const;
+
+type Device = (typeof devices)[number]['key'];
 
 /**
  * Workspace for one school: tabs on top, the editor on the left and, on wide
@@ -30,6 +39,8 @@ export function ProjectLayout({
 }) {
     const url = usePage().url;
     const [reloads, setReloads] = useState(0);
+    const [device, setDevice] = useState<Device>('desktop');
+    const frameWidth = devices.find((item) => item.key === device)?.width;
     const previewUrl = `/preview/${project.slug}${previewPath}`;
 
     return (
@@ -83,11 +94,26 @@ export function ProjectLayout({
                                     </span>
                                     Live preview{previewPath ? ` · ${previewPath}` : ''}
                                 </span>
-                                <button type="button" onClick={() => setReloads((count) => count + 1)} className="flex items-center gap-1 rounded px-2 py-1 hover:bg-zinc-200" aria-label="Reload preview">
-                                    <RefreshCw className="h-3.5 w-3.5" /> Reload
-                                </button>
+                                <span className="flex items-center gap-1">
+                                    {devices.map((item) => (
+                                        <button key={item.key} type="button" onClick={() => setDevice(item.key)} aria-pressed={device === item.key} aria-label={`${item.label} preview`} title={item.label} className={`rounded p-1.5 ${device === item.key ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-200'}`}>
+                                            <item.icon className="h-3.5 w-3.5" />
+                                        </button>
+                                    ))}
+                                    <button type="button" onClick={() => setReloads((count) => count + 1)} className="ml-1 flex items-center gap-1 rounded px-2 py-1 hover:bg-zinc-200" aria-label="Reload preview">
+                                        <RefreshCw className="h-3.5 w-3.5" /> Reload
+                                    </button>
+                                </span>
                             </div>
-                            <iframe key={`${project.updatedAt}-${reloads}-${previewPath}`} src={previewUrl} title="Website preview" className="h-[calc(100vh-9rem)] w-full" />
+                            <div className={`h-[calc(100vh-9rem)] overflow-auto ${frameWidth ? 'bg-zinc-100 p-4' : ''}`}>
+                                <iframe
+                                    key={`${project.updatedAt}-${reloads}-${previewPath}`}
+                                    src={previewUrl}
+                                    title="Website preview"
+                                    style={frameWidth ? { width: frameWidth } : undefined}
+                                    className={`h-full bg-white ${frameWidth ? 'mx-auto rounded-xl border border-zinc-300 shadow-lg' : 'w-full'}`}
+                                />
+                            </div>
                         </div>
                     </aside>
                 )}

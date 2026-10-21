@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Project;
 use App\Services\Generator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -31,7 +32,7 @@ class StoreProjectRequest extends FormRequest
             'tagline' => ['nullable', 'string', 'max:200'],
             'target' => ['required', Rule::in(array_column($registry['targets'], 'name'))],
             'theme' => ['required', Rule::in(array_column($registry['themes'], 'name'))],
-            'start_with' => ['required', Rule::in(['sample', 'blank'])],
+            'start_with' => ['required', Rule::in(['sample', 'blank', ...Project::query()->where('is_template', true)->pluck('slug')->map(fn (string $slug): string => "template:{$slug}")])],
         ];
     }
 }

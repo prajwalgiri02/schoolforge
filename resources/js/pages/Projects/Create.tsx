@@ -5,7 +5,7 @@ import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { FieldError, PageHeading, StudioLayout } from '@/studio/StudioLayout';
 import type { Target, ThemeSummary } from '@/studio/types';
 
-export default function CreateProject({ themes, targets }: { themes: ThemeSummary[]; targets: Target[] }) {
+export default function CreateProject({ themes, targets, templates }: { themes: ThemeSummary[]; targets: Target[]; templates: { slug: string; name: string }[] }) {
     const form = useForm({
         name: '',
         short_name: '',
@@ -108,6 +108,7 @@ export default function CreateProject({ themes, targets }: { themes: ThemeSummar
                                 {[
                                     { value: 'sample', label: 'Sample content', help: 'Programs, faculty, news and more to edit or delete.' },
                                     { value: 'blank', label: 'Blank', help: 'Only the school name. Fill everything in yourself.' },
+                                    ...templates.map((template) => ({ value: `template:${template.slug}`, label: `Template: ${template.name}`, help: 'Its pages, design and content, with your school’s name.' })),
                                 ].map((option) => (
                                     <label key={option.value} className="flex items-start gap-3 rounded-lg border border-zinc-200 p-3 text-sm has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50">
                                         <input type="radio" name="start_with" value={option.value} checked={form.data.start_with === option.value} onChange={() => form.setData('start_with', option.value)} className="mt-0.5" />

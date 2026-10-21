@@ -13,7 +13,7 @@ class ProjectPresenter
     public function __construct(private readonly Generator $generator) {}
 
     /**
-     * @return array{slug: string, name: string, theme: string, themeLabel: string, target: string, colors: array<string, string>, updatedAt: string|null, outputPath: string|null}
+     * @return array{slug: string, name: string, theme: string, themeLabel: string, target: string, colors: array<string, string>, updatedAt: string|null, outputPath: string|null, isTemplate: bool}
      */
     public function summary(Project $project): array
     {
@@ -28,6 +28,7 @@ class ProjectPresenter
             'colors' => $this->swatch($theme, $project->config['colors'] ?? []),
             'updatedAt' => $project->updated_at?->toIso8601String(),
             'outputPath' => $project->output_path,
+            'isTemplate' => (bool) $project->is_template,
         ];
     }
 

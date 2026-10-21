@@ -7,6 +7,7 @@ use App\Http\Controllers\ProjectContentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDesignController;
 use App\Http\Controllers\ProjectGenerateController;
+use App\Http\Controllers\ProjectHistoryController;
 use App\Http\Controllers\ProjectPagesController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\UploadController;
@@ -39,6 +40,10 @@ Route::middleware('auth')->group(function (): void {
     Route::put('projects/{project}/pages', [ProjectPagesController::class, 'update'])->name('projects.pages.update');
     Route::delete('projects/{project}/pages', [ProjectPagesController::class, 'destroy'])->name('projects.pages.destroy');
 
+    Route::get('projects/{project}/history', [ProjectHistoryController::class, 'index'])->name('projects.history.index');
+    Route::post('projects/{project}/history/{version}/restore', [ProjectHistoryController::class, 'restore'])->name('projects.history.restore');
+    Route::post('projects/{project}/duplicate', [ProjectHistoryController::class, 'duplicate'])->name('projects.duplicate');
+    Route::post('projects/{project}/template', [ProjectHistoryController::class, 'template'])->name('projects.template');
     Route::get('projects/{project}/generate', [ProjectGenerateController::class, 'show'])->name('projects.generate.show');
     Route::post('projects/{project}/generate', [ProjectGenerateController::class, 'store'])->name('projects.generate.store');
 

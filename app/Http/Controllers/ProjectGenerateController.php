@@ -7,6 +7,7 @@ use App\Jobs\GenerateSchoolProject;
 use App\Models\GenerationRun;
 use App\Models\Project;
 use App\Services\Generator;
+use App\Support\ProjectChecks;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
@@ -31,6 +32,7 @@ class ProjectGenerateController extends Controller
                 'warnings' => $preview['warnings'],
                 'pageCount' => $preview['ok'] ? count($preview['site']['pages']) : 0,
             ],
+            'checks' => ProjectChecks::run($project->config, $preview['ok'] ? $preview['site'] : null),
             'targets' => $generator->registry()['targets'],
             'defaults' => [
                 'target' => $project->target(),

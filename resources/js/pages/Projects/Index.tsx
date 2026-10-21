@@ -75,6 +75,7 @@ export default function ProjectsIndex({ projects }: { projects: ProjectSummary[]
                                 <div className="relative h-28" style={{ background: `linear-gradient(135deg, ${project.colors.primary ?? '#334155'}, ${project.colors.secondary ?? '#0f172a'})` }}>
                                     <span className="absolute bottom-0 left-6 h-1.5 w-16 rounded-t" style={{ background: project.colors.accent ?? '#f59e0b' }} />
                                     <span className="absolute right-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-zinc-700">{targetLabels[project.target] ?? project.target}</span>
+                                    {project.isTemplate && <span className="absolute left-4 top-4 rounded-full bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white">Template</span>}
                                 </div>
                                 <div className="p-6">
                                     <h2 className="font-semibold group-hover:text-indigo-700">{project.name}</h2>

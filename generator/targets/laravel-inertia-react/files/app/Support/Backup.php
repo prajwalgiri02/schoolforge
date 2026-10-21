@@ -94,25 +94,33 @@ class Backup
 
         try {
             DB::transaction(function () use ($zip, $current, &$restored): void {
+                $dumps = [];
+
                 for ($index = 0; $index < $zip->numFiles; $index++) {
-                    $name = $zip->getNameIndex($index);
-
-                    if (! preg_match('#^database/([A-Za-z0-9_]+)\.jsonl$#', $name, $match) || ! in_array($match[1], $current, true)) {
-                        continue;
+                    if (preg_match('#^database/([A-Za-z0-9_]+)\.jsonl$#', (string) $zip->getNameIndex($index), $match) && in_array($match[1], $current, true)) {
+                        $dumps[$match[1]] = $index;
                     }
+                }
 
-                    $columns = Schema::getColumnListing($match[1]);
-                    $rows = collect(explode("\n", (string) $zip->getFromIndex($index)))
+                $tables = $this->inDependencyOrder(array_keys($dumps));
+
+                // Children first when emptying, parents first when filling, so
+                // foreign keys hold even where they cannot be switched off.
+                foreach (array_reverse($tables) as $table) {
+                    DB::table($table)->delete();
+                }
+
+                foreach ($tables as $table) {
+                    $columns = Schema::getColumnListing($table);
+                    $rows = collect(explode("\n", (string) $zip->getFromIndex($dumps[$table])))
                         ->filter()
                         ->map(fn (string $line): array => array_intersect_key(json_decode($line, true, flags: JSON_THROW_ON_ERROR), array_flip($columns)));
 
-                    DB::table($match[1])->delete();
-
                     foreach ($rows->chunk(200) as $chunk) {
-                        DB::table($match[1])->insert($chunk->values()->all());
+                        DB::table($table)->insert($chunk->values()->all());
                     }
 
-                    $restored[$match[1]] = $rows->count();
+                    $restored[$table] = $rows->count();
                 }
             });
         } finally {
@@ -175,5 +183,39 @@ class Backup
                 File::put($target, (string) $zip->getFromIndex($index));
             }
         }
+    }
+
+    /**
+     * Sorts tables so every table comes after the tables its foreign keys point to.
+     *
+     * @param  list<string>  $tables
+     * @return list<string>
+     */
+    private function inDependencyOrder(array $tables): array
+    {
+        $parents = [];
+
+        foreach ($tables as $table) {
+            $parents[$table] = array_values(array_intersect(array_column(Schema::getForeignKeys($table), 'foreign_table'), $tables));
+        }
+
+        $sorted = [];
+        $visit = function (string $table, array $path = []) use (&$visit, &$sorted, $parents): void {
+            if (in_array($table, $sorted, true) || in_array($table, $path, true)) {
+                return;
+            }
+
+            foreach ($parents[$table] as $parent) {
+                $visit($parent, [...$path, $table]);
+            }
+
+            $sorted[] = $table;
+        };
+
+        foreach ($tables as $table) {
+            $visit($table);
+        }
+
+        return $sorted;
     }
 }

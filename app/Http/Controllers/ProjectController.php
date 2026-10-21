@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Services\Generator;
 use App\Support\ProjectPresenter;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -32,6 +33,7 @@ class ProjectController extends Controller
         return Inertia::render('Projects/Create', [
             'themes' => $presenter->themes(),
             'targets' => $generator->registry()['targets'],
+            'templates' => Project::query()->where('is_template', true)->orderBy('name')->get(['slug', 'name'])->map(fn (Project $template): array => ['slug' => $template->slug, 'name' => $template->name]),
         ]);
     }
 
@@ -46,9 +48,12 @@ class ProjectController extends Controller
             'tagline' => $request->validated('tagline'),
         ]);
 
-        $config = $request->validated('start_with') === 'sample'
-            ? $this->sampleConfig($school)
-            : ['school' => $school];
+        $startWith = $request->validated('start_with');
+        $config = match (true) {
+            $startWith === 'sample' => $this->sampleConfig($school),
+            str_starts_with($startWith, 'template:') => $this->templateConfig(substr($startWith, 9), $school),
+            default => ['school' => $school],
+        };
 
         $project = Project::create([
             'name' => $school['name'],
@@ -97,6 +102,21 @@ class ProjectController extends Controller
             "{$project->slug}.school.config.json",
             ['Content-Type' => 'application/json'],
         );
+    }
+
+    /**
+     * A template project's content and design, with the new school's name.
+     *
+     * @param  array<string, string>  $school
+     * @return array<string, mixed>
+     */
+    private function templateConfig(string $slug, array $school): array
+    {
+        $config = Project::query()->where('slug', $slug)->where('is_template', true)->firstOrFail()->config;
+        unset($config['target'], $config['theme'], $config['seo']['siteUrl']);
+        $config['school'] = [...Arr::only($config['school'] ?? [], ['contact', 'social', 'established', 'motto']), ...$school];
+
+        return $config;
     }
 
     /**

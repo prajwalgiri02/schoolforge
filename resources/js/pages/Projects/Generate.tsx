@@ -1,5 +1,5 @@
-import { router, useForm, usePoll } from '@inertiajs/react';
-import { CircleAlert, CircleCheck, Download, FolderOpen, LoaderCircle, Rocket, TriangleAlert } from 'lucide-react';
+import { Link, router, useForm, usePoll } from '@inertiajs/react';
+import { CircleAlert, CircleCheck, Download, FolderOpen, Lightbulb, LoaderCircle, Rocket, TriangleAlert } from 'lucide-react';
 import { useEffect, useRef, type FormEvent } from 'react';
 import { buttonClass, inputClass } from '@admin/AdminLayout';
 import { ProjectLayout } from '@/studio/ProjectLayout';
@@ -11,6 +11,7 @@ type Run = { id: number; target: string; outputPath: string; install: boolean; g
 type Props = {
     project: ProjectSummary;
     validation: { ok: boolean; errors: string[]; warnings: string[]; pageCount: number };
+    checks: { level: 'warning' | 'tip'; message: string; section: string | null }[];
     targets: Target[];
     defaults: { target: string; outputPath: string; isExisting: boolean; gitRemote: string | null };
     runs: Run[];
@@ -37,7 +38,7 @@ function RunLog({ run }: { run: Run }) {
     );
 }
 
-export default function Generate({ project, validation, targets, defaults, runs }: Props) {
+export default function Generate({ project, validation, checks, targets, defaults, runs }: Props) {
     const form = useForm({ target: defaults.target, output_path: defaults.outputPath, install: false, git_commit: Boolean(defaults.gitRemote), git_remote: defaults.gitRemote ?? '' });
     const errors = form.errors as Record<string, string | undefined>;
     const active = runs.some((run) => run.status === 'queued' || run.status === 'running');
@@ -86,6 +87,30 @@ export default function Generate({ project, validation, targets, defaults, runs 
                         </ul>
                     )}
                 </section>
+
+                {checks.length > 0 && (
+                    <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+                        <h2 className="font-semibold">Before you go live</h2>
+                        <ul className="mt-3 space-y-2 text-sm">
+                            {checks.map((check) => (
+                                <li key={check.message} className="flex gap-2">
+                                    {check.level === 'warning' ? <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" /> : <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400" />}
+                                    <span>
+                                        {check.message}
+                                        {check.section && (
+                                            <>
+                                                {' '}
+                                                <Link href={`/projects/${project.slug}/content/${check.section}`} className="font-medium text-indigo-700 hover:underline">
+                                                    Fix
+                                                </Link>
+                                            </>
+                                        )}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
 
                 <form onSubmit={submit} className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
                     <div>

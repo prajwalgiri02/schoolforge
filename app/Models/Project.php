@@ -16,9 +16,12 @@ use Illuminate\Support\Str;
  *
  * @property array<string, mixed> $config
  */
-#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote'])]
+#[Fillable(['name', 'slug', 'config', 'output_path', 'git_remote', 'is_template'])]
 class Project extends Model
 {
+    /** Overrides the automatic description of the next saved change. */
+    public ?string $versionSummary = null;
+
     /** @use HasFactory<ProjectFactory> */
     use HasFactory;
 
@@ -31,6 +34,7 @@ class Project extends Model
     {
         return [
             'config' => 'array',
+            'is_template' => 'boolean',
         ];
     }
 
@@ -40,6 +44,34 @@ class Project extends Model
             $project->name = $project->config['school']['name'] ?? $project->name;
             $project->slug ??= static::uniqueSlug($project->name);
         });
+
+        static::created(fn (Project $project) => $project->recordVersion('Created'));
+
+        static::updated(function (Project $project): void {
+            if ($project->wasChanged('config')) {
+                $project->recordVersion($project->versionSummary ?? ProjectVersion::describe(json_decode((string) $project->getRawOriginal('config'), true) ?? [], $project->config));
+                $project->versionSummary = null;
+            }
+        });
+    }
+
+    /**
+     * Saves the current config to the history, keeping the newest versions.
+     */
+    public function recordVersion(string $summary): void
+    {
+        $this->versions()->create(['user_id' => auth()->id(), 'summary' => $summary, 'config' => $this->config, 'created_at' => now()]);
+
+        $this->versions()->orderByDesc('id')->skip(ProjectVersion::KEEP)->take(PHP_INT_MAX)->pluck('id')
+            ->whenNotEmpty(fn ($ids) => ProjectVersion::query()->whereIn('id', $ids)->delete());
+    }
+
+    /**
+     * @return HasMany<ProjectVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(ProjectVersion::class);
     }
 
     public function getRouteKeyName(): string

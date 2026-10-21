@@ -7,6 +7,7 @@ export type ProjectSummary = {
     colors: Record<string, string>;
     updatedAt: string | null;
     outputPath: string | null;
+    isTemplate: boolean;
 };
 
 export type ThemeSummary = {
