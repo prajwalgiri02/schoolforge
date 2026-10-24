@@ -28,7 +28,7 @@ schoolforge create ../riverside-app --config my-school.json --target laravel-ine
 ## What a generated site includes
 
 * **Pages:** Home, About, Academics, Admissions, Faculty, Facilities, Gallery, News & Events, Contact, plus one article page per news item that has a body. Pages without content are left out (no faculty listed means no Faculty page).
-* **24 section components:** navbar, announcement bar, hero, stats, about, mission & vision, principal's message, programs, facilities, faculty, gallery (filter + lightbox), news, article, events, notices, testimonials, achievements, admissions, FAQ, call to action, contact (form + map), page header, rich text, footer. Most have 2 or 3 visual variants.
+* **37 section components** (run `schoolforge list components`), from navbar, hero and news to admissions, careers, albums, campuses and popups. Most have 2 or 3 visual variants.
 * **A working contact form.** Next.js posts to `/api/contact` and can forward to `CONTACT_WEBHOOK_URL`. Laravel validates with a Form Request, stores enquiries in `contact_messages`, and can email `SCHOOL_CONTACT_RECIPIENT`.
 * **Polish:** SEO titles and descriptions, responsive layouts, an accessible mobile menu, skip link, keyboard-navigable lightbox, and themed image placeholders so a site looks finished before photos arrive.
 * **Laravel extras:** an admin panel for editing content (see below), PHPUnit feature tests, factories, migrations, and a throttled contact route.
