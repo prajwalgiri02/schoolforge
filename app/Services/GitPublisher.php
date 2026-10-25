@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\ProcessEnvironment;
 use Closure;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -35,7 +36,7 @@ class GitPublisher
             return;
         }
 
-        $hasOrigin = Process::path($directory)->run(['git', 'remote', 'get-url', 'origin'])->successful();
+        $hasOrigin = Process::path($directory)->env(ProcessEnvironment::variables())->run(['git', 'remote', 'get-url', 'origin'])->successful();
         $this->git($directory, $hasOrigin ? ['remote', 'set-url', 'origin', $remote] : ['remote', 'add', 'origin', $remote], $output);
         $this->git($directory, ['push', '-u', 'origin', 'HEAD:main'], $output);
     }
@@ -51,7 +52,7 @@ class GitPublisher
         }
 
         $result = Process::path($directory)
-            ->env(['GIT_TERMINAL_PROMPT' => '0'])
+            ->env([...ProcessEnvironment::variables(), 'GIT_TERMINAL_PROMPT' => '0'])
             ->timeout(300)
             ->run(['git', ...$arguments]);
 

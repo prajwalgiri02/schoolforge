@@ -223,5 +223,8 @@ Docker images of generated sites. All must be green before merging.
 - `Project::RESERVED_SLUGS` (www, studio, admin, api, app, mail) never become subdomains.
 - Generated-site migrations must stay safe for sites created earlier (guard with
   `Schema::hasTable/hasColumn`); never drop tables that hold a school's records.
+- Start Node and git child processes with `->env(ProcessEnvironment::variables())`. On Windows
+  under `php artisan serve` they otherwise lose `SystemRoot`, and Node crashes with
+  `Assertion failed: ncrypto::CSPRNG`.
 - In sandboxed environments external images (Unsplash, YouTube thumbnails) fail to load.
   That is the network, not a bug.

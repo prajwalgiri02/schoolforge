@@ -25,6 +25,7 @@ class PagePrerenderer
         }
 
         $result = Process::timeout(180)
+            ->env(ProcessEnvironment::variables())
             ->input(json_encode($pages, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE))
             ->run([config('studio.node_binary'), $bundle]);
 

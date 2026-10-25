@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\ProcessEnvironment;
 use Closure;
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\File;
@@ -132,7 +133,7 @@ class Generator
      */
     private function run(array $arguments, ?string $input = null): ProcessResult
     {
-        $process = Process::path($this->path)->timeout(60);
+        $process = Process::path($this->path)->env(ProcessEnvironment::variables())->timeout(60);
         $result = ($input === null ? $process : $process->input($input))->run([$this->node, 'bin/schoolforge.js', ...$arguments]);
 
         if ($result->failed()) {
@@ -150,7 +151,7 @@ class Generator
     {
         return Process::path($this->path)
             ->timeout(config('studio.timeout'))
-            ->env(['FORCE_COLOR' => '0', 'COMPOSER_NO_INTERACTION' => '1'])
+            ->env([...ProcessEnvironment::variables(), 'FORCE_COLOR' => '0', 'COMPOSER_NO_INTERACTION' => '1'])
             ->run([$this->node, 'bin/schoolforge.js', ...$arguments], fn (string $type, string $buffer) => $output($buffer));
     }
 }
