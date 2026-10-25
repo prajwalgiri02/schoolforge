@@ -37,7 +37,7 @@ const tones: Record<Tone, { badge: string; tile: string }> = {
 };
 
 export function Badge({ tone = 'grey', children }: { tone?: Tone; children: ReactNode }) {
-    return <span className={`inline-flex items-center whitespace-nowrap rounded-[12px] px-3 py-1 text-xs font-medium capitalize ${tones[tone].badge}`}>{children}</span>;
+    return <span className={`inline-flex items-center whitespace-nowrap rounded-[12px] px-3 py-1 text-xs font-medium ${tones[tone].badge}`}>{children}</span>;
 }
 
 export function IconTile({ icon: Icon, tone = 'primary', size = 'lg' }: { icon: LucideIcon; tone?: Tone; size?: 'lg' | 'sm' }) {
@@ -152,5 +152,5 @@ const statusTones: Record<string, Tone> = {
 };
 
 export function StatusBadge({ status }: { status: string }) {
-    return <Badge tone={statusTones[status] ?? 'grey'}>{status}</Badge>;
+    return <Badge tone={statusTones[status] ?? 'grey'}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
 }

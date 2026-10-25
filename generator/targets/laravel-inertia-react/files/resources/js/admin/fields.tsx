@@ -1,5 +1,5 @@
 import { useHttp } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, FileText, FolderOpen, ImageUp, Plus, Search, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, FileText, FolderOpen, ImageUp, Plus, Search, Trash2, X } from 'lucide-react';
 import { createContext, useContext, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { buttonClass, inputClass } from './AdminLayout';
 import type { FieldDefinition, Item, Value } from './types';
@@ -308,6 +308,12 @@ export function FieldGroup({ fields, value, onChange, path, errors, icons }: { f
  * Repeating group of items with add, remove and reorder controls.
  * Items get a stable client-side key so reordering does not reset text inputs.
  */
+function formatDay(value: string): string {
+    const date = new Date(`${value}T12:00:00`);
+
+    return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+}
+
 export function ItemList({
     fields,
     value,
@@ -317,6 +323,8 @@ export function ItemList({
     icons,
     itemLabel,
     compact = false,
+    collapsible = false,
+    addLabel = 'Add item',
 }: {
     fields: FieldDefinition[];
     value: Item[];
@@ -326,13 +334,28 @@ export function ItemList({
     icons: string[];
     itemLabel?: string;
     compact?: boolean;
+    collapsible?: boolean;
+    addLabel?: string;
 }) {
     const keys = useRef<string[]>([]);
     const counter = useRef(0);
+    const [open, setOpen] = useState<Set<string>>(() => new Set(value.flatMap((item, index) => (Object.keys(item).length === 0 ? [`item-${index}`] : []))));
+    const listId = useId();
 
     while (keys.current.length < value.length) {
         keys.current.push(`item-${counter.current++}`);
     }
+
+    const toggle = (key: string) =>
+        setOpen((current) => {
+            const next = new Set(current);
+
+            if (!next.delete(key)) {
+                next.add(key);
+            }
+
+            return next;
+        });
 
     const move = (from: number, to: number) => {
         const next = [...value];
@@ -348,38 +371,83 @@ export function ItemList({
         onChange(value.filter((_, position) => position !== index));
     };
 
+    const addFirst = () => {
+        const key = `item-${counter.current++}`;
+        keys.current.unshift(key);
+        setOpen((current) => new Set(current).add(key));
+        onChange([{}, ...value]);
+    };
+
+    const iconButton = 'flex h-9 w-9 items-center justify-center rounded-md text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30';
+
     return (
         <div className="space-y-3">
+            {collapsible && (
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-[var(--admin-muted,#71717a)]">
+                        {value.length === 0 ? 'Nothing here yet.' : `${value.length} ${value.length === 1 ? 'item' : 'items'}. Click one to change it.`}
+                    </p>
+                    <button type="button" className={buttonClass.primary} onClick={addFirst}>
+                        <Plus className="h-4 w-4" /> {addLabel}
+                    </button>
+                </div>
+            )}
             {value.map((item, index) => {
-                const heading = (itemLabel && typeof item[itemLabel] === 'string' && (item[itemLabel] as string)) || `Item ${index + 1}`;
+                const key = keys.current[index];
+                const heading = (itemLabel && typeof item[itemLabel] === 'string' && (item[itemLabel] as string)) || (Object.keys(item).length === 0 ? 'New item' : `Item ${index + 1}`);
                 const hasError = Boolean(errorFor(errors, `${path}.${index}`));
+                const expanded = !collapsible || hasError || open.has(key);
+                const filled = (field: FieldDefinition) => field.name !== itemLabel && field.name !== 'slug' && typeof item[field.name] === 'string' && item[field.name] !== '';
+                const summary = fields.find((field) => field.type === 'date' && filled(field)) ?? fields.find((field) => field.type === 'text' && filled(field));
 
                 return (
-                    <div key={keys.current[index]} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-[var(--admin-border,#e4e4e7)]'} ${compact ? 'p-4' : 'p-5 shadow-sm'}`}>
-                        <div className="mb-4 flex items-center justify-between gap-3">
-                            <p className="truncate text-sm font-semibold text-[var(--admin-text,#3f3f46)]">
-                                <span className="mr-2 text-[var(--admin-muted,#a1a1aa)]">{index + 1}.</span>
-                                {heading}
-                            </p>
-                            <div className="flex shrink-0 items-center gap-1">
-                                <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => move(index, index - 1)} className="rounded-md p-1.5 text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30">
+                    <div key={key} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-[var(--admin-border,#e4e4e7)]'} ${compact ? 'p-4' : collapsible ? 'p-2' : 'p-5 shadow-sm'}`}>
+                        <div className={`flex items-center justify-between gap-2 ${expanded && !collapsible ? 'mb-4' : ''}`}>
+                            {collapsible ? (
+                                <button
+                                    type="button"
+                                    onClick={() => toggle(key)}
+                                    aria-expanded={expanded}
+                                    aria-controls={`${listId}-${key}`}
+                                    className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-[var(--admin-hover,#fafafa)]"
+                                >
+                                    <ChevronDown className={`h-4 w-4 shrink-0 text-[var(--admin-muted,#71717a)] transition ${expanded ? '' : '-rotate-90'}`} />
+                                    <span className="min-w-0">
+                                        <span className="block truncate text-sm font-medium text-[var(--admin-heading,#18181b)]">{heading}</span>
+                                        {summary && <span className="block truncate text-xs text-[var(--admin-muted,#71717a)]">{summary.type === 'date' ? formatDay(String(item[summary.name])) : String(item[summary.name])}</span>}
+                                    </span>
+                                </button>
+                            ) : (
+                                <p className="truncate text-sm font-semibold text-[var(--admin-text,#3f3f46)]">
+                                    <span className="mr-2 text-[var(--admin-muted,#a1a1aa)]">{index + 1}.</span>
+                                    {heading}
+                                </p>
+                            )}
+                            <div className="flex shrink-0 items-center gap-0.5">
+                                <button type="button" aria-label={`Move ${heading} up`} title="Move up" disabled={index === 0} onClick={() => move(index, index - 1)} className={iconButton}>
                                     <ArrowUp className="h-4 w-4" />
                                 </button>
-                                <button type="button" aria-label="Move down" disabled={index === value.length - 1} onClick={() => move(index, index + 1)} className="rounded-md p-1.5 text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30">
+                                <button type="button" aria-label={`Move ${heading} down`} title="Move down" disabled={index === value.length - 1} onClick={() => move(index, index + 1)} className={iconButton}>
                                     <ArrowDown className="h-4 w-4" />
                                 </button>
-                                <button type="button" aria-label="Remove" onClick={() => removeAt(index)} className="rounded-md p-1.5 text-red-500 hover:bg-red-50">
+                                <button type="button" aria-label={`Remove ${heading}`} title="Remove" onClick={() => removeAt(index)} className="flex h-9 w-9 items-center justify-center rounded-md text-red-500 hover:bg-red-50">
                                     <Trash2 className="h-4 w-4" />
                                 </button>
                             </div>
                         </div>
-                        <FieldGroup fields={fields} value={item} onChange={(next) => onChange(value.map((current, position) => (position === index ? next : current)))} path={`${path}.${index}`} errors={errors} icons={icons} />
+                        {expanded && (
+                            <div id={`${listId}-${key}`} className={collapsible ? 'border-t border-[var(--admin-border,#e4e4e7)] px-3 pb-3 pt-4' : ''}>
+                                <FieldGroup fields={fields} value={item} onChange={(next) => onChange(value.map((current, position) => (position === index ? next : current)))} path={`${path}.${index}`} errors={errors} icons={icons} />
+                            </div>
+                        )}
                     </div>
                 );
             })}
-            <button type="button" className={buttonClass.secondary} onClick={() => onChange([...value, {}])}>
-                <Plus className="h-4 w-4" /> Add {compact ? 'row' : 'item'}
-            </button>
+            {!collapsible && (
+                <button type="button" className={buttonClass.secondary} onClick={() => onChange([...value, {}])}>
+                    <Plus className="h-4 w-4" /> Add {compact ? 'row' : 'item'}
+                </button>
+            )}
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChevronLeft, CircleCheck, ExternalLink, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Megaphone, PanelsTopLeft, UserCog, Users, X, type LucideIcon } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Bell, ChevronDown, ChevronLeft, CircleCheck, ExternalLink, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Megaphone, PanelsTopLeft, UserCog, Users, X, type LucideIcon } from 'lucide-react';
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
+import { contentGroups } from './contentGroups';
 import type { SharedProps } from './types';
 import { Avatar, adminTheme, fontClass } from './ui';
 import { useAdminUrl, useSiteUrl } from './urls';
@@ -8,6 +9,7 @@ import { useAdminUrl, useSiteUrl } from './urls';
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number; exact?: boolean };
 
 const COLLAPSED_KEY = 'admin-sidebar-collapsed';
+const CONTENT_OPEN_KEY = 'admin-content-menu-open';
 
 export function AdminLayout({ title, description, actions, children }: { title: string; description?: string; actions?: ReactNode; children: ReactNode }) {
     const { auth, flash, inbox, schoolName, schoolLogo } = usePage<SharedProps>().props;
@@ -17,12 +19,14 @@ export function AdminLayout({ title, description, actions, children }: { title: 
     const [notice, setNotice] = useState<string | null>(flash.success ?? null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
+    const [contentOpen, setContentOpen] = useState(false);
     const menuButton = useRef<HTMLButtonElement>(null);
     const closeButton = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         try {
             setCollapsed(window.localStorage.getItem(COLLAPSED_KEY) === '1');
+            setContentOpen(window.localStorage.getItem(CONTENT_OPEN_KEY) === '1');
         } catch {
             // Storage can be unavailable (private windows); the sidebar then starts expanded.
         }
@@ -43,6 +47,12 @@ export function AdminLayout({ title, description, actions, children }: { title: 
     useEffect(() => setMenuOpen(false), [url]);
 
     useEffect(() => {
+        if (url.split('?')[0].startsWith(admin('/content'))) {
+            setContentOpen(true);
+        }
+    }, [url, admin]);
+
+    useEffect(() => {
         if (!menuOpen) {
             return;
         }
@@ -56,6 +66,17 @@ export function AdminLayout({ title, description, actions, children }: { title: 
             menuButton.current?.focus();
         };
     }, [menuOpen]);
+
+    const toggleContent = () => {
+        const next = !contentExpanded;
+        setContentOpen(next);
+
+        try {
+            window.localStorage.setItem(CONTENT_OPEN_KEY, next ? '1' : '0');
+        } catch {
+            // Not remembered; the menu still opens and closes.
+        }
+    };
 
     const toggleCollapsed = () => {
         setCollapsed((value) => {
@@ -71,7 +92,6 @@ export function AdminLayout({ title, description, actions, children }: { title: 
 
     const items: NavItem[] = [
         { href: admin(), label: 'Dashboard', icon: LayoutDashboard, exact: true },
-        { href: admin('/content'), label: 'Content', icon: FileText },
         { href: admin('/website'), label: 'Pages & design', icon: PanelsTopLeft },
         { href: admin('/messages'), label: 'Messages', icon: Mail, badge: inbox?.messages },
         { href: admin('/submissions'), label: 'Applications', icon: Inbox, badge: inbox?.submissions },
@@ -86,9 +106,64 @@ export function AdminLayout({ title, description, actions, children }: { title: 
 
     const path = url.split('?')[0];
     const isActive = (item: NavItem) => (item.exact ? path === item.href : path === item.href || path.startsWith(`${item.href}/`));
+    const contentBase = admin('/content');
+    const inContent = path === contentBase || path.startsWith(`${contentBase}/`);
+    const currentSection = path.startsWith(`${contentBase}/`) ? path.slice(contentBase.length + 1).split('/')[0] : null;
+    const contentExpanded = contentOpen;
     const newCount = (inbox?.messages ?? 0) + (inbox?.submissions ?? 0);
     const narrow = collapsed && !menuOpen;
     const itemClass = `flex min-h-11 w-full items-center gap-4 rounded-[10px] px-4 text-base transition ${narrow ? 'lg:justify-center lg:px-0' : ''}`;
+
+    const contentMenu = narrow ? (
+        <li>
+            <Link href={contentBase} title="Content" aria-current={inContent ? 'page' : undefined} className={`${itemClass} ${inContent ? 'bg-[var(--admin-primary-soft)] text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)]'}`}>
+                <FileText className={`h-6 w-6 shrink-0 ${inContent ? 'text-[var(--admin-primary)]' : ''}`} strokeWidth={1.5} />
+                <span className="lg:sr-only">Content</span>
+            </Link>
+        </li>
+    ) : (
+        <li>
+            <button
+                type="button"
+                onClick={toggleContent}
+                aria-expanded={contentExpanded}
+                aria-controls="admin-content-menu"
+                className={`${itemClass} ${inContent ? 'font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
+            >
+                <FileText className={`h-6 w-6 shrink-0 ${inContent ? 'text-[var(--admin-primary)]' : ''}`} strokeWidth={1.5} />
+                <span className="truncate">Content</span>
+                <ChevronDown className={`ml-auto h-4 w-4 shrink-0 transition ${contentExpanded ? 'rotate-180' : ''}`} />
+            </button>
+            {contentExpanded && (
+                <ul id="admin-content-menu" className="ml-7 mt-1 space-y-0.5 border-l border-[var(--admin-border)] pl-3">
+                    <li>
+                        <Link
+                            href={contentBase}
+                            aria-current={path === contentBase ? 'page' : undefined}
+                            className={`flex min-h-10 items-center rounded-[8px] px-3 text-sm transition ${path === contentBase ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
+                        >
+                            Overview
+                        </Link>
+                    </li>
+                    {contentGroups.map((group) => {
+                        const active = currentSection !== null && group.keys.includes(currentSection);
+
+                        return (
+                            <li key={group.title}>
+                                <Link
+                                    href={admin(`/content/${group.keys[0]}`)}
+                                    aria-current={active ? 'page' : undefined}
+                                    className={`flex min-h-10 items-center rounded-[8px] px-3 text-sm transition ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
+                                >
+                                    {group.title}
+                                </Link>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </li>
+    );
 
     return (
         <div style={adminTheme} className={`min-h-screen bg-[var(--admin-canvas)] text-[var(--admin-text)] antialiased lg:flex ${fontClass}`}>
@@ -125,12 +200,13 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                 </div>
                 <nav aria-label="Admin" className={`flex-1 overflow-y-auto px-5 pb-6 ${narrow ? 'lg:px-4' : ''}`}>
                     <ul className="space-y-2">
-                        {items.map((item) => {
+                        {items.map((item, index) => {
                             const active = isActive(item);
                             const Icon = item.icon;
 
                             return (
-                                <li key={item.href}>
+                                <Fragment key={item.href}>
+                                <li>
                                     <Link
                                         href={item.href}
                                         aria-current={active ? 'page' : undefined}
@@ -144,6 +220,8 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                                         ) : null}
                                     </Link>
                                 </li>
+                                {index === 0 && contentMenu}
+                                </Fragment>
                             );
                         })}
                         <li>
