@@ -102,7 +102,7 @@ class AdminPanelTest extends TestCase
                 ->has('sections', count(ContentSchema::sections())));
     }
 
-    public function test_dashboard_shows_recent_enquiries_applications_and_edits(): void
+    public function test_dashboard_shows_recent_enquiries_applications_and_activity(): void
     {
         ContactMessage::factory()->count(2)->create();
         FormSubmission::factory()->create(['name' => 'Asha Rai']);
@@ -118,13 +118,16 @@ class AdminPanelTest extends TestCase
                 ->has('recentMessages', 2)
                 ->where('recentSubmissions.0.name', 'Asha Rai')
                 ->has('recentSubmissions.0.form')
-                ->where('sectionCount', count(ContentSchema::sections()))
-                ->where('editedCount', 1)
+                ->where('stats.0.hint', '2 in the last 30 days')
                 ->where('stats.2.key', 'updated')
                 ->where('stats.2.value', fn (?string $value) => $value !== null)
+                ->where('stats.2.hint', '1 of '.count(ContentSchema::sections()).' sections changed')
                 ->has('checklist', 6)
-                ->has('recentEdits', 2)
-                ->where('recentEdits', fn ($edits) => collect($edits)->pluck('locale')->sort()->values()->all() === [null, 'ne']));
+                ->has('activity', 6)
+                ->where('activity.5', ['month' => now()->format('Y-m'), 'enquiries' => 2, 'applications' => 1])
+                ->where('summary.0.key', 'pages')
+                ->where('summary', fn ($summary) => collect($summary)->firstWhere('key', 'news')['value'] > 0)
+                ->where('schoolLogo', fn ($logo) => $logo === null || is_string($logo)));
     }
 
     public function test_dashboard_checklist_follows_the_content(): void

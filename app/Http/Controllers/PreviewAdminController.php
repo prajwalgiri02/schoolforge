@@ -26,18 +26,16 @@ class PreviewAdminController extends Controller
     {
         return $this->render($request, $project, 'Admin/Dashboard', [
             'stats' => [
-                ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0],
-                ['key' => 'submissions', 'label' => 'Applications to review', 'value' => 0],
-                ['key' => 'updated', 'label' => 'Last edited', 'value' => null],
-                ['key' => 'subscribers', 'label' => 'Subscribers', 'value' => 0],
+                ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0, 'hint' => '0 in the last 30 days'],
+                ['key' => 'submissions', 'label' => 'Applications to review', 'value' => 0, 'hint' => '0 received in total'],
+                ['key' => 'updated', 'label' => 'Last edited', 'value' => null, 'hint' => '0 of '.count(ContentSchema::sections()).' sections changed'],
+                ['key' => 'subscribers', 'label' => 'Subscribers', 'value' => 0, 'hint' => 'People who get your email alerts'],
             ],
             'checklist' => ContentSchema::checklist($project->config, configShape: true),
-            'pageCount' => count($this->pages($project, $generator)),
-            'sectionCount' => count(ContentSchema::sections()),
-            'editedCount' => 0,
+            'activity' => collect(range(5, 0))->map(fn (int $ago): array => ['month' => now()->startOfMonth()->subMonths($ago)->format('Y-m'), 'enquiries' => 0, 'applications' => 0])->all(),
+            'summary' => ContentSchema::summary($project->config, count($this->pages($project, $generator)), configShape: true),
             'recentMessages' => [],
             'recentSubmissions' => [],
-            'recentEdits' => [],
         ]);
     }
 
@@ -218,6 +216,7 @@ class PreviewAdminController extends Controller
         return Inertia::render($component, [
             ...$props,
             'schoolName' => (string) ($project->config['school']['name'] ?? $project->name),
+            'schoolLogo' => $project->config['school']['logo'] ?? null,
             'auth' => ['user' => $this->user($request)],
             'inbox' => ['messages' => 0, 'submissions' => 0],
             'adminUrl' => route('preview.admin.dashboard', $project, absolute: false),

@@ -1,7 +1,8 @@
 import { Link, router } from '@inertiajs/react';
-import { Inbox, Search } from 'lucide-react';
+import { Eye, Inbox, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { AdminLayout, inputClass } from '@/admin/AdminLayout';
+import { AdminLayout } from '@/admin/AdminLayout';
+import { Avatar, Card, EmptyState, IconLink, Pagination, StatusBadge, filterClass, table } from '@/admin/ui';
 import { useAdminUrl } from '@/admin/urls';
 
 type Submission = { id: number; reference: string; status: string; name: string; email: string; data: Record<string, string>; reviewed_at: string | null; created_at: string };
@@ -10,29 +11,7 @@ type Paginated<T> = { data: T[]; links: { url: string | null; label: string; act
 
 type FormType = { type: string; label: string; statuses: string[]; open: number };
 
-const statusColors: Record<string, string> = {
-    received: 'bg-blue-50 text-blue-700',
-    pending: 'bg-blue-50 text-blue-700',
-    reviewing: 'bg-amber-50 text-amber-700',
-    interview: 'bg-violet-50 text-violet-700',
-    accepted: 'bg-green-50 text-green-700',
-    approved: 'bg-green-50 text-green-700',
-    hired: 'bg-green-50 text-green-700',
-    waitlisted: 'bg-zinc-100 text-zinc-700',
-    rejected: 'bg-red-50 text-red-700',
-};
-
-export function StatusBadge({ status }: { status: string }) {
-    return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusColors[status] ?? 'bg-zinc-100 text-zinc-700'}`}>{status}</span>;
-}
-
-function formatDate(value: string): string {
-    return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
-}
-
-function pageLabel(label: string): string {
-    return label.replace('&laquo;', '«').replace('&raquo;', '»');
-}
+const formatDate = (value: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
 
 export default function SubmissionsIndex({ types, type, status, search, submissions }: { types: FormType[]; type: string; status: string | null; search: string | null; submissions: Paginated<Submission> }) {
     const admin = useAdminUrl();
@@ -45,84 +24,94 @@ export default function SubmissionsIndex({ types, type, status, search, submissi
     };
 
     return (
-        <AdminLayout title="Applications">
-            <div className="mb-6 flex flex-wrap gap-2">
+        <AdminLayout title="Applications" description="Admission forms and other applications sent from the website.">
+            <div className="mb-6 inline-flex max-w-full flex-wrap gap-1 rounded-[12px] bg-[#eef0f3] p-1">
                 {types.map((item) => (
-                    <Link key={item.type} href={admin(`/submissions?type=${item.type}`)} className={`rounded-full px-4 py-1.5 text-sm font-medium ${item.type === type ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50'}`}>
+                    <Link
+                        key={item.type}
+                        href={admin(`/submissions?type=${item.type}`)}
+                        aria-current={item.type === type ? 'page' : undefined}
+                        className={`flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition ${item.type === type ? 'bg-[var(--admin-primary)] text-white shadow-sm' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
+                    >
                         {item.label}
-                        {item.open > 0 && <span className="ml-2 rounded-full bg-blue-600 px-1.5 text-xs text-white">{item.open}</span>}
+                        {item.open > 0 && <span className={`rounded-full px-1.5 text-xs ${item.type === type ? 'bg-white/20' : 'bg-white text-[var(--admin-primary)]'}`}>{item.open}</span>}
                     </Link>
                 ))}
             </div>
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-                <select aria-label="Filter by status" value={status ?? ''} onChange={(event) => visit({ status: event.target.value || null })} className={`${inputClass} w-auto`}>
-                    <option value="">All statuses</option>
-                    {current.statuses.map((value) => (
-                        <option key={value} value={value}>
-                            {value}
-                        </option>
-                    ))}
-                </select>
-                <form onSubmit={submitSearch} className="relative flex-1">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                    <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, email or reference" aria-label="Search" className={`${inputClass} pl-9`} />
-                </form>
-            </div>
-            {submissions.data.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-12 text-center text-zinc-500">
-                    <Inbox className="mx-auto h-8 w-8 text-zinc-400" />
-                    <p className="mt-3">Nothing here yet. {current.label}s sent through the website will appear here.</p>
-                </div>
-            ) : (
-                <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
-                            <tr>
-                                <th className="px-4 py-3 font-semibold">Reference</th>
-                                <th className="px-4 py-3 font-semibold">Name</th>
-                                <th className="hidden px-4 py-3 font-semibold md:table-cell">Details</th>
-                                <th className="px-4 py-3 font-semibold">Status</th>
-                                <th className="hidden px-4 py-3 font-semibold sm:table-cell">Received</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100">
-                            {submissions.data.map((submission) => (
-                                <tr key={submission.id} className={submission.reviewed_at ? '' : 'bg-blue-50/40'}>
-                                    <td className="px-4 py-3 font-mono text-xs">
-                                        <Link href={admin(`/submissions/${submission.id}`)} className="font-semibold text-zinc-900 hover:underline">
-                                            {submission.reference}
-                                        </Link>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <p className="font-medium">{submission.data.studentName ?? submission.name}</p>
-                                        <p className="text-xs text-zinc-500">{submission.email}</p>
-                                    </td>
-                                    <td className="hidden px-4 py-3 text-zinc-600 md:table-cell">{submission.data.grade ?? submission.data.position ?? submission.data.batch ?? submission.data.role ?? ''}</td>
-                                    <td className="px-4 py-3">
-                                        <StatusBadge status={submission.status} />
-                                    </td>
-                                    <td className="hidden px-4 py-3 text-zinc-500 sm:table-cell">{formatDate(submission.created_at)}</td>
-                                </tr>
+            <Card
+                title={`${current.label}s`}
+                padded={false}
+                actions={
+                    <>
+                        <form onSubmit={submitSearch} className="relative">
+                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--admin-muted)]" />
+                            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, email or reference" aria-label="Search" className={`${filterClass} w-64 max-w-full pl-9`} />
+                        </form>
+                        <select aria-label="Filter by status" value={status ?? ''} onChange={(event) => visit({ status: event.target.value || null })} className={`${filterClass} capitalize`}>
+                            <option value="">All statuses</option>
+                            {current.statuses.map((value) => (
+                                <option key={value} value={value}>
+                                    {value}
+                                </option>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-            {submissions.links.length > 3 && (
-                <nav aria-label="Pagination" className="mt-8 flex flex-wrap justify-center gap-1">
-                    {submissions.links.map((link, index) =>
-                        link.url ? (
-                            <Link key={index} href={link.url} preserveScroll className={`rounded-lg px-3 py-1.5 text-sm ${link.active ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:bg-zinc-100'}`}>
-                                {pageLabel(link.label)}
-                            </Link>
-                        ) : (
-                            <span key={index} className="px-3 py-1.5 text-sm text-zinc-300">
-                                {pageLabel(link.label)}
-                            </span>
-                        ),
-                    )}
-                </nav>
-            )}
+                        </select>
+                    </>
+                }
+            >
+                {submissions.data.length === 0 ? (
+                    <EmptyState icon={Inbox} title="Nothing here yet">
+                        {current.label}s sent through the website will appear here.
+                    </EmptyState>
+                ) : (
+                    <div className={`${table.wrap} pb-3`}>
+                        <table className={table.table}>
+                            <thead className={table.head}>
+                                <tr>
+                                    <th className={table.th}>Reference</th>
+                                    <th className={table.th}>Name</th>
+                                    <th className={table.th}>Details</th>
+                                    <th className={table.th}>Status</th>
+                                    <th className={table.th}>Received</th>
+                                    <th className={`${table.th} text-right`}>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {submissions.data.map((submission) => {
+                                    const name = submission.data.studentName ?? submission.name;
+
+                                    return (
+                                        <tr key={submission.id} className={`${table.row} ${submission.reviewed_at ? '' : 'bg-[#f8fbfc]'}`}>
+                                            <td className={`${table.td} whitespace-nowrap`}>
+                                                <Link href={admin(`/submissions/${submission.id}`)} className="font-medium text-[var(--admin-heading)] hover:text-[var(--admin-primary)] hover:underline">
+                                                    {submission.reference}
+                                                </Link>
+                                            </td>
+                                            <td className={table.td}>
+                                                <span className="flex items-center gap-3">
+                                                    <Avatar name={name} />
+                                                    <span className="min-w-0">
+                                                        <span className={`block ${submission.reviewed_at ? '' : 'font-medium text-[var(--admin-heading)]'}`}>{name}</span>
+                                                        <span className="block text-xs">{submission.email}</span>
+                                                    </span>
+                                                </span>
+                                            </td>
+                                            <td className={table.td}>{submission.data.grade ?? submission.data.position ?? submission.data.batch ?? submission.data.role ?? ''}</td>
+                                            <td className={table.td}>
+                                                <StatusBadge status={submission.status} />
+                                            </td>
+                                            <td className={`${table.td} whitespace-nowrap`}>{formatDate(submission.created_at)}</td>
+                                            <td className={`${table.td} text-right`}>
+                                                <IconLink href={admin(`/submissions/${submission.id}`)} label={`Open ${submission.reference}`} icon={Eye} />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </Card>
+            <Pagination links={submissions.links} />
         </AdminLayout>
     );
 }

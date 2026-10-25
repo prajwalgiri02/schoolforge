@@ -129,7 +129,7 @@ class WebsiteSettingsTest extends TestCase
         FormSubmission::factory()->create();
 
         $this->actingAs(User::factory()->create())->get('/admin')->assertInertia(fn (Assert $page) => $page
-            ->where('stats.0', ['key' => 'messages', 'label' => 'New enquiries', 'value' => 2])
+            ->where('stats.0', ['key' => 'messages', 'label' => 'New enquiries', 'value' => 2, 'hint' => '2 in the last 30 days'])
             ->where('stats.1.value', 1)
             ->has('stats', 4));
 

@@ -1,26 +1,35 @@
-import { Link, usePage } from '@inertiajs/react';
-import { ArrowRight, CalendarPlus, ChevronRight, Circle, CircleCheck, History, ImagePlus, Inbox, Mail, Megaphone, Newspaper, PenLine, Users, type LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Link } from '@inertiajs/react';
+import { CalendarDays, CalendarPlus, ChevronRight, Circle, CircleCheck, Eye, FileText, History, ImagePlus, Inbox, Mail, Megaphone, Newspaper, PenLine, Users, type LucideIcon } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { AdminLayout, buttonClass } from '@/admin/AdminLayout';
-import type { SharedProps } from '@/admin/types';
+import { Avatar, Badge, Card, EmptyState, IconLink, IconTile, StatusBadge, table, type Tone } from '@/admin/ui';
 import { useAdminUrl } from '@/admin/urls';
-import { StatusBadge } from './Submissions/Index';
 
-type Stat = { key: string; label: string; value: number | string | null };
+type Stat = { key: string; label: string; value: number | string | null; hint: string };
 
 type Step = { key: string; label: string; section: string; done: boolean };
 
-type MessageSummary = { id: number; name: string; subject: string; created_at: string; read_at: string | null };
+type Month = { month: string; enquiries: number; applications: number };
+
+type Count = { key: string; label: string; value: number };
+
+type MessageSummary = { id: number; name: string; email: string; subject: string; created_at: string; read_at: string | null; replied_at: string | null };
 
 type SubmissionSummary = { id: number; reference: string; name: string; status: string; form: string; created_at: string; reviewed_at: string | null };
 
-type Edit = { key: string; label: string; locale: string | null; updatedAt: string };
+const statStyles: Record<string, { icon: LucideIcon; tone: Tone; path: string }> = {
+    messages: { icon: Mail, tone: 'blue', path: '/messages' },
+    submissions: { icon: Inbox, tone: 'orange', path: '/submissions' },
+    updated: { icon: History, tone: 'green', path: '/content' },
+    subscribers: { icon: Users, tone: 'purple', path: '/alerts' },
+};
 
-const statStyles: Record<string, { icon: LucideIcon; tint: string; path: string; link: string }> = {
-    messages: { icon: Mail, tint: 'bg-blue-50 text-blue-600', path: '/messages', link: 'Read messages' },
-    submissions: { icon: Inbox, tint: 'bg-amber-50 text-amber-600', path: '/submissions', link: 'Review applications' },
-    updated: { icon: History, tint: 'bg-emerald-50 text-emerald-600', path: '/content', link: 'Edit content' },
-    subscribers: { icon: Users, tint: 'bg-violet-50 text-violet-600', path: '/alerts', link: 'Email subscribers' },
+const summaryStyles: Record<string, { icon: LucideIcon; tone: Tone; path: string }> = {
+    pages: { icon: FileText, tone: 'blue', path: '/website' },
+    news: { icon: Newspaper, tone: 'orange', path: '/content/news' },
+    events: { icon: CalendarDays, tone: 'purple', path: '/content/events' },
+    notices: { icon: Megaphone, tone: 'red', path: '/content/notices' },
+    gallery: { icon: ImagePlus, tone: 'green', path: '/content/gallery' },
 };
 
 const quickActions: { key: string; label: string; icon: LucideIcon }[] = [
@@ -30,37 +39,103 @@ const quickActions: { key: string; label: string; icon: LucideIcon }[] = [
     { key: 'gallery', label: 'Add photos', icon: ImagePlus },
 ];
 
-function formatDate(value: string): string {
-    return new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(value));
-}
+const formatDate = (value: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
 
 function statValue(stat: Stat): string {
     if (typeof stat.value === 'number') {
         return stat.value.toLocaleString('en-IN');
     }
 
-    return stat.value ? new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short' }).format(new Date(stat.value)) : 'Not yet';
+    return stat.value ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(stat.value)) : 'Not yet';
 }
 
-function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
-    return (
-        <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-            <header className="flex items-center justify-between gap-3 border-b border-zinc-100 px-5 py-3.5">
-                <h2 className="text-base font-semibold">{title}</h2>
-                {action}
-            </header>
-            {children}
-        </section>
-    );
+function messageStatus(message: MessageSummary) {
+    if (message.replied_at) {
+        return <Badge tone="green">Replied</Badge>;
+    }
+
+    return message.read_at ? <Badge tone="blue">Read</Badge> : <Badge tone="orange">New</Badge>;
 }
 
-function Empty({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
+/** Smooth line through the points (Catmull-Rom converted to Bézier curves), never dipping below `floor`. */
+function curve(points: [number, number][], floor: number): string {
+    return points
+        .map(([x, y], index) => {
+            if (index === 0) {
+                return `M${x},${y}`;
+            }
+
+            const [x0, y0] = points[index - 2] ?? points[index - 1];
+            const [x1, y1] = points[index - 1];
+            const [x3, y3] = points[index + 1] ?? [x, y];
+
+            return `C${x1 + (x - x0) / 6},${Math.min(floor, y1 + (y - y0) / 6)} ${x - (x3 - x1) / 6},${Math.min(floor, y - (y3 - y1) / 6)} ${x},${y}`;
+        })
+        .join(' ');
+}
+
+function ActivityChart({ activity }: { activity: Month[] }) {
+    const id = useId();
+    const frame = useRef<HTMLDivElement>(null);
+    const [width, setWidth] = useState(640);
+    const [height, left, right, top, bottom] = [width < 480 ? 220 : 260, 36, 12, 16, 30];
+
+    useEffect(() => {
+        const observer = new ResizeObserver(([entry]) => setWidth(Math.max(280, Math.round(entry.contentRect.width))));
+
+        if (frame.current) {
+            observer.observe(frame.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    const peak = Math.max(4, ...activity.flatMap((month) => [month.enquiries, month.applications]));
+    const ceiling = Math.ceil(peak / 4) * 4;
+    const x = (index: number) => left + (index * (width - left - right)) / Math.max(1, activity.length - 1);
+    const y = (value: number) => top + (1 - value / ceiling) * (height - top - bottom);
+    const series = (key: 'enquiries' | 'applications') => activity.map((month, index): [number, number] => [x(index), y(month[key])]);
+    const area = (points: [number, number][]) => `${curve(points, y(0))} L${x(activity.length - 1)},${y(0)} L${x(0)},${y(0)} Z`;
+    const monthName = (month: string) => new Intl.DateTimeFormat('en-GB', { month: 'short' }).format(new Date(`${month}-01T12:00:00`)).toUpperCase();
+    const enquiries = series('enquiries');
+    const applications = series('applications');
+
     return (
-        <div className="flex flex-col items-center px-6 py-10 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-500">
-                <Icon className="h-5 w-5" />
-            </span>
-            <p className="mt-3 max-w-sm text-sm text-zinc-500">{children}</p>
+        <div ref={frame}>
+        <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full" role="img" aria-label="Enquiries and applications in the last six months">
+            <defs>
+                <linearGradient id={`${id}-enquiries`} x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#2d6495" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="#2d6495" stopOpacity="0.04" />
+                </linearGradient>
+                <linearGradient id={`${id}-applications`} x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#9fc2e0" stopOpacity="0.55" />
+                    <stop offset="100%" stopColor="#9fc2e0" stopOpacity="0.04" />
+                </linearGradient>
+            </defs>
+            {[0, 1, 2, 3, 4].map((tick) => (
+                <g key={tick}>
+                    <line x1={left} x2={width - right} y1={y((ceiling / 4) * tick)} y2={y((ceiling / 4) * tick)} stroke="#e7e9ec" strokeDasharray={tick === 0 ? undefined : '4 4'} />
+                    <text x={left - 10} y={y((ceiling / 4) * tick) + 4} textAnchor="end" className="fill-[#56687a] text-[12px]">
+                        {(ceiling / 4) * tick}
+                    </text>
+                </g>
+            ))}
+            {activity.map((month, index) => (
+                <text key={month.month} x={x(index)} y={height - 6} textAnchor="middle" className="fill-[#56687a] text-[12px] tracking-wider">
+                    {monthName(month.month)}
+                </text>
+            ))}
+            <path d={area(applications)} fill={`url(#${id}-applications)`} />
+            <path d={curve(applications, y(0))} fill="none" stroke="#9fc2e0" strokeWidth="2" />
+            <path d={area(enquiries)} fill={`url(#${id}-enquiries)`} />
+            <path d={curve(enquiries, y(0))} fill="none" stroke="#2d6495" strokeWidth="2.5" />
+            {enquiries.map(([pointX, pointY], index) => (
+                <circle key={index} cx={pointX} cy={pointY} r="4" fill="white" stroke="#2d6495" strokeWidth="2">
+                    <title>{`${monthName(activity[index].month)}: ${activity[index].enquiries} enquiries, ${activity[index].applications} applications`}</title>
+                </circle>
+            ))}
+        </svg>
         </div>
     );
 }
@@ -68,220 +143,221 @@ function Empty({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode
 export default function Dashboard({
     stats,
     checklist,
-    pageCount,
-    sectionCount,
-    editedCount,
+    activity,
+    summary,
     recentMessages,
     recentSubmissions,
-    recentEdits,
 }: {
     stats: Stat[];
     checklist: Step[];
-    pageCount: number;
-    sectionCount: number;
-    editedCount: number;
+    activity: Month[];
+    summary: Count[];
     recentMessages: MessageSummary[];
     recentSubmissions: SubmissionSummary[];
-    recentEdits: Edit[];
 }) {
-    const { auth, schoolName } = usePage<SharedProps>().props;
     const admin = useAdminUrl();
     const doneCount = checklist.filter((step) => step.done).length;
-    const inboxEmpty = recentMessages.length === 0 && recentSubmissions.length === 0;
+    const quiet = activity.every((month) => month.enquiries === 0 && month.applications === 0);
     const viewAll = (path: string) => (
-        <Link href={admin(path)} className="-my-2 py-2.5 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+        <Link href={admin(path)} className="text-sm font-medium text-[var(--admin-primary)] hover:underline">
             View all
         </Link>
     );
 
     return (
         <AdminLayout
-            title={auth.user ? `Welcome back, ${auth.user.name}` : 'Dashboard'}
-            description={`What is happening with ${schoolName}’s website.`}
+            title="Dashboard"
+            description="What is happening on your website."
             actions={
-                <Link href={admin('/content')} className={buttonClass.primary}>
-                    <PenLine className="h-4 w-4" /> Edit content
-                </Link>
+                <>
+                    {quickActions.map((action) => {
+                        const Icon = action.icon;
+
+                        return (
+                            <Link key={action.key} href={admin(`/content/${action.key}?add=1`)} className={`${buttonClass.secondary} max-sm:basis-[calc(50%-0.375rem)] max-sm:px-2`}>
+                                <Icon className="h-4 w-4" strokeWidth={1.75} /> {action.label}
+                            </Link>
+                        );
+                    })}
+                    <Link href={admin('/content')} className={`${buttonClass.primary} max-sm:w-full`}>
+                        <PenLine className="h-4 w-4" /> Edit content
+                    </Link>
+                </>
             }
         >
-            {doneCount < checklist.length && (
-                <section className="mb-6 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-                    <div className="flex flex-wrap items-end justify-between gap-3">
-                        <div>
-                            <h2 className="text-base font-semibold">Get your website ready</h2>
-                            <p className="mt-1 text-sm text-zinc-500">The things visitors look for first. Each one takes a minute or two.</p>
+            <div className="space-y-6 lg:space-y-8">
+                {doneCount < checklist.length && (
+                    <Card
+                        title="Get your website ready"
+                        actions={
+                            <span className="text-sm font-medium text-[var(--admin-muted)]">
+                                {doneCount} of {checklist.length} done
+                            </span>
+                        }
+                    >
+                        <div className="-mt-2 mb-5 h-2 overflow-hidden rounded-full bg-[#eef0f3]" role="progressbar" aria-label="Website setup" aria-valuemin={0} aria-valuemax={checklist.length} aria-valuenow={doneCount}>
+                            <div className="h-full rounded-full bg-[#31b057] transition-all" style={{ width: `${(doneCount / checklist.length) * 100}%` }} />
                         </div>
-                        <p className="text-sm font-medium text-zinc-600">
-                            {doneCount} of {checklist.length} done
-                        </p>
-                    </div>
-                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-100" role="progressbar" aria-label="Website setup" aria-valuemin={0} aria-valuemax={checklist.length} aria-valuenow={doneCount}>
-                        <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${(doneCount / checklist.length) * 100}%` }} />
-                    </div>
-                    <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                        {checklist.map((step) => (
-                            <li key={step.key} className={step.done ? 'hidden sm:block' : undefined}>
-                                <Link
-                                    href={admin(`/content/${step.section}`)}
-                                    className={`flex min-h-11 items-center gap-3 rounded-lg border px-3.5 py-2.5 text-sm transition ${step.done ? 'border-zinc-100 text-zinc-500 hover:bg-zinc-50' : 'border-zinc-200 font-medium hover:border-zinc-300 hover:bg-zinc-50'}`}
-                                >
-                                    {step.done ? <CircleCheck className="h-5 w-5 shrink-0 text-emerald-500" /> : <Circle className="h-5 w-5 shrink-0 text-zinc-300" />}
-                                    <span className="flex-1">
-                                        {step.label}
-                                        {step.done && <span className="sr-only"> (done)</span>}
-                                    </span>
-                                    {!step.done && <ChevronRight className="h-4 w-4 shrink-0 text-zinc-400" />}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            )}
+                        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                            {checklist.map((step) => (
+                                <li key={step.key} className={step.done ? 'hidden sm:block' : undefined}>
+                                    <Link
+                                        href={admin(`/content/${step.section}`)}
+                                        className={`flex min-h-12 items-center gap-3 rounded-[12px] border px-4 py-3 text-sm transition ${step.done ? 'border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[#f8fbfc]' : 'border-[var(--admin-border)] font-medium text-[var(--admin-heading)] hover:border-[var(--admin-primary)] hover:bg-[var(--admin-primary-soft)]'}`}
+                                    >
+                                        {step.done ? <CircleCheck className="h-5 w-5 shrink-0 text-[#31b057]" /> : <Circle className="h-5 w-5 shrink-0 text-[#c5ccd5]" />}
+                                        <span className="flex-1">
+                                            {step.label}
+                                            {step.done && <span className="sr-only"> (done)</span>}
+                                        </span>
+                                        {!step.done && <ChevronRight className="h-4 w-4 shrink-0 text-[var(--admin-muted)]" />}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </Card>
+                )}
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-                {stats.map((stat) => {
-                    const style = statStyles[stat.key] ?? statStyles.messages;
-                    const Icon = style.icon;
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {stats.map((stat) => {
+                        const style = statStyles[stat.key] ?? statStyles.messages;
 
-                    return (
-                        <Link key={stat.key} href={admin(style.path)} className="group flex flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow sm:p-5">
-                            <div className="flex items-start justify-between gap-3">
-                                <p className="text-sm font-medium text-zinc-500">{stat.label}</p>
-                                <span className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:flex ${style.tint}`}>
-                                    <Icon className="h-4 w-4" />
+                        return (
+                            <Link key={stat.key} href={admin(style.path)} className="flex min-h-[110px] items-center gap-4 rounded-[20px] border border-[var(--admin-border)] bg-white px-5 py-4 transition hover:border-[var(--admin-primary)] hover:shadow-[0_16px_22px_rgba(0,0,0,0.05)]">
+                                <IconTile icon={style.icon} tone={style.tone} />
+                                <span className="min-w-0 leading-tight">
+                                    <span className="block text-sm font-light tracking-tight text-[#111827]">{stat.label}</span>
+                                    <span className="mt-1 block text-2xl font-semibold tabular-nums tracking-tight text-[#111827]">{statValue(stat)}</span>
+                                    <span className="mt-1 block truncate text-xs font-medium text-[var(--admin-muted)]">{stat.hint}</span>
                                 </span>
-                            </div>
-                            <p className="mt-2 text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">{statValue(stat)}</p>
-                            <p className="mt-auto flex items-center gap-1 pt-3 text-xs font-medium text-zinc-600 group-hover:text-zinc-900 sm:text-sm">
-                                {style.link} <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-                            </p>
-                        </Link>
-                    );
-                })}
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
-                <div className="space-y-6 xl:col-span-2">
-                    {inboxEmpty ? (
-                        <Panel title="Inbox">
-                            <Empty icon={Inbox}>No enquiries or applications yet. Messages and forms sent from the website appear here, and the menu shows how many are new.</Empty>
-                        </Panel>
-                    ) : (
-                        <>
-                            <Panel title="Recent enquiries" action={viewAll('/messages')}>
-                                {recentMessages.length === 0 ? (
-                                    <Empty icon={Mail}>No enquiries yet. Messages sent from the website’s contact form appear here.</Empty>
-                                ) : (
-                                    <ul className="divide-y divide-zinc-100">
-                                        {recentMessages.map((message) => (
-                                            <li key={message.id}>
-                                                <Link href={admin('/messages')} className="flex items-center gap-4 px-5 py-3.5 transition hover:bg-zinc-50">
-                                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-700">{message.name.slice(0, 1).toUpperCase()}</span>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className={`flex items-center gap-2 truncate text-sm ${message.read_at ? 'text-zinc-700' : 'font-semibold'}`}>
-                                                            {!message.read_at && (
-                                                                <>
-                                                                    <span className="h-2 w-2 shrink-0 rounded-full bg-blue-600" aria-hidden="true" />
-                                                                    <span className="sr-only">Unread:</span>
-                                                                </>
-                                                            )}
-                                                            {message.name}
-                                                        </p>
-                                                        <p className="truncate text-sm text-zinc-500">{message.subject}</p>
-                                                    </div>
-                                                    <time dateTime={message.created_at} className="shrink-0 text-xs text-zinc-500">
-                                                        {formatDate(message.created_at)}
-                                                    </time>
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </Panel>
-                            <Panel title="Recent applications" action={viewAll('/submissions')}>
-                                {recentSubmissions.length === 0 ? (
-                                    <Empty icon={Inbox}>No applications yet. Admission and other forms sent from the website appear here.</Empty>
-                                ) : (
-                                    <ul className="divide-y divide-zinc-100">
-                                        {recentSubmissions.map((submission) => (
-                                            <li key={submission.id}>
-                                                <Link href={admin(`/submissions/${submission.id}`)} className="flex items-center gap-4 px-5 py-3.5 transition hover:bg-zinc-50">
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className={`truncate text-sm ${submission.reviewed_at ? 'text-zinc-700' : 'font-semibold'}`}>{submission.name}</p>
-                                                        <p className="truncate text-sm text-zinc-500">
-                                                            {submission.form} · {submission.reference}
-                                                        </p>
-                                                    </div>
-                                                    <StatusBadge status={submission.status} />
-                                                    <time dateTime={submission.created_at} className="hidden shrink-0 text-xs text-zinc-500 sm:block">
-                                                        {formatDate(submission.created_at)}
-                                                    </time>
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </Panel>
-                        </>
-                    )}
-                    <Panel title="Recently edited" action={viewAll('/content')}>
-                        {recentEdits.length === 0 ? (
-                            <Empty icon={PenLine}>Nothing edited yet. The website shows its original content until you change it here.</Empty>
-                        ) : (
-                            <ul className="divide-y divide-zinc-100">
-                                {recentEdits.map((edit) => (
-                                    <li key={`${edit.locale}:${edit.key}`}>
-                                        <Link href={admin(`/content/${edit.key}${edit.locale ? `?locale=${edit.locale}` : ''}`)} className="flex items-center justify-between gap-3 px-5 py-3 text-sm transition hover:bg-zinc-50">
-                                            <span className="flex min-w-0 items-center gap-2">
-                                                <span className="truncate font-medium">{edit.label}</span>
-                                                {edit.locale && <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs font-medium uppercase text-zinc-600">{edit.locale}</span>}
-                                            </span>
-                                            <time dateTime={edit.updatedAt} className="shrink-0 text-xs text-zinc-500">
-                                                {formatDate(edit.updatedAt)}
-                                            </time>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </Panel>
+                            </Link>
+                        );
+                    })}
                 </div>
 
-                <div className="order-first space-y-6 xl:order-none">
-                    <Panel title="Quick actions">
-                        <div className="grid grid-cols-2 gap-3 p-4">
-                            {quickActions.map((action) => {
-                                const Icon = action.icon;
+                <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8">
+                    <Card
+                        title="Overview"
+                        actions={
+                            <span className="flex items-center gap-4 text-sm text-[#19213d]">
+                                <span className="flex items-center gap-2">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#2d6495]" /> Enquiries
+                                </span>
+                                <span className="flex items-center gap-2">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#9fc2e0]" /> Applications
+                                </span>
+                            </span>
+                        }
+                    >
+                        <ActivityChart activity={activity} />
+                        {quiet && <p className="mt-2 text-center text-sm text-[var(--admin-muted)]">Nothing received yet. Enquiries and applications sent from the website will show here month by month.</p>}
+                    </Card>
+                    <Card title="Website at a glance">
+                        <ul className="-my-2 divide-y divide-[var(--admin-border)]">
+                            {summary.map((item) => {
+                                const style = summaryStyles[item.key] ?? summaryStyles.pages;
 
                                 return (
-                                    <Link
-                                        key={action.key}
-                                        href={admin(`/content/${action.key}?add=1`)}
-                                        className="flex flex-col items-start gap-3 rounded-lg border border-zinc-200 p-3.5 text-sm font-medium transition hover:border-zinc-300 hover:bg-zinc-50"
-                                    >
-                                        <Icon className="h-5 w-5 text-zinc-500" />
-                                        {action.label}
-                                    </Link>
+                                    <li key={item.key}>
+                                        <Link href={admin(style.path)} className="flex items-center gap-3 py-3 text-base text-[var(--admin-heading)] transition hover:text-[var(--admin-primary)]">
+                                            <IconTile icon={style.icon} tone={style.tone} size="sm" />
+                                            <span className="flex-1">{item.label}</span>
+                                            <span className="font-semibold tabular-nums">{item.value.toLocaleString('en-IN')}</span>
+                                        </Link>
+                                    </li>
                                 );
                             })}
-                        </div>
-                    </Panel>
-                    <Panel title="Website" action={viewAll('/website')}>
-                        <dl className="grid grid-cols-2 divide-x divide-zinc-100">
-                            <div className="px-5 py-4">
-                                <dt className="text-xs font-medium text-zinc-500">Pages</dt>
-                                <dd className="mt-1 text-2xl font-semibold tabular-nums">{pageCount}</dd>
-                            </div>
-                            <div className="px-5 py-4">
-                                <dt className="text-xs font-medium text-zinc-500">Sections edited</dt>
-                                <dd className="mt-1 text-2xl font-semibold tabular-nums">
-                                    {editedCount}
-                                    <span className="text-base font-normal text-zinc-500"> / {sectionCount}</span>
-                                </dd>
-                            </div>
-                        </dl>
-                    </Panel>
+                        </ul>
+                    </Card>
                 </div>
+
+                <Card title="Recent enquiries" actions={viewAll('/messages')} padded={false}>
+                    {recentMessages.length === 0 ? (
+                        <EmptyState icon={Mail} title="No enquiries yet">
+                            Messages sent from the website’s contact form appear here.
+                        </EmptyState>
+                    ) : (
+                        <div className={`${table.wrap} pb-3`}>
+                            <table className={table.table}>
+                                <thead className={table.head}>
+                                    <tr>
+                                        <th className={table.th}>Name</th>
+                                        <th className={table.th}>Subject</th>
+                                        <th className={table.th}>Status</th>
+                                        <th className={table.th}>Received</th>
+                                        <th className={`${table.th} text-right`}>
+                                            <span className="sr-only">Open</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentMessages.map((message) => (
+                                        <tr key={message.id} className={table.row}>
+                                            <td className={table.td}>
+                                                <span className="flex items-center gap-3">
+                                                    <Avatar name={message.name} />
+                                                    <span className={message.read_at ? '' : 'font-medium text-[var(--admin-heading)]'}>{message.name}</span>
+                                                </span>
+                                            </td>
+                                            <td className={`${table.td} max-w-[18rem] truncate`}>{message.subject}</td>
+                                            <td className={table.td}>{messageStatus(message)}</td>
+                                            <td className={`${table.td} whitespace-nowrap`}>{formatDate(message.created_at)}</td>
+                                            <td className={`${table.td} text-right`}>
+                                                <IconLink href={admin('/messages')} label={`Open the message from ${message.name}`} icon={Eye} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
+
+                <Card title="Recent applications" actions={viewAll('/submissions')} padded={false}>
+                    {recentSubmissions.length === 0 ? (
+                        <EmptyState icon={Inbox} title="No applications yet">
+                            Admission and other forms sent from the website appear here.
+                        </EmptyState>
+                    ) : (
+                        <div className={`${table.wrap} pb-3`}>
+                            <table className={table.table}>
+                                <thead className={table.head}>
+                                    <tr>
+                                        <th className={table.th}>Reference</th>
+                                        <th className={table.th}>Name</th>
+                                        <th className={table.th}>Form</th>
+                                        <th className={table.th}>Status</th>
+                                        <th className={table.th}>Received</th>
+                                        <th className={`${table.th} text-right`}>
+                                            <span className="sr-only">Open</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentSubmissions.map((submission) => (
+                                        <tr key={submission.id} className={table.row}>
+                                            <td className={`${table.td} whitespace-nowrap font-medium text-[var(--admin-heading)]`}>{submission.reference}</td>
+                                            <td className={table.td}>
+                                                <span className="flex items-center gap-3">
+                                                    <Avatar name={submission.name} />
+                                                    <span className={submission.reviewed_at ? '' : 'font-medium text-[var(--admin-heading)]'}>{submission.name}</span>
+                                                </span>
+                                            </td>
+                                            <td className={table.td}>{submission.form}</td>
+                                            <td className={table.td}>
+                                                <StatusBadge status={submission.status} />
+                                            </td>
+                                            <td className={`${table.td} whitespace-nowrap`}>{formatDate(submission.created_at)}</td>
+                                            <td className={`${table.td} text-right`}>
+                                                <IconLink href={admin(`/submissions/${submission.id}`)} label={`Open ${submission.reference}`} icon={Eye} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
             </div>
         </AdminLayout>
     );

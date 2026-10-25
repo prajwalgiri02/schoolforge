@@ -46,29 +46,29 @@ function MediaPicker({ kind, onPick, onClose }: { kind: LibraryItem['kind']; onP
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
             <div role="dialog" aria-modal="true" aria-label="Media library" className="flex max-h-[80vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl" onClick={(event) => event.stopPropagation()}>
-                <div className="flex items-center gap-3 border-b border-zinc-200 p-4">
+                <div className="flex items-center gap-3 border-b border-[var(--admin-border,#e4e4e7)] p-4">
                     <div className="relative flex-1">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--admin-muted,#a1a1aa)]" />
                         <input autoFocus type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search uploads" aria-label="Search uploads" className={`${inputClass} pl-9`} />
                     </div>
-                    <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100">
+                    <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-2 text-[var(--admin-muted,#71717a)] hover:bg-zinc-100">
                         <X className="h-5 w-5" />
                     </button>
                 </div>
                 <div className="overflow-y-auto p-4">
                     {items === null ? (
-                        <p className="py-10 text-center text-sm text-zinc-500">Loading…</p>
+                        <p className="py-10 text-center text-sm text-[var(--admin-muted,#71717a)]">Loading…</p>
                     ) : shown.length === 0 ? (
-                        <p className="py-10 text-center text-sm text-zinc-500">{items.length === 0 ? `No ${kind === 'image' ? 'images' : 'documents'} uploaded yet.` : 'Nothing matches your search.'}</p>
+                        <p className="py-10 text-center text-sm text-[var(--admin-muted,#71717a)]">{items.length === 0 ? `No ${kind === 'image' ? 'images' : 'documents'} uploaded yet.` : 'Nothing matches your search.'}</p>
                     ) : (
                         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             {shown.map((item) => (
                                 <li key={item.url}>
-                                    <button type="button" onClick={() => onPick(item.url)} className="group w-full overflow-hidden rounded-lg border border-zinc-200 text-left hover:border-zinc-900 focus-visible:outline-2 focus-visible:outline-zinc-900">
+                                    <button type="button" onClick={() => onPick(item.url)} className="group w-full overflow-hidden rounded-lg border border-[var(--admin-border,#e4e4e7)] text-left hover:border-zinc-900 focus-visible:outline-2 focus-visible:outline-zinc-900">
                                         <span className="flex aspect-[4/3] items-center justify-center bg-zinc-100">
-                                            {item.kind === 'image' ? <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover" /> : <FileText className="h-8 w-8 text-zinc-400" />}
+                                            {item.kind === 'image' ? <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover" /> : <FileText className="h-8 w-8 text-[var(--admin-muted,#a1a1aa)]" />}
                                         </span>
-                                        <span className="block truncate px-2 py-1.5 text-xs text-zinc-600 group-hover:text-zinc-900">{item.name}</span>
+                                        <span className="block truncate px-2 py-1.5 text-xs text-[var(--admin-muted,#52525b)] group-hover:text-[var(--admin-heading,#18181b)]">{item.name}</span>
                                     </button>
                                 </li>
                             ))}
@@ -95,7 +95,7 @@ function errorFor(errors: Errors, path: string): string | undefined {
 
 function Label({ field, htmlFor }: { field: FieldDefinition; htmlFor?: string }) {
     return (
-        <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-zinc-800">
+        <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-medium text-[var(--admin-heading,#27272a)]">
             {field.label}
             {field.required && <span className="text-red-500"> *</span>}
         </label>
@@ -107,7 +107,7 @@ function Help({ field, error }: { field: FieldDefinition; error?: string }) {
         return <p className="mt-1.5 text-sm text-red-600">{error}</p>;
     }
 
-    return field.help ? <p className="mt-1.5 text-xs text-zinc-500">{field.help}</p> : null;
+    return field.help ? <p className="mt-1.5 text-xs text-[var(--admin-muted,#71717a)]">{field.help}</p> : null;
 }
 
 /**
@@ -161,13 +161,13 @@ function ImageInput({ id, value, onChange, document = false }: { id: string; val
 
     return (
         <div className="flex items-start gap-4">
-            <div className="flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-zinc-300 bg-zinc-100">
+            <div className="flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-[var(--admin-border,#d4d4d8)] bg-zinc-100">
                 {document ? (
-                    <FileText className={`h-7 w-7 ${src ? 'text-zinc-700' : 'text-zinc-400'}`} />
+                    <FileText className={`h-7 w-7 ${src ? 'text-[var(--admin-text,#3f3f46)]' : 'text-[var(--admin-muted,#a1a1aa)]'}`} />
                 ) : src ? (
                     <img src={src} alt="" className="h-full w-full object-cover" />
                 ) : (
-                    <ImageUp className="h-6 w-6 text-zinc-400" />
+                    <ImageUp className="h-6 w-6 text-[var(--admin-muted,#a1a1aa)]" />
                 )}
             </div>
             <div className="flex-1 space-y-2">
@@ -211,8 +211,8 @@ export function Field({ field, value, onChange, path, errors, icons }: FieldProp
         case 'boolean':
             return (
                 <div>
-                    <label className="flex items-center gap-3 text-sm font-medium text-zinc-800">
-                        <input type="checkbox" checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} className="h-4 w-4 rounded border-zinc-300" />
+                    <label className="flex items-center gap-3 text-sm font-medium text-[var(--admin-heading,#27272a)]">
+                        <input type="checkbox" checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} className="h-4 w-4 rounded border-[var(--admin-border,#d4d4d8)]" />
                         {field.label}
                     </label>
                     <Help field={field} error={error} />
@@ -264,7 +264,7 @@ export function Field({ field, value, onChange, path, errors, icons }: FieldProp
 
             return (
                 <fieldset>
-                    <legend className="mb-1.5 text-sm font-medium text-zinc-800">{field.label}</legend>
+                    <legend className="mb-1.5 text-sm font-medium text-[var(--admin-heading,#27272a)]">{field.label}</legend>
                     <div className="grid gap-3 sm:grid-cols-2">
                         <input aria-label={`${field.label} text`} placeholder="Button text" value={link.label ?? ''} onChange={(event) => onChange({ ...link, label: event.target.value })} className={inputClass} />
                         <input aria-label={`${field.label} link`} placeholder="/admissions or https://…" value={link.href ?? ''} onChange={(event) => onChange({ ...link, href: event.target.value })} className={inputClass} />
@@ -276,7 +276,7 @@ export function Field({ field, value, onChange, path, errors, icons }: FieldProp
         case 'items':
             return (
                 <fieldset>
-                    <legend className="mb-2 text-sm font-medium text-zinc-800">{field.label}</legend>
+                    <legend className="mb-2 text-sm font-medium text-[var(--admin-heading,#27272a)]">{field.label}</legend>
                     <ItemList fields={field.fields ?? []} itemLabel={field.fields?.find((child) => child.type === 'text')?.name} value={Array.isArray(value) ? (value as Item[]) : []} onChange={onChange} path={path} errors={errors} icons={icons} compact />
                     <Help field={field} />
                 </fieldset>
@@ -355,17 +355,17 @@ export function ItemList({
                 const hasError = Boolean(errorFor(errors, `${path}.${index}`));
 
                 return (
-                    <div key={keys.current[index]} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-zinc-200'} ${compact ? 'p-4' : 'p-5 shadow-sm'}`}>
+                    <div key={keys.current[index]} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-[var(--admin-border,#e4e4e7)]'} ${compact ? 'p-4' : 'p-5 shadow-sm'}`}>
                         <div className="mb-4 flex items-center justify-between gap-3">
-                            <p className="truncate text-sm font-semibold text-zinc-700">
-                                <span className="mr-2 text-zinc-400">{index + 1}.</span>
+                            <p className="truncate text-sm font-semibold text-[var(--admin-text,#3f3f46)]">
+                                <span className="mr-2 text-[var(--admin-muted,#a1a1aa)]">{index + 1}.</span>
                                 {heading}
                             </p>
                             <div className="flex shrink-0 items-center gap-1">
-                                <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => move(index, index - 1)} className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30">
+                                <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => move(index, index - 1)} className="rounded-md p-1.5 text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30">
                                     <ArrowUp className="h-4 w-4" />
                                 </button>
-                                <button type="button" aria-label="Move down" disabled={index === value.length - 1} onClick={() => move(index, index + 1)} className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 disabled:opacity-30">
+                                <button type="button" aria-label="Move down" disabled={index === value.length - 1} onClick={() => move(index, index + 1)} className="rounded-md p-1.5 text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30">
                                     <ArrowDown className="h-4 w-4" />
                                 </button>
                                 <button type="button" aria-label="Remove" onClick={() => removeAt(index)} className="rounded-md p-1.5 text-red-500 hover:bg-red-50">

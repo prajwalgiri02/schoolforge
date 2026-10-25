@@ -27,6 +27,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'schoolName' => fn () => app(SchoolSite::class)->schoolName(),
+            'schoolLogo' => fn () => app(SchoolSite::class)->data()['school']['logo'] ?? null,
             'auth' => [
                 'user' => fn () => $request->user() ? [
                     ...$request->user()->only('id', 'name', 'email'),

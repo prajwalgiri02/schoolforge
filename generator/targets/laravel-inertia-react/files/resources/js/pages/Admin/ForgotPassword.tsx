@@ -17,7 +17,7 @@ export default function ForgotPassword({ schoolName }: { schoolName: string }) {
         <AuthCard schoolName={schoolName} title="Forgot password" subtitle="We will email you a link to choose a new password" footer={<Link href={admin('/login')}>Back to sign in</Link>}>
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
+                    <label htmlFor="email" className="mb-1.5 block text-sm text-[var(--admin-muted)]">
                         Email
                     </label>
                     <input id="email" type="email" autoComplete="email" autoFocus value={form.data.email} onChange={(event) => form.setData('email', event.target.value)} className={inputClass} />

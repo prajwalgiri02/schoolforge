@@ -1,20 +1,32 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BellRing, ChevronRight, CircleCheck, ExternalLink, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, PanelsTopLeft, UserCog, Users, X, type LucideIcon } from 'lucide-react';
+import { Bell, ChevronLeft, CircleCheck, ExternalLink, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Megaphone, PanelsTopLeft, UserCog, Users, X, type LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
+import { AdminFont, Avatar, adminTheme, fontClass } from './ui';
 import { useAdminUrl, useSiteUrl } from './urls';
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number; exact?: boolean };
 
+const COLLAPSED_KEY = 'admin-sidebar-collapsed';
+
 export function AdminLayout({ title, description, actions, children }: { title: string; description?: string; actions?: ReactNode; children: ReactNode }) {
-    const { auth, flash, inbox, schoolName } = usePage<SharedProps>().props;
+    const { auth, flash, inbox, schoolName, schoolLogo } = usePage<SharedProps>().props;
     const url = usePage().url;
     const admin = useAdminUrl();
     const siteUrl = useSiteUrl();
     const [notice, setNotice] = useState<string | null>(flash.success ?? null);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
     const menuButton = useRef<HTMLButtonElement>(null);
     const closeButton = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        try {
+            setCollapsed(window.localStorage.getItem(COLLAPSED_KEY) === '1');
+        } catch {
+            // Storage can be unavailable (private windows); the sidebar then starts expanded.
+        }
+    }, []);
 
     useEffect(() => {
         setNotice(flash.success ?? null);
@@ -45,155 +57,163 @@ export function AdminLayout({ title, description, actions, children }: { title: 
         };
     }, [menuOpen]);
 
-    const groups: { title?: string; items: NavItem[] }[] = [
-        { items: [{ href: admin(), label: 'Dashboard', icon: LayoutDashboard, exact: true }] },
-        {
-            title: 'Website',
-            items: [
-                { href: admin('/content'), label: 'Content', icon: FileText },
-                { href: admin('/website'), label: 'Pages & design', icon: PanelsTopLeft },
-            ],
-        },
-        {
-            title: 'Inbox',
-            items: [
-                { href: admin('/messages'), label: 'Messages', icon: Mail, badge: inbox?.messages },
-                { href: admin('/submissions'), label: 'Applications', icon: Inbox, badge: inbox?.submissions },
-            ],
-        },
-        {
-            title: 'Manage',
-            items: [
-                ...(auth.user?.isAdmin
-                    ? [
-                          { href: admin('/alerts'), label: 'Email alerts', icon: BellRing },
-                          { href: admin('/staff'), label: 'Staff', icon: Users },
-                      ]
-                    : []),
-                { href: admin('/account'), label: 'Your account', icon: UserCog },
-            ],
-        },
+    const toggleCollapsed = () => {
+        setCollapsed((value) => {
+            try {
+                window.localStorage.setItem(COLLAPSED_KEY, value ? '0' : '1');
+            } catch {
+                // Not remembered; it still collapses for this page.
+            }
+
+            return !value;
+        });
+    };
+
+    const items: NavItem[] = [
+        { href: admin(), label: 'Dashboard', icon: LayoutDashboard, exact: true },
+        { href: admin('/content'), label: 'Content', icon: FileText },
+        { href: admin('/website'), label: 'Pages & design', icon: PanelsTopLeft },
+        { href: admin('/messages'), label: 'Messages', icon: Mail, badge: inbox?.messages },
+        { href: admin('/submissions'), label: 'Applications', icon: Inbox, badge: inbox?.submissions },
+        ...(auth.user?.isAdmin
+            ? [
+                  { href: admin('/alerts'), label: 'Email alerts', icon: Megaphone },
+                  { href: admin('/staff'), label: 'Staff', icon: Users },
+              ]
+            : []),
+        { href: admin('/account'), label: 'Your account', icon: UserCog },
     ];
 
     const path = url.split('?')[0];
     const isActive = (item: NavItem) => (item.exact ? path === item.href : path === item.href || path.startsWith(`${item.href}/`));
-    const current = groups.flatMap((group) => group.items).find(isActive);
-    const crumbs = [current?.label, !current || path !== current.href ? title : null].filter((crumb): crumb is string => Boolean(crumb));
-    const initials = (auth.user?.name ?? '')
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0].toUpperCase())
-        .join('');
+    const newCount = (inbox?.messages ?? 0) + (inbox?.submissions ?? 0);
+    const narrow = collapsed && !menuOpen;
+    const itemClass = `flex min-h-11 w-full items-center gap-4 rounded-[10px] px-4 text-base transition ${narrow ? 'lg:justify-center lg:px-0' : ''}`;
 
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased lg:flex">
+        <div style={adminTheme} className={`min-h-screen bg-[var(--admin-canvas)] text-[var(--admin-text)] antialiased lg:flex ${fontClass}`}>
             <Head title={`${title} · Admin`} />
-            {menuOpen && <div className="fixed inset-0 z-40 bg-zinc-900/40 lg:hidden" onClick={() => setMenuOpen(false)} />}
+            <AdminFont />
+            {menuOpen && <div className="fixed inset-0 z-40 bg-[#0e2741]/40 lg:hidden" onClick={() => setMenuOpen(false)} />}
             <aside
                 id="admin-menu"
-                className={`${menuOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] flex-col border-r border-zinc-200 bg-white lg:sticky lg:top-[var(--admin-top,0px)] lg:z-auto lg:flex lg:h-[calc(100vh_-_var(--admin-top,0px))] lg:w-64 lg:max-w-none lg:shrink-0`}
+                className={`${menuOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-50 w-[272px] max-w-[85vw] flex-col bg-white lg:sticky lg:top-[var(--admin-top,0px)] lg:z-40 lg:flex lg:h-[calc(100vh_-_var(--admin-top,0px))] lg:max-w-none lg:shrink-0 ${narrow ? 'lg:w-[88px]' : ''}`}
             >
-                <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-zinc-100 px-4">
+                <button
+                    type="button"
+                    onClick={toggleCollapsed}
+                    aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
+                    title={collapsed ? 'Expand menu' : 'Collapse menu'}
+                    className="absolute -right-3 top-[33px] z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-[var(--admin-border)] bg-white text-[var(--admin-muted)] shadow-sm transition hover:text-[var(--admin-heading)] lg:flex"
+                >
+                    <ChevronLeft className={`h-3.5 w-3.5 transition ${collapsed ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`flex shrink-0 items-center gap-3 px-6 pb-8 pt-7 ${narrow ? 'lg:justify-center lg:px-0' : ''}`}>
                     <Link href={admin()} className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-sm font-semibold text-white">{schoolName.slice(0, 1)}</span>
-                        <span className="min-w-0">
-                            <span className="block truncate text-sm font-semibold">{schoolName}</span>
-                            <span className="block text-xs text-zinc-500">Admin panel</span>
+                        {schoolLogo ? (
+                            <img src={schoolLogo} alt="" className="h-12 w-12 shrink-0 rounded-[10px] object-contain" />
+                        ) : (
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[var(--admin-primary)] text-lg font-semibold text-white">{schoolName.slice(0, 1)}</span>
+                        )}
+                        <span className={`min-w-0 ${narrow ? 'lg:hidden' : ''}`}>
+                            <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--admin-heading)]">{schoolName}</span>
+                            <span className="block text-xs text-[var(--admin-muted)]">Admin panel</span>
                         </span>
                     </Link>
-                    <button ref={closeButton} type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" className="flex h-11 w-11 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 lg:hidden">
-                        <X className="h-4 w-4" />
+                    <button ref={closeButton} type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" className="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[var(--admin-muted)] hover:bg-[#eef0f3] lg:hidden">
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
-                <nav aria-label="Admin" className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-                    {groups.map((group, index) => (
-                        <div key={group.title ?? index}>
-                            {group.title && <p className="mb-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">{group.title}</p>}
-                            <ul className="space-y-0.5">
-                                {group.items.map((item) => {
-                                    const active = isActive(item);
-                                    const Icon = item.icon;
+                <nav aria-label="Admin" className={`flex-1 overflow-y-auto px-5 pb-6 ${narrow ? 'lg:px-4' : ''}`}>
+                    <ul className="space-y-2">
+                        {items.map((item) => {
+                            const active = isActive(item);
+                            const Icon = item.icon;
 
-                                    return (
-                                        <li key={item.href}>
-                                            <Link
-                                                href={item.href}
-                                                aria-current={active ? 'page' : undefined}
-                                                className={`group flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition lg:min-h-9 ${active ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'}`}
-                                            >
-                                                <Icon className={`h-4 w-4 shrink-0 ${active ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-600'}`} />
-                                                <span className="truncate">{item.label}</span>
-                                                {item.badge ? <span className="ml-auto rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold tabular-nums text-blue-700">{item.badge}</span> : null}
-                                            </Link>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-                    ))}
+                            return (
+                                <li key={item.href}>
+                                    <Link
+                                        href={item.href}
+                                        aria-current={active ? 'page' : undefined}
+                                        title={narrow ? item.label : undefined}
+                                        className={`${itemClass} relative ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[#f3f6f9] hover:text-[var(--admin-heading)]'}`}
+                                    >
+                                        <Icon className={`h-6 w-6 shrink-0 ${active ? 'text-[var(--admin-primary)]' : ''}`} strokeWidth={1.5} />
+                                        <span className={`truncate ${narrow ? 'lg:sr-only' : ''}`}>{item.label}</span>
+                                        {item.badge ? (
+                                            <span className={`rounded-full bg-[var(--admin-primary)] px-2 py-0.5 text-xs font-semibold tabular-nums text-white ${narrow ? 'lg:absolute lg:right-2 lg:top-1 lg:px-1.5 lg:text-[10px]' : 'ml-auto'}`}>{item.badge}</span>
+                                        ) : null}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                        <li>
+                            <button type="button" onClick={() => router.post(admin('/logout'))} title={narrow ? 'Sign out' : undefined} className={`${itemClass} hover:bg-[#fdf0f2] hover:text-[#d0102b]`}>
+                                <LogOut className="h-6 w-6 shrink-0" strokeWidth={1.5} />
+                                <span className={narrow ? 'lg:sr-only' : ''}>Sign out</span>
+                            </button>
+                        </li>
+                    </ul>
                 </nav>
-                <div className="shrink-0 border-t border-zinc-100 p-3">
-                    <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-700">{initials || '?'}</span>
-                        <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium">{auth.user?.name}</p>
-                            <p className="truncate text-xs text-zinc-500" title={auth.user?.email}>
-                                {auth.user?.email}
-                            </p>
-                        </div>
-                        <button type="button" onClick={() => router.post(admin('/logout'))} title="Sign out" aria-label="Sign out" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 lg:h-9 lg:w-9">
-                            <LogOut className="h-4 w-4" />
-                        </button>
-                    </div>
-                </div>
             </aside>
             <div className="flex min-w-0 flex-1 flex-col" inert={menuOpen}>
-                <header className="sticky top-0 z-30 h-16 shrink-0 border-b border-zinc-200 bg-white/90 backdrop-blur lg:top-[var(--admin-top,0px)]">
-                    <div className="mx-auto flex h-full w-full max-w-[90rem] items-center gap-3 px-4 sm:px-6 lg:px-8">
-                    <button
-                        ref={menuButton}
-                        type="button"
-                        onClick={() => setMenuOpen(true)}
-                        aria-expanded={menuOpen}
-                        aria-controls="admin-menu"
-                        aria-label="Open menu"
-                        className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden"
-                    >
-                        <Menu className="h-5 w-5" />
-                    </button>
-                    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
-                        <span className="hidden truncate text-zinc-500 sm:inline">{schoolName}</span>
-                        {crumbs.map((crumb, index) => (
-                            <span key={crumb} className={`flex min-w-0 items-center gap-2 ${index < crumbs.length - 1 ? 'hidden sm:flex' : ''}`}>
-                                <ChevronRight className="hidden h-4 w-4 shrink-0 text-zinc-300 sm:block" />
-                                <span className={`truncate ${index === crumbs.length - 1 ? 'font-medium text-zinc-900' : 'text-zinc-500'}`}>{crumb}</span>
-                            </span>
-                        ))}
-                    </nav>
-                    <a href={siteUrl} target="_blank" rel="noreferrer" className="ml-auto inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-50 sm:h-9">
-                        <ExternalLink className="h-4 w-4" /> <span className="sr-only sm:not-sr-only">View website</span>
-                    </a>
+                <header className="sticky top-0 z-30 border-b border-[var(--admin-border)] bg-white lg:top-[var(--admin-top,0px)]">
+                    <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:h-[90px] lg:px-[30px]">
+                        <button
+                            ref={menuButton}
+                            type="button"
+                            onClick={() => setMenuOpen(true)}
+                            aria-expanded={menuOpen}
+                            aria-controls="admin-menu"
+                            aria-label="Open menu"
+                            className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[var(--admin-text)] hover:bg-[#eef0f3] lg:hidden"
+                        >
+                            <Menu className="h-6 w-6" strokeWidth={1.5} />
+                        </button>
+                        <div className="min-w-0 flex-1">
+                            <h1 className="truncate text-lg font-semibold text-[var(--admin-heading)] lg:text-2xl">{title}</h1>
+                            {description && <p className="hidden truncate text-sm text-[var(--admin-muted)] lg:block">{description}</p>}
+                        </div>
+                        <a
+                            href={siteUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-[var(--admin-border)] bg-white px-3 text-sm font-medium text-[var(--admin-text)] transition hover:bg-[#f3f6f9] lg:h-12 lg:px-4"
+                        >
+                            <ExternalLink className="h-5 w-5" strokeWidth={1.5} /> <span className="sr-only md:not-sr-only">View website</span>
+                        </a>
+                        <Link
+                            href={admin('/messages')}
+                            aria-label={newCount > 0 ? `Inbox, ${newCount} new` : 'Inbox'}
+                            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--admin-primary)] text-white transition hover:bg-[var(--admin-primary-hover)] lg:h-12 lg:w-12"
+                        >
+                            <Bell className="h-6 w-6" strokeWidth={1.5} />
+                            {newCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f93642] px-1 text-[10px] font-semibold text-white ring-2 ring-white">{newCount}</span>}
+                        </Link>
+                        {auth.user && (
+                            <Link href={admin('/account')} className="hidden shrink-0 items-center gap-3 rounded-[10px] py-1 pl-1 pr-2 transition hover:bg-[#f3f6f9] xl:flex">
+                                <Avatar name={auth.user.name} />
+                                <span className="max-w-[10rem] leading-tight">
+                                    <span className="block truncate text-sm font-medium text-[var(--admin-heading)]">{auth.user.name}</span>
+                                    <span className="block truncate text-xs text-[var(--admin-muted)]" title={auth.user.email}>
+                                        {auth.user.email}
+                                    </span>
+                                </span>
+                            </Link>
+                        )}
                     </div>
                 </header>
-                <main className="flex-1">
-                    <div className="mx-auto w-full max-w-[90rem] px-4 py-8 sm:px-6 lg:px-8">
-                        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-                            <div className="min-w-0">
-                                <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-                                {description && <p className="mt-1 text-sm text-zinc-500">{description}</p>}
-                            </div>
-                            {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
-                        </div>
-                        {children}
-                    </div>
+                <main className="flex-1 px-4 py-6 sm:px-6 lg:px-[30px] lg:py-8">
+                    {description && <p className="-mt-1 mb-5 text-sm text-[var(--admin-muted)] lg:hidden">{description}</p>}
+                    {actions && <div className="mb-6 flex flex-wrap items-center justify-end gap-3">{actions}</div>}
+                    {children}
                 </main>
             </div>
             {notice && (
-                <div role="status" className="fixed bottom-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-xl bg-zinc-900 px-4 py-3 text-sm text-white shadow-lg">
-                    <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                <div role="status" className="fixed bottom-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-[12px] bg-[var(--admin-heading)] px-4 py-3 text-sm text-white shadow-lg">
+                    <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#3cd984]" />
                     <span>{notice}</span>
-                    <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss" className="text-zinc-400 hover:text-white">
+                    <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss" className="text-white/60 hover:text-white">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
@@ -203,10 +223,12 @@ export function AdminLayout({ title, description, actions, children }: { title: 
 }
 
 export const inputClass =
-    'block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10';
+    'block w-full rounded-[10px] border border-[var(--admin-border,#d4d4d8)] bg-white px-3.5 py-2.5 text-sm text-[var(--admin-heading,#18181b)] outline-none transition placeholder:text-[#9aa5b1] focus:border-[var(--admin-primary,#18181b)] focus:ring-2 focus:ring-[var(--admin-primary-soft,#e4e4e7)]';
 
 export const buttonClass = {
-    primary: 'inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-700 disabled:opacity-50',
-    secondary: 'inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:opacity-50',
-    danger: 'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50',
+    primary:
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] bg-[var(--admin-primary,#18181b)] px-4 text-sm font-medium text-white transition hover:bg-[var(--admin-primary-hover,#3f3f46)] disabled:opacity-50',
+    secondary:
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] border border-[var(--admin-border,#d4d4d8)] bg-white px-4 text-sm font-medium text-[var(--admin-text,#3f3f46)] transition hover:bg-[#f3f6f9] disabled:opacity-50',
+    danger: 'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] px-3 text-sm font-medium text-[#d0102b] transition hover:bg-[#fde7eb] disabled:opacity-50',
 };

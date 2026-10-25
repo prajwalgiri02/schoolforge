@@ -15,7 +15,7 @@ export function AdminPreviewFrame({ children }: { children: ReactNode }) {
     return (
         <UploadUrlContext.Provider value={`${adminUrl}/uploads`}>
             <MediaLibraryUrlContext.Provider value={`${adminUrl}/media`}>
-                <div className="flex flex-wrap items-center justify-between gap-3 bg-indigo-600 px-4 py-2 font-sans text-sm text-white sm:px-6 lg:sticky lg:top-0 lg:z-50 lg:h-9 lg:flex-nowrap lg:py-0">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0e2741] px-4 py-2 font-sans text-sm text-white sm:px-6 lg:sticky lg:top-0 lg:z-50 lg:h-9 lg:flex-nowrap lg:py-0">
                     <span className="flex items-center gap-2">
                         <Eye className="h-4 w-4 shrink-0" />
                         Preview of the admin panel in the Laravel site. Changes here are not saved.

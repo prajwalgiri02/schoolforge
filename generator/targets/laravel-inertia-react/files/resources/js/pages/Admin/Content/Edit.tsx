@@ -99,20 +99,20 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
         >
             <div className="grid gap-8 lg:grid-cols-[14rem_1fr]">
                 <nav aria-label="Sections" className="hidden lg:block">
-                    <Link href={admin('/content')} className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                    <Link href={admin('/content')} className="mb-4 flex items-center gap-2 text-sm font-medium text-[var(--admin-muted)] hover:text-[var(--admin-heading)]">
                         <ArrowLeft className="h-4 w-4" /> All content
                     </Link>
                     <div className="space-y-5">
                         {groupSections(sections).map((group) => (
                             <div key={group.title}>
-                                <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">{group.title}</p>
+                                <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-[var(--admin-muted)]">{group.title}</p>
                                 <ul className="space-y-0.5">
                                     {group.sections.map((item) => (
                                         <li key={item.key}>
                                             <Link
                                                 href={admin(`/content/${item.key}`)}
                                                 aria-current={item.key === sectionKey ? 'page' : undefined}
-                                                className={`block rounded-lg px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-zinc-200/70 font-medium text-zinc-900' : 'text-zinc-600 hover:bg-zinc-100'}`}
+                                                className={`block rounded-[10px] px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'text-[var(--admin-muted)] hover:bg-[#f3f6f9]'}`}
                                             >
                                                 {item.label}
                                             </Link>
@@ -124,29 +124,29 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                     </div>
                 </nav>
                 <form id="content-form" onSubmit={submit} className="min-w-0 space-y-6">
-                    <p className="text-sm text-zinc-500">{section.description}</p>
+                    <p className="text-sm text-[var(--admin-muted)]">{section.description}</p>
                     {locales.length > 1 && (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-medium text-zinc-600">Language:</span>
+                            <span className="text-sm font-medium text-[var(--admin-muted)]">Language:</span>
                             {locales.map((code) => (
                                 <Link
                                     key={code}
                                     href={admin(`/content/${sectionKey}${code === defaultLocale ? '' : `?locale=${code}`}`)}
-                                    className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}
+                                    className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-[var(--admin-primary)] text-white' : 'bg-[#eef0f3] text-[var(--admin-muted)] hover:bg-[#e2e6ea]'}`}
                                 >
                                     {languageNames[code] ?? code.toUpperCase()}
                                 </Link>
                             ))}
-                            {locale !== defaultLocale && <span className="text-xs text-zinc-500">Fields you leave unchanged keep showing the {languageNames[defaultLocale] ?? defaultLocale} text.</span>}
+                            {locale !== defaultLocale && <span className="text-xs text-[var(--admin-muted)]">Fields you leave unchanged keep showing the {languageNames[defaultLocale] ?? defaultLocale} text.</span>}
                         </div>
                     )}
                     {adding && isDirty && (
-                        <div role="status" className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                        <div role="status" className="flex items-center gap-2 rounded-[10px] border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
                             <Plus className="h-4 w-4 shrink-0" /> A new item is ready at the top. Fill it in and save.
                         </div>
                     )}
                     {errorCount > 0 && (
-                        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <div role="alert" className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                             Please fix {errorCount === 1 ? 'the highlighted field' : `${errorCount} highlighted fields`} before saving.
                         </div>
                     )}
@@ -161,7 +161,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                             itemLabel={section.itemLabel}
                         />
                     ) : (
-                        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                        <div className="rounded-[20px] border border-[var(--admin-border)] bg-white p-6">
                             <FieldGroup
                                 fields={section.fields}
                                 value={Array.isArray(value) ? {} : value}
@@ -172,7 +172,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                             />
                         </div>
                     )}
-                    <div className="flex justify-end border-t border-zinc-200 pt-6">
+                    <div className="flex justify-end border-t border-[var(--admin-border)] pt-6">
                         <button type="submit" disabled={processing} className={buttonClass.primary}>
                             <Save className="h-4 w-4" /> {processing ? 'Saving…' : 'Save changes'}
                         </button>

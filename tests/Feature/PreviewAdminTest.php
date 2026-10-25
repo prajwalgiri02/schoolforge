@@ -38,15 +38,15 @@ class PreviewAdminTest extends TestCase
                 ->where('auth.user.email', 'owner@example.test')
                 ->where('auth.user.isAdmin', true)
                 ->where('inbox', ['messages' => 0, 'submissions' => 0])
-                ->where('pageCount', fn (int $count) => $count > 5)
-                ->where('stats.0', ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0])
-                ->where('stats.2', ['key' => 'updated', 'label' => 'Last edited', 'value' => null])
+                ->where('summary.0', fn ($pages) => $pages['key'] === 'pages' && $pages['value'] > 5)
+                ->where('stats.0', ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0, 'hint' => '0 in the last 30 days'])
+                ->where('stats.2.value', null)
                 ->where('checklist', fn ($steps) => collect($steps)->reject->done->pluck('key')->values()->all() === ['logo'])
-                ->where('sectionCount', fn (int $count) => $count > 20)
-                ->where('editedCount', 0)
+                ->has('activity', 6)
+                ->where('summary', fn ($summary) => collect($summary)->firstWhere('key', 'news')['value'] === count($this->project->config['news']))
+                ->where('schoolLogo', $this->project->config['school']['logo'] ?? null)
                 ->where('recentMessages', [])
-                ->where('recentSubmissions', [])
-                ->where('recentEdits', []));
+                ->where('recentSubmissions', []));
     }
 
     public function test_dashboard_checklist_shows_what_a_new_school_still_has_to_fill_in(): void

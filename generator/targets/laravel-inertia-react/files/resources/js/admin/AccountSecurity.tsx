@@ -11,7 +11,7 @@ const errorText = (message?: string) => message && <p className="mt-1.5 text-sm 
  * Change password and two-factor sign-in, posting to `baseUrl` (/password,
  * /two-factor...). Shared by the site admin panel and SchoolForge Studio.
  */
-export function AccountSecurity({ baseUrl, twoFactorEnabled, setup, recoveryCodes, recoveryCodesLeft }: AccountSecurityProps & { baseUrl: string }) {
+export function AccountSecurity({ baseUrl, twoFactorEnabled, setup, recoveryCodes, recoveryCodesLeft, cardClass = 'rounded-xl border border-zinc-200 bg-white p-6 shadow-sm' }: AccountSecurityProps & { baseUrl: string; cardClass?: string }) {
     const password = useForm({ current_password: '', password: '', password_confirmation: '' });
     const confirm = useForm({ code: '' });
     const disable = useForm({ current_password: '' });
@@ -23,7 +23,7 @@ export function AccountSecurity({ baseUrl, twoFactorEnabled, setup, recoveryCode
 
     return (
         <div className="grid gap-6 lg:grid-cols-2">
-            <form onSubmit={changePassword} className="h-fit space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <form onSubmit={changePassword} className={`h-fit space-y-4 ${cardClass}`}>
                 <h2 className="flex items-center gap-2 font-semibold">
                     <KeyRound className="h-4 w-4" /> Password
                 </h2>
@@ -47,7 +47,7 @@ export function AccountSecurity({ baseUrl, twoFactorEnabled, setup, recoveryCode
                 </button>
             </form>
 
-            <section className="h-fit space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <section className={`h-fit space-y-4 ${cardClass}`}>
                 <h2 className="flex items-center gap-2 font-semibold">
                     <ShieldCheck className="h-4 w-4" /> Two-factor sign-in
                 </h2>

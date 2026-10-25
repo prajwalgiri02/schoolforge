@@ -323,6 +323,25 @@ class ContentSchema
     }
 
     /**
+     * How much the website has: its pages and the lists visitors browse most.
+     *
+     * @param  array<string, mixed>  $site
+     * @return list<array{key: string, label: string, value: int}>
+     */
+    public static function summary(array $site, int $pageCount, bool $configShape = false): array
+    {
+        $count = fn (string $key): int => count((array) self::valueFrom($site, $key, $configShape));
+
+        return [
+            ['key' => 'pages', 'label' => 'Pages', 'value' => $pageCount],
+            ['key' => 'news', 'label' => 'News stories', 'value' => $count('news')],
+            ['key' => 'events', 'label' => 'Events', 'value' => $count('events')],
+            ['key' => 'notices', 'label' => 'Notices', 'value' => $count('notices')],
+            ['key' => 'gallery', 'label' => 'Gallery photos', 'value' => $count('gallery')],
+        ];
+    }
+
+    /**
      * Reads the value a section currently has in the site data (or, with
      * `$configShape`, in a school config where content blocks are top-level).
      */

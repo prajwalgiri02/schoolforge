@@ -42,7 +42,7 @@ export function TwoFactorCodeForm({ action, onModeChange }: { action: string; on
                     setRecovery(!recovery);
                     onModeChange?.(!recovery);
                 }}
-                className="w-full text-center text-xs text-zinc-500 hover:text-zinc-900 hover:underline"
+                className="w-full text-center text-xs text-[var(--admin-muted,#71717a)] hover:text-[var(--admin-heading,#18181b)] hover:underline"
             >
                 {recovery ? 'Use my authenticator app instead' : 'Lost your phone? Use a recovery code'}
             </button>
