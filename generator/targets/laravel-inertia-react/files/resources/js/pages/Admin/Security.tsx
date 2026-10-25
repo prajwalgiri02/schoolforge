@@ -20,7 +20,7 @@ export default function Security(props: AccountSecurityProps) {
                                 <p className="text-xl font-medium text-[var(--admin-heading)]">{auth.user.name}</p>
                                 <p className="truncate text-base text-[var(--admin-muted)]">{auth.user.email}</p>
                             </div>
-                            <Badge tone={auth.user.isAdmin ? 'purple' : 'blue'}>{auth.user.isAdmin ? 'Administrator' : 'Editor'}</Badge>
+                            <Badge tone={auth.user.isAdmin ? 'accent' : 'primary'}>{auth.user.isAdmin ? 'Administrator' : 'Editor'}</Badge>
                         </div>
                     </Card>
                 )}

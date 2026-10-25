@@ -31,7 +31,7 @@ export default function SubmissionsIndex({ types, type, status, search, submissi
                         key={item.type}
                         href={admin(`/submissions?type=${item.type}`)}
                         aria-current={item.type === type ? 'page' : undefined}
-                        className={`flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition ${item.type === type ? 'bg-[var(--admin-primary)] text-white shadow-sm' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
+                        className={`flex items-center gap-2 rounded-[10px] px-4 py-2 text-sm font-medium transition ${item.type === type ? 'bg-[var(--admin-primary)] text-[var(--admin-on-primary)] shadow-sm' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
                     >
                         {item.label}
                         {item.open > 0 && <span className={`rounded-full px-1.5 text-xs ${item.type === type ? 'bg-white/20' : 'bg-white text-[var(--admin-primary)]'}`}>{item.open}</span>}
@@ -80,7 +80,7 @@ export default function SubmissionsIndex({ types, type, status, search, submissi
                                     const name = submission.data.studentName ?? submission.name;
 
                                     return (
-                                        <tr key={submission.id} className={`${table.row} ${submission.reviewed_at ? '' : 'bg-[#f8fbfc]'}`}>
+                                        <tr key={submission.id} className={`${table.row} ${submission.reviewed_at ? '' : 'bg-[var(--admin-hover)]'}`}>
                                             <td className={`${table.td} whitespace-nowrap`}>
                                                 <Link href={admin(`/submissions/${submission.id}`)} className="font-medium text-[var(--admin-heading)] hover:text-[var(--admin-primary)] hover:underline">
                                                     {submission.reference}

@@ -74,10 +74,10 @@ export default function Website({ pages, colors }: { pages: Page[]; colors: Reco
                                         <input type="checkbox" checked={page.showInNav} onChange={(event) => update(index, { showInNav: event.target.checked })} className="h-4 w-4 rounded border-[var(--admin-border)]" />
                                         In menu
                                     </label>
-                                    <button type="button" aria-label={`Move ${page.title} up`} disabled={index === 0} onClick={() => move(index, index - 1)} className="rounded-[8px] p-2 text-[var(--admin-muted)] hover:bg-[#f3f6f9] disabled:opacity-30">
+                                    <button type="button" aria-label={`Move ${page.title} up`} disabled={index === 0} onClick={() => move(index, index - 1)} className="rounded-[8px] p-2 text-[var(--admin-muted)] hover:bg-[var(--admin-hover)] disabled:opacity-30">
                                         <ArrowUp className="h-4 w-4" />
                                     </button>
-                                    <button type="button" aria-label={`Move ${page.title} down`} disabled={index === pageForm.data.pages.length - 1} onClick={() => move(index, index + 1)} className="rounded-[8px] p-2 text-[var(--admin-muted)] hover:bg-[#f3f6f9] disabled:opacity-30">
+                                    <button type="button" aria-label={`Move ${page.title} down`} disabled={index === pageForm.data.pages.length - 1} onClick={() => move(index, index + 1)} className="rounded-[8px] p-2 text-[var(--admin-muted)] hover:bg-[var(--admin-hover)] disabled:opacity-30">
                                         <ArrowDown className="h-4 w-4" />
                                     </button>
                                 </div>

@@ -38,7 +38,7 @@ export default function ContentIndex({ sections }: { sections: SectionSummary[] 
                             </header>
                             <div className="divide-y divide-[var(--admin-border)]">
                                 {group.sections.map((section) => (
-                                    <Link key={section.key} href={admin(`/content/${section.key}`)} className="flex items-center gap-4 px-6 py-4 transition hover:bg-[#f8fbfc]">
+                                    <Link key={section.key} href={admin(`/content/${section.key}`)} className="flex items-center gap-4 px-6 py-4 transition hover:bg-[var(--admin-hover)]">
                                         <div className="min-w-0 flex-1">
                                             <p className="flex items-center gap-2 text-base text-[var(--admin-heading)]">
                                                 {section.label}
@@ -46,7 +46,7 @@ export default function ContentIndex({ sections }: { sections: SectionSummary[] 
                                             </p>
                                             <p className="truncate text-sm text-[var(--admin-muted)]">{section.description}</p>
                                         </div>
-                                        {section.count !== null && <Badge tone="blue">{section.count}</Badge>}
+                                        {section.count !== null && <Badge tone="primary">{section.count}</Badge>}
                                         <ChevronRight className="h-4 w-4 shrink-0 text-[var(--admin-muted)]" />
                                     </Link>
                                 ))}

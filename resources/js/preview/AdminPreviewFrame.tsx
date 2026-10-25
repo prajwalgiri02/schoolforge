@@ -1,16 +1,16 @@
 import { usePage } from '@inertiajs/react';
 import { ArrowLeft, Eye } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { MediaLibraryUrlContext, UploadUrlContext } from '@admin/fields';
 
-type Props = { adminUrl: string; studioUrl: string };
+type Props = { adminUrl: string; studioUrl: string; themeVariables?: Record<string, string> };
 
 /**
  * Wraps the generated Laravel site's admin panel when Studio previews it, with a
- * banner saying nothing is saved, and uploads pointed at the preview.
+ * banner saying nothing is saved, the school's theme colours, and uploads pointed at the preview.
  */
 export function AdminPreviewFrame({ children }: { children: ReactNode }) {
-    const { adminUrl, studioUrl } = usePage<Props>().props;
+    const { adminUrl, studioUrl, themeVariables } = usePage<Props>().props;
 
     return (
         <UploadUrlContext.Provider value={`${adminUrl}/uploads`}>
@@ -24,7 +24,9 @@ export function AdminPreviewFrame({ children }: { children: ReactNode }) {
                         <ArrowLeft className="h-4 w-4" /> Back to Studio
                     </a>
                 </div>
-                <div className="[--admin-top:2.25rem]">{children}</div>
+                <div style={themeVariables as CSSProperties} className="[--admin-top:2.25rem]">
+                    {children}
+                </div>
             </MediaLibraryUrlContext.Provider>
         </UploadUrlContext.Provider>
     );

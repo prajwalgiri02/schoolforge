@@ -22,6 +22,11 @@ use Inertia\Response;
  */
 class PreviewAdminController extends Controller
 {
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $preview = null;
+
     public function dashboard(Request $request, Project $project, Generator $generator): Response
     {
         return $this->render($request, $project, 'Admin/Dashboard', [
@@ -217,6 +222,7 @@ class PreviewAdminController extends Controller
             ...$props,
             'schoolName' => (string) ($project->config['school']['name'] ?? $project->name),
             'schoolLogo' => $project->config['school']['logo'] ?? null,
+            'themeVariables' => (object) ($this->preview($project, app(Generator::class))['tokens']['cssVariables'] ?? []),
             'auth' => ['user' => $this->user($request)],
             'inbox' => ['messages' => 0, 'submissions' => 0],
             'adminUrl' => route('preview.admin.dashboard', $project, absolute: false),
@@ -246,8 +252,18 @@ class PreviewAdminController extends Controller
      */
     private function pages(Project $project, Generator $generator): array
     {
-        $preview = $generator->preview($project->config);
+        $preview = $this->preview($project, $generator);
 
         return $preview['ok'] ? $preview['site']['pages'] : [];
+    }
+
+    /**
+     * The school's site data and design tokens, worked out once per request.
+     *
+     * @return array<string, mixed>
+     */
+    private function preview(Project $project, Generator $generator): array
+    {
+        return $this->preview ??= $generator->preview($project->config);
     }
 }

@@ -1,41 +1,37 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 
 /**
- * Colours of the admin panel. Pages set them on their root with `adminTheme`; the shared
- * field and account components fall back to neutral colours when Studio uses them.
+ * Colours of the admin panel, worked out from the school's theme (and any colours chosen
+ * in Pages & design). Pages set them on their root with `adminTheme`; the shared field
+ * and account components fall back to neutral colours when Studio uses them.
  */
 export const adminTheme = {
-    '--admin-primary': '#2d6495',
-    '--admin-primary-hover': '#24527b',
-    '--admin-primary-soft': '#e2eef7',
-    '--admin-heading': '#0e2741',
-    '--admin-text': '#404959',
-    '--admin-muted': '#56687a',
-    '--admin-border': '#e7e9ec',
-    '--admin-canvas': '#f6f7f9',
+    '--admin-primary': 'var(--color-primary, #1b365d)',
+    '--admin-on-primary': 'var(--color-primary-foreground, #ffffff)',
+    '--admin-primary-hover': 'color-mix(in oklab, var(--color-primary, #1b365d) 82%, black)',
+    '--admin-primary-soft': 'color-mix(in oklab, var(--color-primary, #1b365d) 11%, white)',
+    '--admin-accent': 'var(--color-accent, #c9a227)',
+    '--admin-accent-text': 'var(--color-accent-strong, color-mix(in oklab, var(--color-accent, #c9a227) 55%, black))',
+    '--admin-accent-soft': 'color-mix(in oklab, var(--color-accent, #c9a227) 18%, white)',
+    '--admin-heading': 'color-mix(in oklab, var(--color-primary, #1b365d) 25%, #111827)',
+    '--admin-text': '#3f4756',
+    '--admin-muted': '#5d6878',
+    '--admin-border': '#e4e7eb',
+    '--admin-canvas': 'color-mix(in oklab, var(--color-primary, #1b365d) 3%, #f6f7f9)',
+    '--admin-hover': 'color-mix(in oklab, var(--color-primary, #1b365d) 5%, white)',
 } as CSSProperties;
 
-export function AdminFont() {
-    return (
-        <Head>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" />
-        </Head>
-    );
-}
+export const fontClass = 'font-[family-name:var(--font-body,ui-sans-serif,system-ui,sans-serif)]';
 
-export const fontClass = "font-['Public_Sans',ui-sans-serif,system-ui,sans-serif]";
-
-export type Tone = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'grey';
+export type Tone = 'primary' | 'accent' | 'green' | 'orange' | 'red' | 'grey';
 
 const tones: Record<Tone, { badge: string; tile: string }> = {
-    blue: { badge: 'bg-[#dbedff] text-[#105ef0]', tile: 'bg-[#e2eef7] text-[#2d6495]' },
+    primary: { badge: 'bg-[var(--admin-primary-soft)] text-[var(--admin-primary)]', tile: 'bg-[var(--admin-primary-soft)] text-[var(--admin-primary)]' },
+    accent: { badge: 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent-text)]', tile: 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent-text)]' },
     green: { badge: 'bg-[#ceecd7] text-[#1f8a45]', tile: 'bg-[#dff5e6] text-[#31b057]' },
     orange: { badge: 'bg-[#ffeedb] text-[#c76a00]', tile: 'bg-[#ffeedb] text-[#f08910]' },
-    purple: { badge: 'bg-[#f3dbff] text-[#8a0fdc]', tile: 'bg-[#f3dbff] text-[#9610f0]' },
     red: { badge: 'bg-[#fde7eb] text-[#d0102b]', tile: 'bg-[#fde7eb] text-[#e11d38]' },
     grey: { badge: 'bg-[#eef0f3] text-[#56687a]', tile: 'bg-[#eef0f3] text-[#56687a]' },
 };
@@ -44,7 +40,7 @@ export function Badge({ tone = 'grey', children }: { tone?: Tone; children: Reac
     return <span className={`inline-flex items-center whitespace-nowrap rounded-[12px] px-3 py-1 text-xs font-medium capitalize ${tones[tone].badge}`}>{children}</span>;
 }
 
-export function IconTile({ icon: Icon, tone = 'blue', size = 'lg' }: { icon: LucideIcon; tone?: Tone; size?: 'lg' | 'sm' }) {
+export function IconTile({ icon: Icon, tone = 'primary', size = 'lg' }: { icon: LucideIcon; tone?: Tone; size?: 'lg' | 'sm' }) {
     return (
         <span className={`flex shrink-0 items-center justify-center ${tones[tone].tile} ${size === 'lg' ? 'h-14 w-14 rounded-[10px]' : 'h-9 w-9 rounded-[8px]'}`}>
             <Icon className={size === 'lg' ? 'h-7 w-7' : 'h-5 w-5'} strokeWidth={1.5} />
@@ -63,7 +59,7 @@ export function Avatar({ name, size = 'md' }: { name: string; size?: 'md' | 'lg'
     return (
         <span
             aria-hidden="true"
-            className={`flex shrink-0 items-center justify-center rounded-full bg-[var(--admin-primary,#18181b)] font-medium text-white ${size === 'lg' ? 'h-16 w-16 text-xl' : 'h-7 w-7 text-[10px]'}`}
+            className={`flex shrink-0 items-center justify-center rounded-full bg-[var(--admin-primary,#18181b)] font-medium text-[var(--admin-on-primary,#ffffff)] ${size === 'lg' ? 'h-16 w-16 text-xl' : 'h-7 w-7 text-[10px]'}`}
         >
             {initials || '?'}
         </span>
@@ -87,7 +83,7 @@ export function Card({ title, actions, children, className = '', padded = true }
 export function EmptyState({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children?: ReactNode }) {
     return (
         <div className="flex flex-col items-center px-6 py-12 text-center">
-            <IconTile icon={Icon} tone="blue" />
+            <IconTile icon={Icon} tone="primary" />
             <p className="mt-4 text-base font-medium text-[var(--admin-heading,#18181b)]">{title}</p>
             {children && <p className="mt-1 max-w-md text-sm text-[var(--admin-muted,#71717a)]">{children}</p>}
         </div>
@@ -99,7 +95,7 @@ export const table = {
     table: 'w-full min-w-[40rem] text-left text-sm',
     head: 'border-b border-[var(--admin-border,#e4e4e7)] text-sm font-normal text-[var(--admin-muted,#71717a)]',
     th: 'px-5 pb-3 font-normal sm:px-6',
-    row: 'transition hover:bg-[#f8fbfc]',
+    row: 'transition hover:bg-[var(--admin-hover,#fafafa)]',
     td: 'px-5 py-3 text-[var(--admin-muted,#52525b)] sm:px-6',
 };
 
@@ -129,7 +125,7 @@ export function Pagination({ links }: { links: { url: string | null; label: stri
                         key={index}
                         href={link.url}
                         preserveScroll
-                        className={`min-w-9 rounded-[8px] px-3 py-1.5 text-center text-sm ${link.active ? 'bg-[var(--admin-primary,#18181b)] text-white' : 'text-[var(--admin-text,#3f3f46)] hover:bg-white'}`}
+                        className={`min-w-9 rounded-[8px] px-3 py-1.5 text-center text-sm ${link.active ? 'bg-[var(--admin-primary,#18181b)] text-[var(--admin-on-primary,#ffffff)]' : 'text-[var(--admin-text,#3f3f46)] hover:bg-white'}`}
                     >
                         {label(link.label)}
                     </Link>
@@ -144,10 +140,10 @@ export function Pagination({ links }: { links: { url: string | null; label: stri
 }
 
 const statusTones: Record<string, Tone> = {
-    received: 'blue',
+    received: 'primary',
     pending: 'orange',
     reviewing: 'orange',
-    interview: 'purple',
+    interview: 'accent',
     accepted: 'green',
     approved: 'green',
     hired: 'green',

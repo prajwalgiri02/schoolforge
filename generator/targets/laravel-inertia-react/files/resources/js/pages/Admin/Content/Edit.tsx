@@ -112,7 +112,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                                             <Link
                                                 href={admin(`/content/${item.key}`)}
                                                 aria-current={item.key === sectionKey ? 'page' : undefined}
-                                                className={`block rounded-[10px] px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'text-[var(--admin-muted)] hover:bg-[#f3f6f9]'}`}
+                                                className={`block rounded-[10px] px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'text-[var(--admin-muted)] hover:bg-[var(--admin-hover)]'}`}
                                             >
                                                 {item.label}
                                             </Link>
@@ -132,7 +132,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                                 <Link
                                     key={code}
                                     href={admin(`/content/${sectionKey}${code === defaultLocale ? '' : `?locale=${code}`}`)}
-                                    className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-[var(--admin-primary)] text-white' : 'bg-[#eef0f3] text-[var(--admin-muted)] hover:bg-[#e2e6ea]'}`}
+                                    className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-[var(--admin-primary)] text-[var(--admin-on-primary)]' : 'bg-[#eef0f3] text-[var(--admin-muted)] hover:bg-[#e2e6ea]'}`}
                                 >
                                     {languageNames[code] ?? code.toUpperCase()}
                                 </Link>

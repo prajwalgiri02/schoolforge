@@ -49,10 +49,10 @@ export default function Alerts({ subscriberCount, alerts }: Props) {
                     </Card>
                     <Card>
                         <div className="flex items-center gap-4">
-                            <IconTile icon={Users} tone="purple" />
+                            <IconTile icon={Users} tone="accent" />
                             <span className="leading-tight">
-                                <span className="block text-sm font-light text-[#111827]">Subscribers</span>
-                                <span className="mt-1 block text-2xl font-semibold tabular-nums text-[#111827]">{subscriberCount.toLocaleString('en-IN')}</span>
+                                <span className="block text-sm font-light text-[var(--admin-heading)]">Subscribers</span>
+                                <span className="mt-1 block text-2xl font-semibold tabular-nums text-[var(--admin-heading)]">{subscriberCount.toLocaleString('en-IN')}</span>
                             </span>
                         </div>
                         <a href={admin('/alerts/subscribers.csv')} className={`${buttonClass.secondary} mt-5 w-full`}>

@@ -45,6 +45,7 @@ class PreviewAdminTest extends TestCase
                 ->has('activity', 6)
                 ->where('summary', fn ($summary) => collect($summary)->firstWhere('key', 'news')['value'] === count($this->project->config['news']))
                 ->where('schoolLogo', $this->project->config['school']['logo'] ?? null)
+                ->where('themeVariables', fn ($variables) => str_starts_with(collect($variables)->get('--color-primary', ''), '#'))
                 ->where('recentMessages', [])
                 ->where('recentSubmissions', []));
     }
@@ -58,6 +59,14 @@ class PreviewAdminTest extends TestCase
         $this->get("/preview/{$this->project->slug}/admin")
             ->assertInertia(fn (Assert $page) => $page
                 ->where('checklist', fn ($steps) => collect($steps)->reject->done->pluck('key')->values()->all() === ['logo', 'news']));
+    }
+
+    public function test_admin_panel_uses_the_schools_theme_colours(): void
+    {
+        $this->project->update(['config' => [...$this->project->config, 'colors' => ['primary' => '#7a1f3d']]]);
+
+        $this->get("/preview/{$this->project->slug}/admin/messages")
+            ->assertInertia(fn (Assert $page) => $page->where('themeVariables.--color-primary', '#7a1f3d'));
     }
 
     public function test_content_page_lists_the_schools_content_sections(): void

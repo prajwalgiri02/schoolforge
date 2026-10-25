@@ -18,16 +18,16 @@ type MessageSummary = { id: number; name: string; email: string; subject: string
 type SubmissionSummary = { id: number; reference: string; name: string; status: string; form: string; created_at: string; reviewed_at: string | null };
 
 const statStyles: Record<string, { icon: LucideIcon; tone: Tone; path: string }> = {
-    messages: { icon: Mail, tone: 'blue', path: '/messages' },
+    messages: { icon: Mail, tone: 'primary', path: '/messages' },
     submissions: { icon: Inbox, tone: 'orange', path: '/submissions' },
     updated: { icon: History, tone: 'green', path: '/content' },
-    subscribers: { icon: Users, tone: 'purple', path: '/alerts' },
+    subscribers: { icon: Users, tone: 'accent', path: '/alerts' },
 };
 
 const summaryStyles: Record<string, { icon: LucideIcon; tone: Tone; path: string }> = {
-    pages: { icon: FileText, tone: 'blue', path: '/website' },
+    pages: { icon: FileText, tone: 'primary', path: '/website' },
     news: { icon: Newspaper, tone: 'orange', path: '/content/news' },
-    events: { icon: CalendarDays, tone: 'purple', path: '/content/events' },
+    events: { icon: CalendarDays, tone: 'accent', path: '/content/events' },
     notices: { icon: Megaphone, tone: 'red', path: '/content/notices' },
     gallery: { icon: ImagePlus, tone: 'green', path: '/content/gallery' },
 };
@@ -54,7 +54,7 @@ function messageStatus(message: MessageSummary) {
         return <Badge tone="green">Replied</Badge>;
     }
 
-    return message.read_at ? <Badge tone="blue">Read</Badge> : <Badge tone="orange">New</Badge>;
+    return message.read_at ? <Badge tone="primary">Read</Badge> : <Badge tone="orange">New</Badge>;
 }
 
 /** Smooth line through the points (Catmull-Rom converted to Bézier curves), never dipping below `floor`. */
@@ -105,33 +105,33 @@ function ActivityChart({ activity }: { activity: Month[] }) {
         <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full" role="img" aria-label="Enquiries and applications in the last six months">
             <defs>
                 <linearGradient id={`${id}-enquiries`} x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#2d6495" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="#2d6495" stopOpacity="0.04" />
+                    <stop offset="0%" stopColor="var(--admin-primary)" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="var(--admin-primary)" stopOpacity="0.04" />
                 </linearGradient>
                 <linearGradient id={`${id}-applications`} x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#9fc2e0" stopOpacity="0.55" />
-                    <stop offset="100%" stopColor="#9fc2e0" stopOpacity="0.04" />
+                    <stop offset="0%" stopColor="var(--admin-accent)" stopOpacity="0.55" />
+                    <stop offset="100%" stopColor="var(--admin-accent)" stopOpacity="0.04" />
                 </linearGradient>
             </defs>
             {[0, 1, 2, 3, 4].map((tick) => (
                 <g key={tick}>
-                    <line x1={left} x2={width - right} y1={y((ceiling / 4) * tick)} y2={y((ceiling / 4) * tick)} stroke="#e7e9ec" strokeDasharray={tick === 0 ? undefined : '4 4'} />
-                    <text x={left - 10} y={y((ceiling / 4) * tick) + 4} textAnchor="end" className="fill-[#56687a] text-[12px]">
+                    <line x1={left} x2={width - right} y1={y((ceiling / 4) * tick)} y2={y((ceiling / 4) * tick)} stroke="var(--admin-border)" strokeDasharray={tick === 0 ? undefined : '4 4'} />
+                    <text x={left - 10} y={y((ceiling / 4) * tick) + 4} textAnchor="end" className="fill-[var(--admin-muted)] text-[12px]">
                         {(ceiling / 4) * tick}
                     </text>
                 </g>
             ))}
             {activity.map((month, index) => (
-                <text key={month.month} x={x(index)} y={height - 6} textAnchor="middle" className="fill-[#56687a] text-[12px] tracking-wider">
+                <text key={month.month} x={x(index)} y={height - 6} textAnchor="middle" className="fill-[var(--admin-muted)] text-[12px] tracking-wider">
                     {monthName(month.month)}
                 </text>
             ))}
             <path d={area(applications)} fill={`url(#${id}-applications)`} />
-            <path d={curve(applications, y(0))} fill="none" stroke="#9fc2e0" strokeWidth="2" />
+            <path d={curve(applications, y(0))} fill="none" stroke="var(--admin-accent)" strokeWidth="2" />
             <path d={area(enquiries)} fill={`url(#${id}-enquiries)`} />
-            <path d={curve(enquiries, y(0))} fill="none" stroke="#2d6495" strokeWidth="2.5" />
+            <path d={curve(enquiries, y(0))} fill="none" stroke="var(--admin-primary)" strokeWidth="2.5" />
             {enquiries.map(([pointX, pointY], index) => (
-                <circle key={index} cx={pointX} cy={pointY} r="4" fill="white" stroke="#2d6495" strokeWidth="2">
+                <circle key={index} cx={pointX} cy={pointY} r="4" fill="white" stroke="var(--admin-primary)" strokeWidth="2">
                     <title>{`${monthName(activity[index].month)}: ${activity[index].enquiries} enquiries, ${activity[index].applications} applications`}</title>
                 </circle>
             ))}
@@ -203,7 +203,7 @@ export default function Dashboard({
                                 <li key={step.key} className={step.done ? 'hidden sm:block' : undefined}>
                                     <Link
                                         href={admin(`/content/${step.section}`)}
-                                        className={`flex min-h-12 items-center gap-3 rounded-[12px] border px-4 py-3 text-sm transition ${step.done ? 'border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[#f8fbfc]' : 'border-[var(--admin-border)] font-medium text-[var(--admin-heading)] hover:border-[var(--admin-primary)] hover:bg-[var(--admin-primary-soft)]'}`}
+                                        className={`flex min-h-12 items-center gap-3 rounded-[12px] border px-4 py-3 text-sm transition ${step.done ? 'border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-hover)]' : 'border-[var(--admin-border)] font-medium text-[var(--admin-heading)] hover:border-[var(--admin-primary)] hover:bg-[var(--admin-primary-soft)]'}`}
                                     >
                                         {step.done ? <CircleCheck className="h-5 w-5 shrink-0 text-[#31b057]" /> : <Circle className="h-5 w-5 shrink-0 text-[#c5ccd5]" />}
                                         <span className="flex-1">
@@ -226,8 +226,8 @@ export default function Dashboard({
                             <Link key={stat.key} href={admin(style.path)} className="flex min-h-[110px] items-center gap-4 rounded-[20px] border border-[var(--admin-border)] bg-white px-5 py-4 transition hover:border-[var(--admin-primary)] hover:shadow-[0_16px_22px_rgba(0,0,0,0.05)]">
                                 <IconTile icon={style.icon} tone={style.tone} />
                                 <span className="min-w-0 leading-tight">
-                                    <span className="block text-sm font-light tracking-tight text-[#111827]">{stat.label}</span>
-                                    <span className="mt-1 block text-2xl font-semibold tabular-nums tracking-tight text-[#111827]">{statValue(stat)}</span>
+                                    <span className="block text-sm font-light tracking-tight text-[var(--admin-heading)]">{stat.label}</span>
+                                    <span className="mt-1 block text-2xl font-semibold tabular-nums tracking-tight text-[var(--admin-heading)]">{statValue(stat)}</span>
                                     <span className="mt-1 block truncate text-xs font-medium text-[var(--admin-muted)]">{stat.hint}</span>
                                 </span>
                             </Link>
@@ -239,12 +239,12 @@ export default function Dashboard({
                     <Card
                         title="Overview"
                         actions={
-                            <span className="flex items-center gap-4 text-sm text-[#19213d]">
+                            <span className="flex items-center gap-4 text-sm text-[var(--admin-heading)]">
                                 <span className="flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full bg-[#2d6495]" /> Enquiries
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--admin-primary)]" /> Enquiries
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full bg-[#9fc2e0]" /> Applications
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--admin-accent)]" /> Applications
                                 </span>
                             </span>
                         }

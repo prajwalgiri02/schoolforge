@@ -20,7 +20,7 @@ function status(message: Message) {
         return <Badge tone="green">Replied</Badge>;
     }
 
-    return message.read_at ? <Badge tone="blue">Read</Badge> : <Badge tone="orange">New</Badge>;
+    return message.read_at ? <Badge tone="primary">Read</Badge> : <Badge tone="orange">New</Badge>;
 }
 
 function ReplyBox({ message }: { message: Message }) {
@@ -134,7 +134,7 @@ export default function Messages({ messages }: { messages: Paginated<Message> })
                                         type="button"
                                         onClick={() => setFilter(item.value)}
                                         aria-pressed={filter === item.value}
-                                        className={`min-h-9 rounded-[10px] px-4 text-xs font-medium transition ${filter === item.value ? 'bg-[var(--admin-primary)] text-white' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
+                                        className={`min-h-9 rounded-[10px] px-4 text-xs font-medium transition ${filter === item.value ? 'bg-[var(--admin-primary)] text-[var(--admin-on-primary)]' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
                                     >
                                         {item.label}
                                     </button>
@@ -152,7 +152,7 @@ export default function Messages({ messages }: { messages: Paginated<Message> })
                                             type="button"
                                             onClick={() => open(message)}
                                             aria-current={selected?.id === message.id ? 'true' : undefined}
-                                            className={`flex w-full items-center gap-3 px-5 py-3 text-left text-sm transition sm:px-6 ${selected?.id === message.id ? 'bg-[#f3f6f9]' : 'hover:bg-[#f8fbfc]'}`}
+                                            className={`flex w-full items-center gap-3 px-5 py-3 text-left text-sm transition sm:px-6 ${selected?.id === message.id ? 'bg-[var(--admin-primary-soft)]' : 'hover:bg-[var(--admin-hover)]'}`}
                                         >
                                             <Avatar name={message.name} />
                                             <span className="min-w-0 flex-1">
@@ -178,7 +178,7 @@ export default function Messages({ messages }: { messages: Paginated<Message> })
                                             {selected.email}
                                         </a>
                                     </div>
-                                    {selected.campus && <Badge tone="blue">{selected.campus}</Badge>}
+                                    {selected.campus && <Badge tone="primary">{selected.campus}</Badge>}
                                     {status(selected)}
                                     <button type="button" onClick={() => toggleRead(selected)} title={selected.read_at ? 'Mark unread' : 'Mark read'} aria-label={selected.read_at ? 'Mark unread' : 'Mark read'} className="flex h-9 w-9 items-center justify-center rounded-[8px] text-[var(--admin-muted)] hover:bg-[#eef0f3]">
                                         {selected.read_at ? <Mail className="h-[18px] w-[18px]" /> : <MailOpen className="h-[18px] w-[18px]" />}

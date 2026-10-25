@@ -2,7 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Bell, ChevronLeft, CircleCheck, ExternalLink, FileText, Inbox, LayoutDashboard, LogOut, Mail, Menu, Megaphone, PanelsTopLeft, UserCog, Users, X, type LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { SharedProps } from './types';
-import { AdminFont, Avatar, adminTheme, fontClass } from './ui';
+import { Avatar, adminTheme, fontClass } from './ui';
 import { useAdminUrl, useSiteUrl } from './urls';
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number; exact?: boolean };
@@ -93,8 +93,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
     return (
         <div style={adminTheme} className={`min-h-screen bg-[var(--admin-canvas)] text-[var(--admin-text)] antialiased lg:flex ${fontClass}`}>
             <Head title={`${title} · Admin`} />
-            <AdminFont />
-            {menuOpen && <div className="fixed inset-0 z-40 bg-[#0e2741]/40 lg:hidden" onClick={() => setMenuOpen(false)} />}
+            {menuOpen && <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setMenuOpen(false)} />}
             <aside
                 id="admin-menu"
                 className={`${menuOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-50 w-[272px] max-w-[85vw] flex-col bg-white lg:sticky lg:top-[var(--admin-top,0px)] lg:z-40 lg:flex lg:h-[calc(100vh_-_var(--admin-top,0px))] lg:max-w-none lg:shrink-0 ${narrow ? 'lg:w-[88px]' : ''}`}
@@ -113,7 +112,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                         {schoolLogo ? (
                             <img src={schoolLogo} alt="" className="h-12 w-12 shrink-0 rounded-[10px] object-contain" />
                         ) : (
-                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[var(--admin-primary)] text-lg font-semibold text-white">{schoolName.slice(0, 1)}</span>
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[var(--admin-primary)] text-lg font-semibold text-[var(--admin-on-primary)]">{schoolName.slice(0, 1)}</span>
                         )}
                         <span className={`min-w-0 ${narrow ? 'lg:hidden' : ''}`}>
                             <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--admin-heading)]">{schoolName}</span>
@@ -136,12 +135,12 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                                         href={item.href}
                                         aria-current={active ? 'page' : undefined}
                                         title={narrow ? item.label : undefined}
-                                        className={`${itemClass} relative ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[#f3f6f9] hover:text-[var(--admin-heading)]'}`}
+                                        className={`${itemClass} relative ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
                                     >
                                         <Icon className={`h-6 w-6 shrink-0 ${active ? 'text-[var(--admin-primary)]' : ''}`} strokeWidth={1.5} />
                                         <span className={`truncate ${narrow ? 'lg:sr-only' : ''}`}>{item.label}</span>
                                         {item.badge ? (
-                                            <span className={`rounded-full bg-[var(--admin-primary)] px-2 py-0.5 text-xs font-semibold tabular-nums text-white ${narrow ? 'lg:absolute lg:right-2 lg:top-1 lg:px-1.5 lg:text-[10px]' : 'ml-auto'}`}>{item.badge}</span>
+                                            <span className={`rounded-full bg-[var(--admin-primary)] px-2 py-0.5 text-xs font-semibold tabular-nums text-[var(--admin-on-primary)] ${narrow ? 'lg:absolute lg:right-2 lg:top-1 lg:px-1.5 lg:text-[10px]' : 'ml-auto'}`}>{item.badge}</span>
                                         ) : null}
                                     </Link>
                                 </li>
@@ -178,20 +177,20 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                             href={siteUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-[var(--admin-border)] bg-white px-3 text-sm font-medium text-[var(--admin-text)] transition hover:bg-[#f3f6f9] lg:h-12 lg:px-4"
+                            className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-[var(--admin-border)] bg-white px-3 text-sm font-medium text-[var(--admin-text)] transition hover:bg-[var(--admin-hover)] lg:h-12 lg:px-4"
                         >
                             <ExternalLink className="h-5 w-5" strokeWidth={1.5} /> <span className="sr-only md:not-sr-only">View website</span>
                         </a>
                         <Link
                             href={admin('/messages')}
                             aria-label={newCount > 0 ? `Inbox, ${newCount} new` : 'Inbox'}
-                            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--admin-primary)] text-white transition hover:bg-[var(--admin-primary-hover)] lg:h-12 lg:w-12"
+                            className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[var(--admin-primary)] text-[var(--admin-on-primary)] transition hover:bg-[var(--admin-primary-hover)] lg:h-12 lg:w-12"
                         >
                             <Bell className="h-6 w-6" strokeWidth={1.5} />
                             {newCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f93642] px-1 text-[10px] font-semibold text-white ring-2 ring-white">{newCount}</span>}
                         </Link>
                         {auth.user && (
-                            <Link href={admin('/account')} className="hidden shrink-0 items-center gap-3 rounded-[10px] py-1 pl-1 pr-2 transition hover:bg-[#f3f6f9] xl:flex">
+                            <Link href={admin('/account')} className="hidden shrink-0 items-center gap-3 rounded-[10px] py-1 pl-1 pr-2 transition hover:bg-[var(--admin-hover)] xl:flex">
                                 <Avatar name={auth.user.name} />
                                 <span className="max-w-[10rem] leading-tight">
                                     <span className="block truncate text-sm font-medium text-[var(--admin-heading)]">{auth.user.name}</span>
@@ -227,8 +226,8 @@ export const inputClass =
 
 export const buttonClass = {
     primary:
-        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] bg-[var(--admin-primary,#18181b)] px-4 text-sm font-medium text-white transition hover:bg-[var(--admin-primary-hover,#3f3f46)] disabled:opacity-50',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] bg-[var(--admin-primary,#18181b)] px-4 text-sm font-medium text-[var(--admin-on-primary,#ffffff)] transition hover:bg-[var(--admin-primary-hover,#3f3f46)] disabled:opacity-50',
     secondary:
-        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] border border-[var(--admin-border,#d4d4d8)] bg-white px-4 text-sm font-medium text-[var(--admin-text,#3f3f46)] transition hover:bg-[#f3f6f9] disabled:opacity-50',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] border border-[var(--admin-border,#d4d4d8)] bg-white px-4 text-sm font-medium text-[var(--admin-text,#3f3f46)] transition hover:bg-[var(--admin-hover)] disabled:opacity-50',
     danger: 'inline-flex h-10 items-center justify-center gap-2 rounded-[12px] px-3 text-sm font-medium text-[#d0102b] transition hover:bg-[#fde7eb] disabled:opacity-50',
 };
