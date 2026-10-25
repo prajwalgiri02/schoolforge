@@ -1,7 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, RotateCcw, Save } from 'lucide-react';
+import { ArrowLeft, Plus, RotateCcw, Save } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { AdminLayout, buttonClass } from '@/admin/AdminLayout';
+import { groupSections } from '@/admin/contentGroups';
 import { FieldGroup, ItemList } from '@/admin/fields';
 import type { Item, SectionDefinition } from '@/admin/types';
 import { useAdminUrl } from '@/admin/urls';
@@ -31,11 +32,21 @@ const languageNames: Record<string, string> = { en: 'English', ne: 'नेपा
 function Editor({ sectionKey, section, value: initialValue, isEdited, locale, locales, defaultLocale, icons, sections }: Props) {
     const admin = useAdminUrl();
     const query = locale === defaultLocale ? '' : `?locale=${locale}`;
-    const errors = usePage().props.errors as Record<string, string | undefined>;
-    const [value, setValue] = useState<Item | Item[]>(initialValue);
+    const page = usePage();
+    const errors = page.props.errors as Record<string, string | undefined>;
+    const [adding] = useState(() => Array.isArray(initialValue) && new URLSearchParams(page.url.split('?')[1] ?? '').has('add'));
+    const [value, setValue] = useState<Item | Item[]>(() => (adding && Array.isArray(initialValue) ? [{}, ...initialValue] : initialValue));
     const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(initialValue));
     const [processing, setProcessing] = useState(false);
     const isDirty = JSON.stringify(value) !== savedSnapshot;
+
+    useEffect(() => {
+        if (adding) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('add');
+            window.history.replaceState(window.history.state, '', url);
+        }
+    }, [adding]);
 
     useEffect(() => {
         if (!isDirty) {
@@ -88,21 +99,29 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
         >
             <div className="grid gap-8 lg:grid-cols-[14rem_1fr]">
                 <nav aria-label="Sections" className="hidden lg:block">
-                    <Link href={admin()} className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                    <Link href={admin('/content')} className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
                         <ArrowLeft className="h-4 w-4" /> All content
                     </Link>
-                    <ul className="space-y-0.5">
-                        {sections.map((item) => (
-                            <li key={item.key}>
-                                <Link
-                                    href={admin(`/content/${item.key}`)}
-                                    className={`block rounded-lg px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-zinc-200/70 font-medium text-zinc-900' : 'text-zinc-600 hover:bg-zinc-100'}`}
-                                >
-                                    {item.label}
-                                </Link>
-                            </li>
+                    <div className="space-y-5">
+                        {groupSections(sections).map((group) => (
+                            <div key={group.title}>
+                                <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">{group.title}</p>
+                                <ul className="space-y-0.5">
+                                    {group.sections.map((item) => (
+                                        <li key={item.key}>
+                                            <Link
+                                                href={admin(`/content/${item.key}`)}
+                                                aria-current={item.key === sectionKey ? 'page' : undefined}
+                                                className={`block rounded-lg px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-zinc-200/70 font-medium text-zinc-900' : 'text-zinc-600 hover:bg-zinc-100'}`}
+                                            >
+                                                {item.label}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </nav>
                 <form id="content-form" onSubmit={submit} className="min-w-0 space-y-6">
                     <p className="text-sm text-zinc-500">{section.description}</p>
@@ -119,6 +138,11 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                                 </Link>
                             ))}
                             {locale !== defaultLocale && <span className="text-xs text-zinc-500">Fields you leave unchanged keep showing the {languageNames[defaultLocale] ?? defaultLocale} text.</span>}
+                        </div>
+                    )}
+                    {adding && isDirty && (
+                        <div role="status" className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                            <Plus className="h-4 w-4 shrink-0" /> A new item is ready at the top. Fill it in and save.
                         </div>
                     )}
                     {errorCount > 0 && (

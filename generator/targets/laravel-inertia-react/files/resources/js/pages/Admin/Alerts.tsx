@@ -24,7 +24,7 @@ export default function Alerts({ subscriberCount, alerts }: Props) {
     };
 
     return (
-        <AdminLayout title="Alerts">
+        <AdminLayout title="Email alerts">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
                 <form onSubmit={send} className="space-y-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
                     <div>

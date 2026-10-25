@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ContactMessage;
+use App\Models\FormSubmission;
 use App\Support\SchoolSite;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -32,6 +34,10 @@ class HandleInertiaRequests extends Middleware
                     'isAdmin' => $request->user()->isAdmin(),
                 ] : null,
             ],
+            'inbox' => fn () => $request->user() ? [
+                'messages' => ContactMessage::query()->whereNull('read_at')->count(),
+                'submissions' => FormSubmission::query()->whereNull('reviewed_at')->count(),
+            ] : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],

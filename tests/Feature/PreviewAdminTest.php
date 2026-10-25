@@ -23,7 +23,7 @@ class PreviewAdminTest extends TestCase
         $this->project = Project::factory()->example()->create();
     }
 
-    public function test_dashboard_shows_the_schools_content_sections_with_preview_links(): void
+    public function test_dashboard_shows_an_empty_inbox_and_the_schools_pages(): void
     {
         $slug = $this->project->slug;
 
@@ -37,10 +37,36 @@ class PreviewAdminTest extends TestCase
                 ->where('studioUrl', "/projects/{$slug}")
                 ->where('auth.user.email', 'owner@example.test')
                 ->where('auth.user.isAdmin', true)
-                ->where('sections', fn ($sections) => collect($sections)->firstWhere('key', 'programs')['count'] === 6)
+                ->where('inbox', ['messages' => 0, 'submissions' => 0])
                 ->where('pageCount', fn (int $count) => $count > 5)
-                ->where('stats.0.href', "/preview/{$slug}/admin/messages")
-                ->where('recentMessages', []));
+                ->where('stats.0', ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0])
+                ->where('stats.2', ['key' => 'updated', 'label' => 'Last edited', 'value' => null])
+                ->where('checklist', fn ($steps) => collect($steps)->reject->done->pluck('key')->values()->all() === ['logo'])
+                ->where('sectionCount', fn (int $count) => $count > 20)
+                ->where('editedCount', 0)
+                ->where('recentMessages', [])
+                ->where('recentSubmissions', [])
+                ->where('recentEdits', []));
+    }
+
+    public function test_dashboard_checklist_shows_what_a_new_school_still_has_to_fill_in(): void
+    {
+        $config = $this->project->config;
+        $config['news'] = [];
+        $this->project->update(['config' => $config]);
+
+        $this->get("/preview/{$this->project->slug}/admin")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('checklist', fn ($steps) => collect($steps)->reject->done->pluck('key')->values()->all() === ['logo', 'news']));
+    }
+
+    public function test_content_page_lists_the_schools_content_sections(): void
+    {
+        $this->get("/preview/{$this->project->slug}/admin/content")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Content/Index')
+                ->where('sections', fn ($sections) => collect($sections)->firstWhere('key', 'programs')['count'] === 6));
     }
 
     public function test_content_editor_shows_section_values_and_translations(): void

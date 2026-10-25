@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\ContactMessage;
+use App\Models\FormSubmission;
 use App\Models\SiteContent;
 use App\Models\User;
 use App\Support\ContentSchema;
@@ -91,18 +92,51 @@ class AdminPanelTest extends TestCase
         $this->put('/admin/content/achievements', ['value' => [['year' => 2026, 'title' => 'Olympiad gold']]])->assertSessionHasNoErrors();
     }
 
-    public function test_dashboard_lists_every_content_section(): void
+    public function test_content_page_lists_every_content_section(): void
+    {
+        $this->actingAs($this->admin())
+            ->get('/admin/content')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Content/Index')
+                ->has('sections', count(ContentSchema::sections())));
+    }
+
+    public function test_dashboard_shows_recent_enquiries_applications_and_edits(): void
     {
         ContactMessage::factory()->count(2)->create();
+        FormSubmission::factory()->create(['name' => 'Asha Rai']);
+        $admin = $this->admin();
+        $this->actingAs($admin)->put('/admin/content/hero', ['value' => ['title' => 'Welcome']]);
+        $this->actingAs($admin)->put('/admin/content/hero?locale=ne', ['value' => ['title' => 'स्वागत']]);
 
-        $this->actingAs($this->admin())
-            ->get('/admin')
+        $this->get('/admin')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Dashboard')
-                ->has('sections', count(ContentSchema::sections()))
-                ->where('unreadMessages', 2)
-                ->has('recentMessages', 2));
+                ->where('inbox', ['messages' => 2, 'submissions' => 1])
+                ->has('recentMessages', 2)
+                ->where('recentSubmissions.0.name', 'Asha Rai')
+                ->has('recentSubmissions.0.form')
+                ->where('sectionCount', count(ContentSchema::sections()))
+                ->where('editedCount', 1)
+                ->where('stats.2.key', 'updated')
+                ->where('stats.2.value', fn (?string $value) => $value !== null)
+                ->has('checklist', 6)
+                ->has('recentEdits', 2)
+                ->where('recentEdits', fn ($edits) => collect($edits)->pluck('locale')->sort()->values()->all() === [null, 'ne']));
+    }
+
+    public function test_dashboard_checklist_follows_the_content(): void
+    {
+        $admin = $this->admin();
+        $done = fn () => collect($this->actingAs($admin)->get('/admin')->viewData('page')['props']['checklist'])->firstWhere('key', 'news')['done'];
+
+        $this->actingAs($admin)->put('/admin/content/news', ['value' => []])->assertSessionHasNoErrors();
+        $this->assertFalse($done());
+
+        $this->actingAs($admin)->put('/admin/content/news', ['value' => [['title' => 'Sports week']]])->assertSessionHasNoErrors();
+        $this->assertTrue($done());
     }
 
     public function test_editor_shows_current_content(): void

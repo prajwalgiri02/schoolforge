@@ -36,7 +36,7 @@ export default function Website({ pages, colors }: { pages: Page[]; colors: Reco
     };
 
     return (
-        <AdminLayout title="Website">
+        <AdminLayout title="Pages & design" description="Page titles, the menu and the website’s colours.">
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
                 <form onSubmit={savePages} className="rounded-xl border border-zinc-200 bg-white shadow-sm">
                     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 p-5">

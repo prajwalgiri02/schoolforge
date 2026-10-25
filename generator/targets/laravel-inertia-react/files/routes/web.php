@@ -36,6 +36,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::post('logout', [SessionController::class, 'destroy'])->name('logout');
 
+        Route::get('content', [ContentController::class, 'index'])->name('content.index');
         Route::get('content/{key}', [ContentController::class, 'edit'])->name('content.edit');
         Route::put('content/{key}', [ContentController::class, 'update'])->name('content.update');
         Route::delete('content/{key}', [ContentController::class, 'destroy'])->name('content.destroy');

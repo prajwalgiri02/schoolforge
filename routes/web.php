@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function (): void {
 
     Route::prefix('preview/{project}/admin')->name('preview.admin.')->controller(PreviewAdminController::class)->group(function (): void {
         Route::get('/', 'dashboard')->name('dashboard');
+        Route::get('content', 'contentIndex')->name('content-index');
         Route::get('content/{key}', 'content')->name('content');
         Route::get('website', 'website')->name('website');
         Route::get('messages', 'messages')->name('messages');

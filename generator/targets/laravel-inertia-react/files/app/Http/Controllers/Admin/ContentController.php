@@ -16,6 +16,30 @@ use Inertia\Response;
 class ContentController extends Controller
 {
     /**
+     * Every editable content section, with how many items it has and whether it was edited.
+     */
+    public function index(SchoolSite $site): Response
+    {
+        $data = $site->data();
+        $edited = SiteContent::query()->pluck('updated_at', 'key');
+
+        return Inertia::render('Admin/Content/Index', [
+            'sections' => collect(ContentSchema::sections())->map(function (array $section, string $key) use ($data, $edited): array {
+                $value = ContentSchema::valueFrom($data, $key);
+
+                return [
+                    'key' => $key,
+                    'label' => $section['label'],
+                    'description' => $section['description'],
+                    'kind' => $section['kind'],
+                    'count' => $section['kind'] === 'list' ? count($value) : null,
+                    'editedAt' => $edited->get($key)?->toIso8601String(),
+                ];
+            })->values(),
+        ]);
+    }
+
+    /**
      * Show the editor for one content section, in the default language or a translation (?locale=ne).
      */
     public function edit(Request $request, SchoolSite $site, string $key): Response

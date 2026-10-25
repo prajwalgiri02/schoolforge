@@ -302,6 +302,27 @@ class ContentSchema
     }
 
     /**
+     * First steps that make a new website the school's own, each done once its content is filled in.
+     *
+     * @param  array<string, mixed>  $site
+     * @return list<array{key: string, label: string, section: string, done: bool}>
+     */
+    public static function checklist(array $site, bool $configShape = false): array
+    {
+        $value = fn (string $key): array => (array) self::valueFrom($site, $key, $configShape);
+        $contact = $value('contact');
+
+        return [
+            ['key' => 'logo', 'label' => 'Add the school’s logo', 'section' => 'school', 'done' => filled($value('school')['logo'] ?? null)],
+            ['key' => 'contact', 'label' => 'Fill in the address, phone and email', 'section' => 'contact', 'done' => filled($contact['address'] ?? null) && (filled($contact['phone'] ?? null) || filled($contact['email'] ?? null))],
+            ['key' => 'about', 'label' => 'Introduce the school', 'section' => 'about', 'done' => filled($value('about')['summary'] ?? null)],
+            ['key' => 'principal', 'label' => 'Add the principal’s message', 'section' => 'principal', 'done' => filled($value('principal')['message'] ?? null)],
+            ['key' => 'news', 'label' => 'Post the first news story', 'section' => 'news', 'done' => $value('news') !== []],
+            ['key' => 'gallery', 'label' => 'Add photos to the gallery', 'section' => 'gallery', 'done' => $value('gallery') !== []],
+        ];
+    }
+
+    /**
      * Reads the value a section currently has in the site data (or, with
      * `$configShape`, in a school config where content blocks are top-level).
      */

@@ -24,31 +24,38 @@ class PreviewAdminController extends Controller
 {
     public function dashboard(Request $request, Project $project, Generator $generator): Response
     {
-        $sections = collect(ContentSchema::sections())->map(function (array $section, string $key) use ($project): array {
-            $value = ContentSchema::valueFrom($project->config, $key, configShape: true);
-
-            return [
-                'key' => $key,
-                'label' => $section['label'],
-                'description' => $section['description'],
-                'kind' => $section['kind'],
-                'count' => $section['kind'] === 'list' ? count($value) : null,
-                'editedAt' => null,
-            ];
-        })->values();
-        $admin = route('preview.admin.dashboard', $project, absolute: false);
-
         return $this->render($request, $project, 'Admin/Dashboard', [
-            'sections' => $sections,
-            'pageCount' => count($this->pages($project, $generator)),
             'stats' => [
-                ['label' => 'New enquiries', 'value' => 0, 'href' => "{$admin}/messages"],
-                ['label' => 'Applications to review', 'value' => 0, 'href' => "{$admin}/submissions"],
-                ['label' => 'Enquiries in 30 days', 'value' => 0, 'href' => "{$admin}/messages"],
-                ['label' => 'Subscribers', 'value' => 0, 'href' => "{$admin}/alerts"],
+                ['key' => 'messages', 'label' => 'New enquiries', 'value' => 0],
+                ['key' => 'submissions', 'label' => 'Applications to review', 'value' => 0],
+                ['key' => 'updated', 'label' => 'Last edited', 'value' => null],
+                ['key' => 'subscribers', 'label' => 'Subscribers', 'value' => 0],
             ],
-            'unreadMessages' => 0,
+            'checklist' => ContentSchema::checklist($project->config, configShape: true),
+            'pageCount' => count($this->pages($project, $generator)),
+            'sectionCount' => count(ContentSchema::sections()),
+            'editedCount' => 0,
             'recentMessages' => [],
+            'recentSubmissions' => [],
+            'recentEdits' => [],
+        ]);
+    }
+
+    public function contentIndex(Request $request, Project $project): Response
+    {
+        return $this->render($request, $project, 'Admin/Content/Index', [
+            'sections' => collect(ContentSchema::sections())->map(function (array $section, string $key) use ($project): array {
+                $value = ContentSchema::valueFrom($project->config, $key, configShape: true);
+
+                return [
+                    'key' => $key,
+                    'label' => $section['label'],
+                    'description' => $section['description'],
+                    'kind' => $section['kind'],
+                    'count' => $section['kind'] === 'list' ? count($value) : null,
+                    'editedAt' => null,
+                ];
+            })->values(),
         ]);
     }
 
@@ -212,6 +219,7 @@ class PreviewAdminController extends Controller
             ...$props,
             'schoolName' => (string) ($project->config['school']['name'] ?? $project->name),
             'auth' => ['user' => $this->user($request)],
+            'inbox' => ['messages' => 0, 'submissions' => 0],
             'adminUrl' => route('preview.admin.dashboard', $project, absolute: false),
             'siteUrl' => route('preview', $project, absolute: false),
             'studioUrl' => route('projects.show', $project, absolute: false),
