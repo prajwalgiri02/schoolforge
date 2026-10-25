@@ -175,6 +175,7 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
     const [processing, setProcessing] = useState(false);
     const [translations, setTranslations] = useState<Translations>(() => Object.fromEntries(languages.slice(1).map((code) => [code, { ...(pageTranslations[code] ?? {}) }])));
     const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify([initialPages, translations]));
+    const [savedSlugs, setSavedSlugs] = useState(() => initialPages.map((item) => item.slug));
     const page = pages[selected] ?? pages[0];
     const selectPage = (index: number, slug = pages[index]?.slug ?? '/') => {
         lastSelectedSlug[project.slug] = slug;
@@ -247,7 +248,10 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
                 onFinish: () => setProcessing(false),
-                onSuccess: () => setSavedSnapshot(JSON.stringify([pages, translations])),
+                onSuccess: () => {
+                    setSavedSnapshot(JSON.stringify([pages, translations]));
+                    setSavedSlugs(pages.map((item) => item.slug));
+                },
             },
         );
     };
@@ -262,7 +266,7 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
     const errorCount = Object.keys(errors).length;
 
     return (
-        <ProjectLayout project={project} title="Pages" previewPath={page.slug === '/' ? '' : page.slug}>
+        <ProjectLayout project={project} title="Pages" previewPath={page.slug === '/' ? '' : page.slug} previewNote={savedSlugs.includes(page.slug) ? undefined : `Save the pages to preview “${page.title}”.`}>
             <form onSubmit={save} className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="max-w-xl text-sm text-zinc-500">
@@ -413,7 +417,7 @@ function Editor({ project, isCustom, pages: initialPages, components, themeVaria
                                             <div className="flex flex-wrap items-center gap-3 px-4 py-3">
                                                 <GripVertical className="-ml-2 h-4 w-4 cursor-grab text-zinc-300" aria-hidden="true" />
                                                 <span className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-500">{index + 1}</span>
-                                                <span className="min-w-0 flex-1">
+                                                <span className="min-w-32 flex-1">
                                                     <span className="block text-sm font-medium">{labels[section.type] ?? section.type}</span>
                                                     {section.title && <span className="block truncate text-xs text-zinc-500">“{section.title}”</span>}
                                                 </span>

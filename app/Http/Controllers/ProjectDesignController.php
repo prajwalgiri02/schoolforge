@@ -42,6 +42,7 @@ class ProjectDesignController extends Controller
                 'languages' => $project->config['languages'] ?? ['en'],
                 'calendars' => (object) ($project->config['calendars'] ?? []),
             ],
+            'translatedLanguages' => array_keys(array_filter($project->config['translations'] ?? [])),
             'availableLanguages' => UpdateProjectDesignRequest::LANGUAGES,
         ]);
     }
@@ -62,7 +63,7 @@ class ProjectDesignController extends Controller
         $fonts = array_filter($request->validated('fonts') ?? [], fn ($value): bool => filled($value));
         $fonts === [] ? Arr::forget($config, 'fonts') : $config['fonts'] = $fonts;
 
-        $languages = $request->validated('languages') ?? ['en'];
+        $languages = $request->validated('languages') ?? $config['languages'] ?? ['en'];
         $languages === ['en'] ? Arr::forget($config, 'languages') : $config['languages'] = $languages;
         $calendars = array_intersect_key(array_filter($request->validated('calendars') ?? []), array_flip($languages));
         $calendars === [] ? Arr::forget($config, 'calendars') : $config['calendars'] = $calendars;

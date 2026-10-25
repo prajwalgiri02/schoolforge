@@ -74,7 +74,14 @@ class StarterContent
         $config = $template ? static::fromTemplate($template, $school) : static::sample($school);
         unset($config['seo']['siteUrl']);
 
-        return static::renamed($config, array_filter([$starter['school']['name'] ?? null, $starter['school']['shortName'] ?? null]), $school['name']);
+        $oldNames = [];
+
+        foreach ([$starter, ...array_values($starter['translations'] ?? [])] as $content) {
+            $oldNames[] = $content['school']['name'] ?? null;
+            $oldNames[] = $content['school']['shortName'] ?? null;
+        }
+
+        return static::renamed($config, array_values(array_unique(array_filter($oldNames, 'is_string'))), $school['name']);
     }
 
     /**

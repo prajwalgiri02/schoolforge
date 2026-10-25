@@ -32,12 +32,14 @@ export function ProjectLayout({
     children,
     preview = true,
     previewPath = '',
+    previewNote,
 }: {
     project: ProjectSummary;
     title: string;
     children: ReactNode;
     preview?: boolean;
     previewPath?: string;
+    previewNote?: string;
 }) {
     const url = usePage().url;
     const { auth } = usePage<StudioSharedProps>().props;
@@ -148,13 +150,17 @@ export function ProjectLayout({
                                 </span>
                             </div>
                             <div className={`h-[calc(100vh-9rem)] overflow-auto ${frameWidth ? 'bg-zinc-100 p-4' : ''}`}>
-                                <iframe
-                                    key={`${project.updatedAt}-${reloads}-${previewPath}`}
-                                    src={previewUrl}
-                                    title="Website preview"
-                                    style={frameWidth ? { width: frameWidth } : undefined}
-                                    className={`h-full bg-white ${frameWidth ? 'mx-auto rounded-xl border border-zinc-300 shadow-lg' : 'w-full'}`}
-                                />
+                                {previewNote ? (
+                                    <p className="flex h-full items-center justify-center p-8 text-center text-sm text-zinc-500">{previewNote}</p>
+                                ) : (
+                                    <iframe
+                                        key={`${project.updatedAt}-${reloads}-${previewPath}`}
+                                        src={previewUrl}
+                                        title="Website preview"
+                                        style={frameWidth ? { width: frameWidth } : undefined}
+                                        className={`h-full bg-white ${frameWidth ? 'mx-auto rounded-xl border border-zinc-300 shadow-lg' : 'w-full'}`}
+                                    />
+                                )}
                             </div>
                         </div>
                     </aside>

@@ -76,8 +76,12 @@ class SignupTest extends TestCase
         $this->assertArrayNotHasKey('logo', $school);
         $this->assertArrayNotHasKey('social', $school);
         $this->assertNotEmpty($project->config['news'], 'starts with sample content to edit');
-        $this->assertStringNotContainsString('Riverside Heights', json_encode($project->config), 'the example school is renamed');
         $this->assertArrayNotHasKey('siteUrl', $project->config['seo'] ?? []);
+        $this->assertArrayNotHasKey('campuses', $project->config);
+        $this->assertLeavesNoTraceOfTheExampleSchool($project);
+        $this->assertStringStartsWith('Gyan Jyoti School ', $project->config['translations']['ne']['school']['about']['summary']);
+        $this->assertArrayNotHasKey('name', $project->config['translations']['ne']['school']);
+        $this->assertArrayNotHasKey('contact', $project->config['translations']['ne']['school']);
 
         $this->assertTrue(AuditEvent::query()->where('action', 'schools.signed-up')->where('project_id', $project->id)->where('user_id', $user->id)->exists());
         $this->get('/')->assertRedirect("/projects/{$project->slug}/welcome");
@@ -101,6 +105,16 @@ class SignupTest extends TestCase
         $this->assertTrue($project->trial_ends_at->isSameDay(now()->addDays(7)));
         $this->assertTrue(Billing::needsPackage($project));
         $this->assertFalse(Billing::trialEnded($project));
+        $this->assertLeavesNoTraceOfTheExampleSchool($project);
+    }
+
+    private function assertLeavesNoTraceOfTheExampleSchool(Project $project): void
+    {
+        $config = json_encode($project->config, JSON_UNESCAPED_UNICODE);
+
+        foreach (['Riverside', 'riversideheights', 'रिभरसाइड', '+977 1 4567890', '+977 1 4412345'] as $trace) {
+            $this->assertStringNotContainsString($trace, $config);
+        }
     }
 
     public function test_signup_validation_and_bots(): void

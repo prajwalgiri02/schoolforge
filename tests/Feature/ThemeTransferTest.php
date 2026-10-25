@@ -31,8 +31,10 @@ class ThemeTransferTest extends TestCase
         $directory = "{$this->generatorPath}/registry/themes/playful";
         File::ensureDirectoryExists("{$directory}/components/hero");
         File::put("{$directory}/components/hero/index.tsx", 'export default function Hero() { return null; }');
+        File::put("{$directory}/components/README.md", 'Overrides go here.');
 
         $bundle = json_decode($this->get('/themes/playful/export')->assertOk()->streamedContent(), true);
+        $this->assertSame(['hero/index.tsx'], array_keys($bundle['components']));
 
         $this->assertSame('schoolforge-theme', $bundle['format']);
         $this->assertSame('playful', $bundle['name']);
@@ -47,6 +49,9 @@ class ThemeTransferTest extends TestCase
         $this->assertSame($bundle['extraCss'], File::get("{$imported}/extra.css"));
         $this->assertFileExists("{$imported}/components/hero/index.tsx");
         $this->get('/themes/playful-copy/edit')->assertOk();
+
+        $this->post('/themes/import', ['file' => $this->upload([...$bundle, 'components' => ['README.md' => 'Overrides go here.']]), 'name' => 'older-export'])
+            ->assertRedirect('/themes/older-export/edit');
     }
 
     public function test_bad_theme_files_are_rejected(): void

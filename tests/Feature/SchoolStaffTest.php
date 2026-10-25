@@ -39,6 +39,7 @@ class SchoolStaffTest extends TestCase
         $this->get("/projects/{$school->slug}/pages")->assertOk();
         $this->get("/projects/{$school->slug}/history")->assertOk();
         $this->get("/preview/{$school->slug}/about")->assertOk();
+        $this->get("/preview/{$school->slug}/events.ics")->assertOk();
         $this->post("/projects/{$school->slug}/publish")->assertSessionHas('success');
         $this->assertNotNull($school->fresh()->published_at);
     }
@@ -49,7 +50,7 @@ class SchoolStaffTest extends TestCase
         $other = Project::factory()->create();
         $this->actingAs(User::factory()->schoolStaff($school)->create());
 
-        foreach (["/projects/{$other->slug}/content", "/projects/{$other->slug}/publish", "/preview/{$other->slug}"] as $url) {
+        foreach (["/projects/{$other->slug}/content", "/projects/{$other->slug}/publish", "/preview/{$other->slug}", "/preview/{$other->slug}/events.ics"] as $url) {
             $this->get($url)->assertForbidden();
         }
         $this->put("/projects/{$other->slug}/content/hero", ['value' => ['title' => 'Hacked']])->assertForbidden();

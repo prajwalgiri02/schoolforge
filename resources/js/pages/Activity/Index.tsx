@@ -44,7 +44,7 @@ export default function ActivityIndex({ events, filters, schools, users }: { eve
                         {events.data.map((event) => (
                             <li key={event.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-5 py-3 text-sm">
                                 <span className="w-36 shrink-0 text-xs text-zinc-500 tabular-nums">{formatTime(event.at)}</span>
-                                <span className="min-w-0 flex-1">
+                                <span className="min-w-0 flex-1 break-words">
                                     {event.user && <span className="font-medium">{event.user} </span>}
                                     <span className="text-zinc-700">{event.description}</span>
                                     {event.school && (

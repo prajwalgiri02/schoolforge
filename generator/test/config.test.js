@@ -102,7 +102,7 @@ describe('buildSite', () => {
         assert.deepEqual(warnings, []);
         assert.ok(slugs.includes('/'));
         assert.ok(slugs.includes('/faculty'));
-        assert.ok(slugs.includes('/news/riverside-students-win-national-science-olympiad'));
+        assert.ok(slugs.includes('/news/riverside-heights-students-win-national-science-olympiad'));
         assert.ok(!slugs.includes('/news/admissions-open-for-the-2027-session'), 'news without a body gets no article page');
         assert.ok(!site.navigation.some((link) => link.href.startsWith('/news/')));
     });

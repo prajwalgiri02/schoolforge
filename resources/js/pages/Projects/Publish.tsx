@@ -98,7 +98,7 @@ type DomainCheckResult = { records: { host: string; addresses: string[]; pointsH
 
 function DomainStatus({ check }: { check: DomainCheckResult }) {
     const row = (ok: boolean, label: string, detail: string) => (
-        <li className="flex gap-2">
+        <li key={label} className="flex gap-2">
             {ok ? <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />}
             <span>
                 <span className="font-medium">{label}</span> <span className="text-zinc-500">{detail}</span>

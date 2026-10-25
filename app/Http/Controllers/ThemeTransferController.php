@@ -6,6 +6,7 @@ use App\Services\Generator;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -18,6 +19,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ThemeTransferController extends Controller
 {
     public const FORMAT = 'schoolforge-theme';
+
+    private const COMPONENT_FILE = '#^([a-z0-9-]+)/[A-Za-z0-9_-]+\.(tsx|ts|css)$#';
 
     public function export(string $theme, Generator $generator): StreamedResponse
     {
@@ -32,6 +35,7 @@ class ThemeTransferController extends Controller
             'extraCss' => File::exists("{$directory}/extra.css") ? File::get("{$directory}/extra.css") : '',
             'components' => collect(File::exists("{$directory}/components") ? File::allFiles("{$directory}/components") : [])
                 ->mapWithKeys(fn ($file): array => [str_replace('\\', '/', $file->getRelativePathname()) => $file->getContents()])
+                ->filter(fn (string $contents, string $path): bool => (bool) preg_match(self::COMPONENT_FILE, $path))
                 ->all(),
         ];
 
@@ -71,11 +75,11 @@ class ThemeTransferController extends Controller
             $fail("This theme builds on “{$bundle['theme']['extends']}”, which this Studio does not have. Import that theme first.");
         }
 
-        $components = $bundle['components'] ?? [];
+        $components = Arr::except($bundle['components'] ?? [], 'README.md');
         $knownComponents = array_column($generator->registry()['components'], 'name');
 
         foreach ($components as $path => $contents) {
-            if (! is_string($contents) || ! preg_match('#^([a-z0-9-]+)/[A-Za-z0-9_-]+\.(tsx|ts|css)$#', (string) $path, $match) || ! in_array($match[1], $knownComponents, true)) {
+            if (! is_string($contents) || ! preg_match(self::COMPONENT_FILE, (string) $path, $match) || ! in_array($match[1], $knownComponents, true)) {
                 $fail("The theme file contains an unexpected component file: {$path}.");
             }
         }

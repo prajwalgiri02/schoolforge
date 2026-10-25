@@ -62,6 +62,24 @@ class ProjectDesignTest extends TestCase
         $this->assertArrayNotHasKey('variants', $config);
     }
 
+    public function test_languages_are_kept_unless_turned_off(): void
+    {
+        $this->project->update(['config' => [...$this->project->config, 'languages' => ['en', 'ne'], 'translations' => ['ne' => ['hero' => ['title' => 'स्वागत छ']]]]]);
+
+        $this->get("/projects/{$this->project->slug}/design")
+            ->assertInertia(fn (Assert $page) => $page->where('translatedLanguages', ['ne']));
+
+        $this->put("/projects/{$this->project->slug}/design", ['theme' => 'modern'])->assertSessionHasNoErrors();
+        $config = $this->project->fresh()->config;
+        $this->assertSame(['en', 'ne'], $config['languages']);
+        $this->assertSame('स्वागत छ', $config['translations']['ne']['hero']['title']);
+
+        $this->put("/projects/{$this->project->slug}/design", ['theme' => 'modern', 'languages' => ['en']])->assertSessionHasNoErrors();
+        $config = $this->project->fresh()->config;
+        $this->assertArrayNotHasKey('languages', $config);
+        $this->assertArrayNotHasKey('translations', $config);
+    }
+
     public function test_design_is_validated(): void
     {
         $this->put("/projects/{$this->project->slug}/design", [

@@ -21,6 +21,7 @@ type Props = {
     themeDetails: Record<string, { colors: Record<string, string>; variants: Record<string, string> }>;
     components: ComponentSummary[];
     design: Design;
+    translatedLanguages: string[];
     availableLanguages: Record<string, string>;
 };
 
@@ -39,7 +40,7 @@ const colorTokens: { key: string; label: string }[] = [
     { key: 'border', label: 'Borders' },
 ];
 
-export default function DesignPage({ project, themes, themeDetails, components, design, availableLanguages }: Props) {
+export default function DesignPage({ project, themes, themeDetails, components, design, translatedLanguages, availableLanguages }: Props) {
     const form = useForm({
         theme: design.theme,
         colors: { ...design.colors } as Record<string, string>,
@@ -53,6 +54,7 @@ export default function DesignPage({ project, themes, themeDetails, components, 
         const languages = enabled ? [...form.data.languages, code] : form.data.languages.filter((item) => item !== code);
         form.setData('languages', languages.length > 0 ? languages : form.data.languages);
     };
+    const losingTranslations = translatedLanguages.filter((code) => !form.data.languages.slice(1).includes(code)).map((code) => availableLanguages[code] ?? code);
     const errors = form.errors as Record<string, string | undefined>;
     const themeColors = themeDetails[form.data.theme]?.colors ?? {};
     const themeVariants = themeDetails[form.data.theme]?.variants ?? {};
@@ -215,6 +217,11 @@ export default function DesignPage({ project, themes, themeDetails, components, 
                             );
                         })}
                     </div>
+                    {losingTranslations.length > 0 && (
+                        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                            Saving will delete the {losingTranslations.join(' and ')} translations of your content. You can get them back from the History tab.
+                        </p>
+                    )}
                     <FieldError message={errors.languages} />
                 </section>
 

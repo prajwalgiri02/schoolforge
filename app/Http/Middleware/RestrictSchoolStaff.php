@@ -52,6 +52,7 @@ class RestrictSchoolStaff
         'projects.submissions.destroy',
         'projects.submissions.file',
         'preview',
+        'preview.calendar',
         'uploads.store',
         'media.library',
     ];
