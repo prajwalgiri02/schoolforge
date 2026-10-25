@@ -2,13 +2,15 @@ import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { AuthCard } from '@/admin/AuthCard';
 import { buttonClass, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 export default function ResetPassword({ schoolName, token, email }: { schoolName: string; token: string; email: string }) {
+    const admin = useAdminUrl();
     const form = useForm({ token, email, password: '', password_confirmation: '' });
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        form.post('/admin/reset-password', { onFinish: () => form.reset('password', 'password_confirmation') });
+        form.post(admin('/reset-password'), { onFinish: () => form.reset('password', 'password_confirmation') });
     };
 
     return (

@@ -14,9 +14,16 @@ export default function Newsletter({ section, site }: SectionProps) {
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
+        const email = String(new FormData(event.currentTarget).get('email') ?? '').trim();
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            setState({ status: 'idle', errors: { email: t(site, 'invalidEmail') } });
+
+            return;
+        }
+
         setState({ status: 'sending', errors: {} });
-        const result = await subscribe({ email: String(data.get('email') ?? '').trim(), locale: site.i18n?.locale });
+        const result = await subscribe({ email, locale: site.i18n?.locale });
         setState(result.ok ? { status: 'done', errors: {} } : { status: 'idle', errors: result.errors ?? { email: t(site, 'formFailed') } });
     }
 

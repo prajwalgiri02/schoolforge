@@ -87,6 +87,9 @@ class ThemeManagementTest extends TestCase
         $this->assertStringContainsString('border-width: 2px', File::get("{$this->generatorPath}/registry/themes/sunrise/extra.css"));
 
         $this->get('/themes/sunrise/edit')->assertInertia(fn (Assert $page) => $page->where('resolved.colors.primary', '#ea580c')->where('resolved.colors.accent', '#c9a227'));
+
+        $this->put('/themes/sunrise', ['label' => 'Sunrise', 'extra_css' => ''])->assertSessionHasNoErrors();
+        $this->assertFileDoesNotExist("{$this->generatorPath}/registry/themes/sunrise/extra.css");
     }
 
     public function test_base_themes_must_keep_every_colour(): void

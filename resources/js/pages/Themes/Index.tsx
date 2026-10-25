@@ -18,7 +18,7 @@ export default function ThemesIndex({ themes }: { themes: (ThemeSummary & { proj
         <StudioLayout title="Themes">
             <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
                 <PageHeading title="Themes" description="Themes live in generator/registry/themes and are shared by every school. A new theme starts as a copy that extends an existing one, so you only change what is different." />
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
                     <div className="grid gap-5 sm:grid-cols-2">
                         {themes.map((theme) => (
                             <Link key={theme.name} href={`/themes/${theme.name}/edit`} className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">

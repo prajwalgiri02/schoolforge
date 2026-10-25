@@ -123,6 +123,11 @@ class SignupTest extends TestCase
         }
 
         $this->post('/signup', $this->signup(['email' => 'late@example.com']))->assertTooManyRequests();
+
+        $this->from('/signup')
+            ->post('/signup', $this->signup(['email' => 'late@example.com']), ['X-Inertia' => 'true'])
+            ->assertRedirect('/signup')
+            ->assertSessionHasErrors(['school_name' => 'Too many attempts. Please wait 60 minutes and try again.']);
     }
 
     public function test_reserved_names_do_not_become_studio_subdomains(): void

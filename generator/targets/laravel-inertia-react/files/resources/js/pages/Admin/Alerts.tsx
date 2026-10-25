@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { Download, Send } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { AdminLayout, buttonClass, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 type Alert = { id: number; subject: string; message: string; email_count: number; error: string | null; sent_at: string | null; created_at: string; sender: { name: string } | null };
 
@@ -12,18 +13,19 @@ function formatDate(value: string): string {
 }
 
 export default function Alerts({ subscriberCount, alerts }: Props) {
+    const admin = useAdminUrl();
     const form = useForm({ subject: '', message: '' });
 
     const send = (event: FormEvent) => {
         event.preventDefault();
         if (window.confirm(`Email “${form.data.subject}” to ${subscriberCount} ${subscriberCount === 1 ? 'subscriber' : 'subscribers'}?`)) {
-            form.post('/admin/alerts', { preserveScroll: true, onSuccess: () => form.reset() });
+            form.post(admin('/alerts'), { preserveScroll: true, onSuccess: () => form.reset() });
         }
     };
 
     return (
         <AdminLayout title="Alerts">
-            <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
                 <form onSubmit={send} className="space-y-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
                     <div>
                         <label htmlFor="subject" className="mb-1.5 block text-sm font-medium">
@@ -49,7 +51,7 @@ export default function Alerts({ subscriberCount, alerts }: Props) {
                         <p className="mt-1 text-2xl font-semibold">
                             {subscriberCount}
                         </p>
-                        <a href="/admin/alerts/subscribers.csv" className={`${buttonClass.secondary} mt-4 w-full`}>
+                        <a href={admin('/alerts/subscribers.csv')} className={`${buttonClass.secondary} mt-4 w-full`}>
                             <Download className="h-4 w-4" /> Export CSV
                         </a>
                     </div>

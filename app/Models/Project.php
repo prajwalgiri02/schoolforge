@@ -76,10 +76,19 @@ class Project extends Model
         static::deleted(fn () => HostedSites::forget());
 
         static::updated(function (Project $project): void {
-            if ($project->wasChanged('config')) {
-                $project->recordVersion($project->versionSummary ?? ProjectVersion::describe(json_decode((string) $project->getRawOriginal('config'), true) ?? [], $project->config));
-                $project->versionSummary = null;
+            if (! $project->wasChanged('config')) {
+                return;
             }
+
+            $before = json_decode((string) $project->getRawOriginal('config'), true) ?? [];
+
+            // Saving without edits can reorder keys; that is not a new version.
+            if ($project->versionSummary === null && $before == $project->config) {
+                return;
+            }
+
+            $project->recordVersion($project->versionSummary ?? ProjectVersion::describe($before, $project->config));
+            $project->versionSummary = null;
         });
     }
 

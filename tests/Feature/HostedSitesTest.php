@@ -65,6 +65,17 @@ class HostedSitesTest extends TestCase
         $this->get('http://studio.test/login')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Auth/Login'));
     }
 
+    public function test_the_events_calendar_feed_is_served(): void
+    {
+        $this->publishedSchool();
+
+        $this->get('http://riverside.edu.np/events.ics')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'text/calendar; charset=utf-8')
+            ->assertSee('BEGIN:VCALENDAR', false)
+            ->assertSee('SUMMARY:Annual Sports Week', false);
+    }
+
     public function test_published_pages_are_rendered_to_html_for_search_engines(): void
     {
         $project = $this->publishedSchool();
@@ -181,6 +192,7 @@ class HostedSitesTest extends TestCase
         $this->postJson('http://riverside.edu.np/_school/subscribe', [])->assertUnprocessable();
         $this->postJson('http://riverside.edu.np/_school/subscribe', ['phone' => '9801234567'])->assertUnprocessable();
         $this->postJson('http://riverside.edu.np/_school/subscribe', ['email' => 'parent@example.com'])->assertCreated();
+        $this->postJson('http://riverside.edu.np/_school/subscribe', ['email' => 'Parent@Example.com'])->assertCreated();
 
         $this->assertSame(['contact', 'subscribe'], $project->siteSubmissions()->orderBy('id')->pluck('form')->all());
         $messages = Mail::mailer('array')->getSymfonyTransport()->messages();

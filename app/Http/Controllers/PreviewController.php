@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Services\Generator;
+use App\Support\SchoolCalendar;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,6 +38,18 @@ class PreviewController extends Controller
             'site' => $preview['site'],
             'tokens' => $preview['tokens'],
             'extraCss' => $preview['extraCss'],
+        ]);
+    }
+
+    public function calendar(Project $project, Generator $generator): HttpResponse
+    {
+        $preview = $generator->preview($project->config);
+
+        abort_unless($preview['ok'], 404);
+
+        return response(SchoolCalendar::ics($preview['site']), 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'inline; filename="events.ics"',
         ]);
     }
 }

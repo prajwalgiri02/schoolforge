@@ -7,6 +7,7 @@ use App\Models\SiteSubmission;
 use App\Support\Billing;
 use App\Support\FormSchema;
 use App\Support\HostedSites;
+use App\Support\SchoolCalendar;
 use App\Support\SiteAnalytics;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -40,9 +41,20 @@ class HostedSiteController extends Controller
             $request->isMethod('POST') && preg_match('#^_school/forms/([a-z]+)$#', $path, $match) === 1 => $this->form($request, $project, $match[1]),
             ! $request->isMethod('GET') && ! $request->isMethod('HEAD') => abort(405),
             $path === 'sitemap.xml' => $this->sitemap($project),
+            $path === 'events.ics' => $this->calendar($project),
             $path === 'robots.txt' => response("User-agent: *\nAllow: /\n\nSitemap: ".$this->baseUrl($request)."/sitemap.xml\n", 200, ['Content-Type' => 'text/plain']),
             default => $this->page($request, $project, $path),
         };
+    }
+
+    private function calendar(Project $project): Response
+    {
+        $languages = $project->published_site['languages'];
+
+        return response(SchoolCalendar::ics($project->published_site['locales'][$languages[0]]['site']), 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'inline; filename="events.ics"',
+        ]);
     }
 
     private function page(Request $request, Project $project, string $path): Response
@@ -118,7 +130,12 @@ class HostedSiteController extends Controller
             'email' => ['required', 'email', 'max:190'],
         ]);
 
-        $this->store($project, 'subscribe', 'SUB', $validated);
+        $subscribed = $project->siteSubmissions()->where('form', 'subscribe')->get(['data'])
+            ->contains(fn (SiteSubmission $submission): bool => strcasecmp($submission->data['email'] ?? '', $validated['email']) === 0);
+
+        if (! $subscribed) {
+            $this->store($project, 'subscribe', 'SUB', $validated);
+        }
 
         return response()->json(['ok' => true], 201);
     }

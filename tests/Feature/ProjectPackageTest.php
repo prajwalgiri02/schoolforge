@@ -75,13 +75,13 @@ class ProjectPackageTest extends TestCase
         $this->assertTrue($this->school->fresh()->plan->is($yearly));
         Notification::assertSentOnDemand(InvoiceIssued::class, fn (InvoiceIssued $notification, array $channels, object $notifiable): bool => $notifiable->routes['mail'] === 'office@school.test');
 
-        $this->get("/projects/{$slug}/package")->assertInertia(fn (Assert $page) => $page->where('invoice.number', $invoice->number));
+        $this->get("/projects/{$slug}/package")->assertInertia(fn (Assert $page) => $page->where('invoice.number', $invoice->number)->where('project.unpaidInvoice', $invoice->number));
         $this->get("/projects/{$slug}/invoices/{$invoice->id}")->assertOk()->assertSee($invoice->number)->assertSee('Pay to NIC Asia A/C 0123456789.');
         $this->post("/projects/{$slug}/publish")->assertRedirect("/projects/{$slug}/package");
 
         Billing::markPaid($invoice, 'BANK-1');
 
-        $this->get("/projects/{$slug}/package")->assertInertia(fn (Assert $page) => $page->where('isPaid', true)->where('project.needsPackage', false));
+        $this->get("/projects/{$slug}/package")->assertInertia(fn (Assert $page) => $page->where('isPaid', true)->where('project.needsPackage', false)->where('project.unpaidInvoice', null));
         $this->post("/projects/{$slug}/publish")->assertSessionHas('success');
         $this->assertNotNull($this->school->fresh()->published_at);
     }

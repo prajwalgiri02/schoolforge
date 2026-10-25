@@ -9,6 +9,8 @@ import type { ReactNode } from 'react';
 export declare function Link(props: { href: string; className?: string; children: ReactNode; 'aria-label'?: string }): ReactNode;
 
 export declare function useCurrentPath(): string;
+/** A file the site serves itself, such as /events.ics, rather than a page. */
+export declare function useFileHref(path: string): string;
 
 export type ContactPayload = { name: string; email: string; phone?: string; subject?: string; campus?: string; message: string };
 

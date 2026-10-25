@@ -80,12 +80,16 @@ compose.yaml, Dockerfile, Caddyfile   one-command production deployment of Studi
   matching `registry/adapter.d.ts`: Next.js, Laravel and Studio preview. Change all three
   together.
 - **Content editor schema is shared.** `generator/targets/laravel-inertia-react/files/app/Support/ContentSchema.php`
-  (and FormSchema, MediaUpload, MediaLibrary, Backup, TranslationMerger, Totp, ImageOptimizer)
+  (and FormSchema, SchoolCalendar, MediaUpload, MediaLibrary, Backup, TranslationMerger, Totp, ImageOptimizer, `Enums/StaffRole`)
   is classmap-autoloaded into Studio (`composer.json`). Editing it changes both Studio and
   generated Laravel admin panels. The React field components live in
   `targets/laravel-inertia-react/files/resources/js/admin` and are imported by Studio via the `@admin` alias.
 - **Default site map vs custom pages.** Without `config.pages`, the preset site map is used,
   and pages with no content are hidden. Saving the Pages tab writes a custom site map.
+- **Reserved page addresses.** Custom pages cannot start with `admin`, `api`, `build`, `storage`,
+  `up`, `health`, `forms`, `unsubscribe` or a non-default language code; the sites use them.
+  The list is `RESERVED_PAGE_SEGMENTS` in `generator/src/lib/config.js` and
+  `UpdateProjectPagesRequest::RESERVED_SEGMENTS`; change both together.
 - **Retired components.** `RETIRED_COMPONENTS` in `generator/src/lib/config.js`
   (`fee-payment`, `result-lookup`) are skipped silently in old configs and dropped from old
   projects on `sync`. A Studio migration removed them from saved site maps. If you retire
@@ -102,8 +106,9 @@ compose.yaml, Dockerfile, Caddyfile   one-command production deployment of Studi
 | Design / Pages | Theme, colours, fonts, section variants; custom site map | `ProjectDesignController`, `ProjectPagesController` |
 | History | Every save is a version; restore, duplicate, save as template | `ProjectHistoryController`, `ProjectVersion` |
 | Generate | Write a Next.js/Laravel codebase to a folder (optional git push) | `ProjectGenerateController`, `GenerateSchoolProject` |
+| Admin panel preview | The generated Laravel site's `/admin` panel at `/preview/{slug}/admin`, filled from the school's config; nothing is saved. Admin pages build links with `useAdminUrl()` (`admin/urls.ts`), never a hard-coded `/admin` | `PreviewAdminController`, `resources/js/preview/AdminPreviewFrame.tsx` |
 | Publish | Prerender and host; domain; DNS/HTTPS check; enquiries; visitor counts; headless API | `ProjectPublishController`, `HostedSites`, `PagePrerenderer`, `DomainCheck`, `SiteAnalytics`, `HeadlessContent` |
-| Hosting | Serve published schools by Host; forms post to `/_school/...`; robots/sitemap | `ServeHostedSites`, `HostedSiteController` |
+| Hosting | Serve published schools by Host; forms post to `/_school/...`; robots/sitemap/events.ics | `ServeHostedSites`, `HostedSiteController` |
 | Self sign-up | `/signup` (when `SCHOOLFORGE_SIGNUP=true`) creates a school from a template + a school login; 4-step setup at `/projects/{slug}/welcome` | `SignupController`, `ProjectOnboardingController` |
 | Trial and packages | Sign-ups get a 7-day trial (edit + preview only). Publish requires a paid monthly/yearly plan chosen on the Package tab. After the trial, unpaid schools only reach Package and Account | `ProjectPackageController`, `Billing::needsPackage/trialEnded`, `RestrictSchoolStaff` |
 | Billing | Plans, per-school plan and paid-until, invoices (emailed), mark paid (manual), suspension after grace days | `BillingController`, `Billing`, `studio:invoices` |

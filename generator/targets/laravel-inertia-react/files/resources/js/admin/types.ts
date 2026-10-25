@@ -27,4 +27,6 @@ export type SharedProps = {
     schoolName: string;
     auth: { user: { id: number; name: string; email: string; role: 'admin' | 'editor'; isAdmin: boolean } | null };
     flash: { success?: string | null };
+    adminUrl?: string;
+    siteUrl?: string;
 };

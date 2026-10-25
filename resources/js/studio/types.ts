@@ -11,6 +11,7 @@ export type ProjectSummary = {
     signedUpAt: string | null;
     needsOnboarding: boolean;
     needsPackage: boolean;
+    unpaidInvoice: string | null;
     trialEndsAt: string | null;
 };
 

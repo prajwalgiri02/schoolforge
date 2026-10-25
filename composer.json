@@ -30,7 +30,9 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "classmap": [
+            "generator/targets/laravel-inertia-react/files/app/Enums/StaffRole.php",
             "generator/targets/laravel-inertia-react/files/app/Support/ContentSchema.php",
+            "generator/targets/laravel-inertia-react/files/app/Support/SchoolCalendar.php",
             "generator/targets/laravel-inertia-react/files/app/Support/FormSchema.php",
             "generator/targets/laravel-inertia-react/files/app/Support/ImageOptimizer.php",
             "generator/targets/laravel-inertia-react/files/app/Support/MediaUpload.php",

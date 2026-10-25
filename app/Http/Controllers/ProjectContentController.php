@@ -24,7 +24,7 @@ class ProjectContentController extends Controller
      *
      * @var list<string>
      */
-    private const ICONS = [
+    public const ICONS = [
         'award', 'baby', 'bell', 'book', 'brain', 'building', 'bus', 'calculator', 'calendar', 'camera', 'check', 'clock',
         'computer', 'eye', 'flask', 'globe', 'graduation-cap', 'gym', 'heart', 'health', 'languages', 'laptop', 'leaf',
         'library', 'lightbulb', 'map-pin', 'medal', 'megaphone', 'microscope', 'music', 'palette', 'school', 'shield',

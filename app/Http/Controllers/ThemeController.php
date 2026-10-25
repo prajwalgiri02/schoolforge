@@ -114,7 +114,9 @@ class ThemeController extends Controller
         ], fn ($value): bool => $value !== null && $value !== []);
 
         File::put($file, json_encode($updated, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
-        File::put($generator->registryPath('themes', $theme, 'extra.css'), rtrim((string) $request->validated('extra_css'))."\n");
+        $css = rtrim((string) $request->validated('extra_css'));
+        $cssFile = $generator->registryPath('themes', $theme, 'extra.css');
+        $css === '' ? File::delete($cssFile) : File::put($cssFile, $css."\n");
         $generator->refresh();
 
         Audit::record('themes.updated', "Changed theme {$updated['label']}");

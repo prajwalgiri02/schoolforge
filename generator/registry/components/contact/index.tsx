@@ -19,6 +19,26 @@ export default function Contact({ section, site }: SectionProps) {
         event.preventDefault();
         const form = event.currentTarget;
         const data = Object.fromEntries(new FormData(form).entries()) as unknown as ContactPayload;
+        const errors: Record<string, string> = {};
+
+        if (!data.name?.trim()) {
+            errors.name = t(site, 'fieldRequired', { field: t(site, 'fullName') });
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(data.email?.trim() ?? '')) {
+            errors.email = t(site, 'invalidEmail');
+        }
+
+        if (!data.message?.trim()) {
+            errors.message = t(site, 'fieldRequired', { field: t(site, 'message') });
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setStatus({ state: 'error', errors });
+
+            return;
+        }
+
         setStatus({ state: 'sending', errors: {} });
 
         const result = await submitContact(data);

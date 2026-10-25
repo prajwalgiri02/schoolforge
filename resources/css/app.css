@@ -5,6 +5,7 @@
 @source '../../storage/framework/views/*.php';
 @source '../../generator/registry';
 @source '../../generator/targets/laravel-inertia-react/files/resources/js/admin';
+@source '../../generator/targets/laravel-inertia-react/files/resources/js/pages/Admin';
 
 /*
  * Studio UI font (system stack, works offline), plus default values for the school design tokens. Live previews

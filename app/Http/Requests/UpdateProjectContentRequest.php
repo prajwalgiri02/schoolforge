@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Support\ContentSchema;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateProjectContentRequest extends FormRequest
@@ -18,7 +19,7 @@ class UpdateProjectContentRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, array<int, string>>
+     * @return array<string, list<string|Closure>>
      */
     public function rules(): array
     {

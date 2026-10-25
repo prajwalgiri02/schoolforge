@@ -42,6 +42,18 @@ class ProjectHistoryTest extends TestCase
                 ->where('activity.0.user', 'Asha'));
     }
 
+    public function test_saving_without_changes_adds_no_version(): void
+    {
+        $project = Project::factory()->example()->create();
+        $this->put("/projects/{$project->slug}/content/hero", ['value' => $project->config['hero']])->assertSessionHasNoErrors();
+        $versions = $project->versions()->count();
+
+        $project->fresh()->update(['config' => array_reverse($project->fresh()->config, true)]);
+        $this->put("/projects/{$project->slug}/content/hero", ['value' => $project->fresh()->config['hero']])->assertSessionHasNoErrors();
+
+        $this->assertSame($versions, $project->versions()->count());
+    }
+
     public function test_projects_from_before_history_get_a_starting_version(): void
     {
         $project = Project::factory()->create();

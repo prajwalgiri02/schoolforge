@@ -7,6 +7,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\CertificateCheckController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\PreviewAdminController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProjectContentController;
 use App\Http\Controllers\ProjectController;
@@ -89,6 +90,25 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('projects/{project}/submissions/{submission}', [ProjectPublishController::class, 'destroySubmission'])->name('projects.submissions.destroy')->can('edit-projects');
     Route::get('projects/{project}/submissions/{submission}/files/{field}', [ProjectPublishController::class, 'download'])->name('projects.submissions.file');
 
+    Route::prefix('preview/{project}/admin')->name('preview.admin.')->controller(PreviewAdminController::class)->group(function (): void {
+        Route::get('/', 'dashboard')->name('dashboard');
+        Route::get('content/{key}', 'content')->name('content');
+        Route::get('website', 'website')->name('website');
+        Route::get('messages', 'messages')->name('messages');
+        Route::get('submissions', 'submissions')->name('submissions');
+        Route::get('alerts', 'alerts')->name('alerts');
+        Route::get('staff', 'staff')->name('staff');
+        Route::get('account', 'account')->name('account');
+        Route::get('login', 'login')->name('login');
+        Route::get('forgot-password', 'forgotPassword')->name('forgot-password');
+        Route::get('two-factor', 'twoFactor')->name('two-factor');
+        Route::get('media', 'media')->name('media');
+        Route::post('uploads', 'upload')->name('upload');
+        Route::post('login', 'signIn')->name('sign-in');
+        Route::post('logout', 'signOut')->name('sign-out');
+        Route::any('{action}', 'unavailable')->where('action', '.*')->name('unavailable');
+    });
+    Route::get('preview/{project}/events.ics', [PreviewController::class, 'calendar'])->name('preview.calendar');
     Route::get('preview/{project}/{path?}', PreviewController::class)->where('path', '[a-z0-9\-/]*')->name('preview');
 
     Route::post('uploads', UploadController::class)->middleware('throttle:60,1')->name('uploads.store')->can('edit-projects');

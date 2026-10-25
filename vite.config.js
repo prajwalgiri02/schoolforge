@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const registryDir = path.resolve(root, 'generator/registry');
+const adminDir = path.resolve(root, 'generator/targets/laravel-inertia-react/files/resources/js/admin');
 
 /**
  * Registry components import `../../adapter` and `../registry`, files that only
@@ -23,11 +24,17 @@ function schoolforgePreviewRuntime() {
         name: 'schoolforge-preview-runtime',
         enforce: 'pre',
         resolveId(source, importer) {
-            if (!importer || !importer.startsWith(registryDir) || !source.startsWith('.')) {
+            if (!importer || !source.startsWith('.')) {
                 return null;
             }
 
-            return replacements[path.resolve(path.dirname(importer), source)] ?? null;
+            const from = path.resolve(importer);
+
+            if (!from.startsWith(registryDir)) {
+                return null;
+            }
+
+            return replacements[path.resolve(path.dirname(from), source)] ?? null;
         },
     };
 }
@@ -44,11 +51,13 @@ export default defineConfig({
         react(),
     ],
     resolve: {
-        alias: {
-            '@': path.resolve(root, 'resources/js'),
-            '@admin': path.resolve(root, 'generator/targets/laravel-inertia-react/files/resources/js/admin'),
-            '@registry': registryDir,
-        },
+        // The admin panel pages (previewed in Studio) import `@/admin/...` as they do in generated sites.
+        alias: [
+            { find: /^@\/admin\//, replacement: `${adminDir}/` },
+            { find: /^@\//, replacement: `${path.resolve(root, 'resources/js')}/` },
+            { find: '@admin', replacement: adminDir },
+            { find: '@registry', replacement: registryDir },
+        ],
     },
     ssr: {
         // Bundle every dependency into bootstrap/ssr/ssr.js so it runs with node alone.

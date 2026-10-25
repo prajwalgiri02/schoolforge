@@ -5,6 +5,20 @@ import { readJson } from './fsutil.js';
 export const TARGETS = ['nextjs', 'laravel-inertia-react'];
 
 /** Components that no longer exist. Older configs may still use them; those sections are skipped. */
+/**
+ * First path segments the generated sites use themselves (admin panel, APIs, assets,
+ * health checks, form endpoints), so pages cannot live there. Studio's pages form
+ * keeps the same list (UpdateProjectPagesRequest::RESERVED_SEGMENTS).
+ */
+export const RESERVED_PAGE_SEGMENTS = new Set(['admin', 'api', 'build', 'storage', 'up', 'health', 'forms', 'unsubscribe']);
+
+/** Whether a page address starts with a reserved segment or another language's prefix (/ne/...). */
+export function reservedFirstSegment(slug, languages = ['en']) {
+    const first = slug.split('/')[1] ?? '';
+
+    return RESERVED_PAGE_SEGMENTS.has(first) || (Array.isArray(languages) && languages.slice(1).includes(first));
+}
+
 export const RETIRED_COMPONENTS = new Set(['fee-payment', 'result-lookup']);
 
 export const CONTENT_KEYS = [
@@ -248,6 +262,8 @@ export function validateConfig(config, { components = null } = {}) {
 
                 if (typeof page.slug !== 'string' || !/^\/([a-z0-9-]+(\/[a-z0-9-]+)*)?$/.test(page.slug)) {
                     errors.push(`pages[${index}].slug must look like "/" or "/about" (lowercase letters, numbers, dashes).`);
+                } else if (reservedFirstSegment(page.slug, config.languages)) {
+                    errors.push(`pages[${index}].slug "${page.slug}" is an address the website uses itself. Choose another one.`);
                 } else if (slugs.has(page.slug)) {
                     errors.push(`pages[${index}].slug "${page.slug}" is duplicated.`);
                 } else {

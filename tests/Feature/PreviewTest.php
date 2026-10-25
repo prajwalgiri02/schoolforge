@@ -36,6 +36,16 @@ class PreviewTest extends TestCase
                 ->has('site.pages'));
     }
 
+    public function test_the_events_calendar_feed_can_be_previewed(): void
+    {
+        $project = Project::factory()->example()->create();
+
+        $this->get("/preview/{$project->slug}/events.ics")
+            ->assertOk()
+            ->assertHeader('Content-Type', 'text/calendar; charset=utf-8')
+            ->assertSee('SUMMARY:Winter Concert', false);
+    }
+
     public function test_article_pages_can_be_previewed(): void
     {
         $project = Project::factory()->example()->create();

@@ -58,7 +58,7 @@ export default function ThemeEdit({ theme, own, resolved, resolvedVariants, comp
                 <Link href="/themes" className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
                     <ArrowLeft className="h-4 w-4" /> All themes
                 </Link>
-                <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                <form onSubmit={submit} className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
                     <div className="space-y-6">
                         <section className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
                             <div className="flex flex-wrap items-baseline justify-between gap-2">

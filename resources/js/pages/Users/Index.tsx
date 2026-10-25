@@ -80,7 +80,7 @@ export default function UsersIndex({ users, roles, schools }: { users: User[]; r
                     }
                 />
                 <FieldError message={errors.user} />
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
                     <ul className="h-fit divide-y divide-zinc-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
                         {users.map((user) => (
                             <li key={user.id} className="flex flex-wrap items-center gap-3 p-4">

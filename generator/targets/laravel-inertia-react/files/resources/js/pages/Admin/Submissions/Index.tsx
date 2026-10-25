@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { Inbox, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { AdminLayout, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 type Submission = { id: number; reference: string; status: string; name: string; email: string; data: Record<string, string>; reviewed_at: string | null; created_at: string };
 
@@ -34,9 +35,10 @@ function pageLabel(label: string): string {
 }
 
 export default function SubmissionsIndex({ types, type, status, search, submissions }: { types: FormType[]; type: string; status: string | null; search: string | null; submissions: Paginated<Submission> }) {
+    const admin = useAdminUrl();
     const current = types.find((item) => item.type === type)!;
     const [query, setQuery] = useState(search ?? '');
-    const visit = (params: Record<string, string | null>) => router.get('/admin/submissions', Object.fromEntries(Object.entries({ type, status, search: query || null, ...params }).filter(([, value]) => value)), { preserveState: true, preserveScroll: true });
+    const visit = (params: Record<string, string | null>) => router.get(admin('/submissions'), Object.fromEntries(Object.entries({ type, status, search: query || null, ...params }).filter(([, value]) => value)), { preserveState: true, preserveScroll: true });
     const submitSearch = (event: FormEvent) => {
         event.preventDefault();
         visit({});
@@ -46,7 +48,7 @@ export default function SubmissionsIndex({ types, type, status, search, submissi
         <AdminLayout title="Applications">
             <div className="mb-6 flex flex-wrap gap-2">
                 {types.map((item) => (
-                    <Link key={item.type} href={`/admin/submissions?type=${item.type}`} className={`rounded-full px-4 py-1.5 text-sm font-medium ${item.type === type ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50'}`}>
+                    <Link key={item.type} href={admin(`/submissions?type=${item.type}`)} className={`rounded-full px-4 py-1.5 text-sm font-medium ${item.type === type ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50'}`}>
                         {item.label}
                         {item.open > 0 && <span className="ml-2 rounded-full bg-blue-600 px-1.5 text-xs text-white">{item.open}</span>}
                     </Link>
@@ -87,7 +89,7 @@ export default function SubmissionsIndex({ types, type, status, search, submissi
                             {submissions.data.map((submission) => (
                                 <tr key={submission.id} className={submission.reviewed_at ? '' : 'bg-blue-50/40'}>
                                     <td className="px-4 py-3 font-mono text-xs">
-                                        <Link href={`/admin/submissions/${submission.id}`} className="font-semibold text-zinc-900 hover:underline">
+                                        <Link href={admin(`/submissions/${submission.id}`)} className="font-semibold text-zinc-900 hover:underline">
                                             {submission.reference}
                                         </Link>
                                     </td>

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -236,7 +237,7 @@ class ContentSchema
     /**
      * Builds Laravel validation rules for a section's submitted `value`.
      *
-     * @return array<string, list<string>>
+     * @return array<string, list<string|Closure>>
      */
     public static function rules(string $key): array
     {
@@ -356,7 +357,7 @@ class ContentSchema
 
     /**
      * @param  list<array<string, mixed>>  $fields
-     * @return array<string, list<string>>
+     * @return array<string, list<string|Closure>>
      */
     private static function fieldRules(array $fields, string $prefix): array
     {
@@ -367,7 +368,9 @@ class ContentSchema
             $presence = $field['required'] ? 'required' : 'nullable';
 
             match ($field['type']) {
-                'text', 'icon' => $rules[$path] = [$presence, 'string', 'max:255'],
+                // Configs may hold numbers in text fields, such as the year established.
+                'text' => $rules[$path] = [$presence, self::textOrNumber(...), 'max:255'],
+                'icon' => $rules[$path] = [$presence, 'string', 'max:255'],
                 'textarea' => $rules[$path] = [$presence, 'string', 'max:5000'],
                 'url', 'image', 'file' => $rules[$path] = [$presence, 'string', 'max:500'],
                 'date' => $rules[$path] = [$presence, 'date_format:Y-m-d'],
@@ -379,6 +382,13 @@ class ContentSchema
         }
 
         return $rules;
+    }
+
+    private static function textOrNumber(string $attribute, mixed $value, Closure $fail): void
+    {
+        if (! is_string($value) && ! is_int($value) && ! is_float($value)) {
+            $fail('The :attribute field must be text.');
+        }
     }
 
     private static function clean(mixed $value): mixed

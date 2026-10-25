@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Mail } from 'lucide-react';
 import { AdminLayout } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 type SectionSummary = { key: string; label: string; description: string; kind: 'object' | 'list'; count: number | null; editedAt: string | null };
 
@@ -32,6 +33,7 @@ export default function Dashboard({
     unreadMessages: number;
     recentMessages: MessageSummary[];
 }) {
+    const admin = useAdminUrl();
     const byKey = Object.fromEntries(sections.map((section) => [section.key, section]));
     const grouped = new Set(groups.flatMap((group) => group.keys));
     const allGroups = [...groups, { title: 'Other', keys: sections.map((section) => section.key).filter((key) => !grouped.has(key)) }].filter((group) => group.keys.length > 0);
@@ -46,7 +48,7 @@ export default function Dashboard({
                     </Link>
                 ))}
             </div>
-            <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
                 <div className="space-y-8">
                     {allGroups.map((group) => (
                         <section key={group.title}>
@@ -58,7 +60,7 @@ export default function Dashboard({
                                         const section = byKey[key];
 
                                         return (
-                                            <Link key={key} href={`/admin/content/${key}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-zinc-50">
+                                            <Link key={key} href={admin(`/content/${key}`)} className="flex items-center gap-4 px-5 py-4 transition hover:bg-zinc-50">
                                                 <div className="min-w-0 flex-1">
                                                     <p className="flex items-center gap-2 font-medium">
                                                         {section.label}
@@ -102,7 +104,7 @@ export default function Dashboard({
                                 ))}
                             </ul>
                         )}
-                        <Link href="/admin/messages" className="mt-3 inline-block text-sm font-medium text-zinc-900 underline-offset-4 hover:underline">
+                        <Link href={admin('/messages')} className="mt-3 inline-block text-sm font-medium text-zinc-900 underline-offset-4 hover:underline">
                             View all messages
                         </Link>
                     </div>

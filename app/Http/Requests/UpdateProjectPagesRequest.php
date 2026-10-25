@@ -10,6 +10,14 @@ use Illuminate\Validation\Validator;
 class UpdateProjectPagesRequest extends FormRequest
 {
     /**
+     * First path segments the websites use themselves; the generator keeps the
+     * same list (RESERVED_PAGE_SEGMENTS in generator/src/lib/config.js).
+     *
+     * @var list<string>
+     */
+    public const RESERVED_SEGMENTS = ['admin', 'api', 'build', 'storage', 'up', 'health', 'forms', 'unsubscribe'];
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -81,6 +89,16 @@ class UpdateProjectPagesRequest extends FormRequest
 
                 if (! collect($pages)->contains('slug', '/')) {
                     $validator->errors()->add('pages', 'The site needs a home page with the address “/”.');
+                }
+
+                $languagePrefixes = array_slice($this->route('project')->config['languages'] ?? ['en'], 1);
+
+                foreach ($pages as $pageIndex => $page) {
+                    $first = explode('/', (string) ($page['slug'] ?? ''))[1] ?? '';
+
+                    if (in_array($first, [...self::RESERVED_SEGMENTS, ...$languagePrefixes], true)) {
+                        $validator->errors()->add("pages.{$pageIndex}.slug", "The website already uses /{$first}. Choose another address.");
+                    }
                 }
 
                 $variants = collect(app(Generator::class)->registry()['components'])->pluck('variants', 'name');

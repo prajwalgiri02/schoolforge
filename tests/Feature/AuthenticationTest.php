@@ -53,6 +53,18 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_too_many_sign_in_attempts_show_a_message(): void
+    {
+        foreach (range(1, 5) as $attempt) {
+            $this->post('/login', ['email' => 'me@example.com', 'password' => 'wrong']);
+        }
+
+        $this->from('/login')
+            ->post('/login', ['email' => 'me@example.com', 'password' => 'wrong'], ['X-Inertia' => 'true'])
+            ->assertRedirect('/login')
+            ->assertSessionHasErrors(['email' => 'Too many attempts. Please wait 1 minute and try again.']);
+    }
+
     public function test_signed_in_users_skip_the_sign_in_page(): void
     {
         $this->actingAs(User::factory()->create())->get('/login')->assertRedirect('/');

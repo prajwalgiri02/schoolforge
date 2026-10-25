@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CreditCard, ExternalLink, FileText, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Sparkles, Tablet } from 'lucide-react';
+import { CreditCard, ExternalLink, FileText, LayoutDashboard, Globe, History, LayoutTemplate, Monitor, Paintbrush, RefreshCw, Rocket, Smartphone, Sparkles, Tablet } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { StudioLayout, Swatch } from './StudioLayout';
 import { targetLabels, type ProjectSummary, type StudioSharedProps } from './types';
@@ -63,9 +63,16 @@ export function ProjectLayout({
                                 </p>
                             </div>
                         </div>
-                        <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
-                            <ExternalLink className="h-4 w-4" /> Open preview
-                        </a>
+                        <div className="flex flex-wrap gap-2">
+                            {auth.user?.role !== 'school' && (
+                                <a href={`/preview/${project.slug}/admin`} target="_blank" rel="noreferrer" title="Preview the admin panel of the generated Laravel site" className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                                    <LayoutDashboard className="h-4 w-4" /> Admin panel
+                                </a>
+                            )}
+                            <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                                <ExternalLink className="h-4 w-4" /> Open preview
+                            </a>
+                        </div>
                     </div>
                     <nav className="-mb-px mt-6 flex gap-1 overflow-x-auto" aria-label="Project">
                         {visibleTabs.map((tab) => {
@@ -91,10 +98,14 @@ export function ProjectLayout({
                     <div className="mx-auto flex max-w-[110rem] flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm text-indigo-900 sm:px-6">
                         <span className="flex items-center gap-2">
                             <CreditCard className="h-4 w-4" />
-                            {trialDaysLeft === null ? 'Choose a package to publish your website.' : `Free trial: ${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left. Build and preview everything; choose a package when you are ready to publish.`}
+                            {project.unpaidInvoice
+                                ? `Invoice ${project.unpaidInvoice} is waiting for payment. You can publish as soon as it is paid.`
+                                : trialDaysLeft === null
+                                  ? 'Choose a package to publish your website.'
+                                  : `Free trial: ${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left. Build and preview everything; choose a package when you are ready to publish.`}
                         </span>
                         <Link href={`/projects/${project.slug}/package`} className="font-semibold underline underline-offset-2 hover:no-underline">
-                            Choose a package
+                            {project.unpaidInvoice ? 'View invoice' : 'Choose a package'}
                         </Link>
                     </div>
                 </div>

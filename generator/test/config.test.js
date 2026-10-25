@@ -82,6 +82,16 @@ describe('validateConfig', () => {
         assert.match(errors, /unknown component "does-not-exist"/);
         assert.match(errors, /must include a home page/);
     });
+
+    it('keeps pages off addresses the website uses itself', () => {
+        const pages = ['/', '/admin', '/api/contact', '/ne/about', '/administration'].map((slug) => ({ slug, title: 'Page', sections: [] }));
+        const errors = validateConfig({ ...minimal(), languages: ['en', 'ne'], pages }, { components: componentNames }).join('\n');
+
+        assert.match(errors, /"\/admin" is an address the website uses itself/);
+        assert.match(errors, /"\/api\/contact" is an address/);
+        assert.match(errors, /"\/ne\/about" is an address/);
+        assert.doesNotMatch(errors, /"\/administration"/);
+    });
 });
 
 describe('buildSite', () => {

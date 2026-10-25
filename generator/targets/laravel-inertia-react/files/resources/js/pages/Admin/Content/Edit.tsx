@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { AdminLayout, buttonClass } from '@/admin/AdminLayout';
 import { FieldGroup, ItemList } from '@/admin/fields';
 import type { Item, SectionDefinition } from '@/admin/types';
+import { useAdminUrl } from '@/admin/urls';
 
 type Props = {
     sectionKey: string;
@@ -28,6 +29,7 @@ export default function EditContent(props: Props) {
 const languageNames: Record<string, string> = { en: 'English', ne: 'नेपाली' };
 
 function Editor({ sectionKey, section, value: initialValue, isEdited, locale, locales, defaultLocale, icons, sections }: Props) {
+    const admin = useAdminUrl();
     const query = locale === defaultLocale ? '' : `?locale=${locale}`;
     const errors = usePage().props.errors as Record<string, string | undefined>;
     const [value, setValue] = useState<Item | Item[]>(initialValue);
@@ -49,7 +51,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
     const submit = (event: FormEvent) => {
         event.preventDefault();
         router.put(
-            `/admin/content/${sectionKey}${query}`,
+            admin(`/content/${sectionKey}${query}`),
             { value },
             {
                 preserveScroll: true,
@@ -62,7 +64,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
 
     const reset = () => {
         if (window.confirm(`Discard all admin edits to “${section.label}” and restore the original content?`)) {
-            router.delete(`/admin/content/${sectionKey}${query}`, { preserveScroll: true });
+            router.delete(admin(`/content/${sectionKey}${query}`), { preserveScroll: true });
         }
     };
 
@@ -86,14 +88,14 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
         >
             <div className="grid gap-8 lg:grid-cols-[14rem_1fr]">
                 <nav aria-label="Sections" className="hidden lg:block">
-                    <Link href="/admin" className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
+                    <Link href={admin()} className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900">
                         <ArrowLeft className="h-4 w-4" /> All content
                     </Link>
                     <ul className="space-y-0.5">
                         {sections.map((item) => (
                             <li key={item.key}>
                                 <Link
-                                    href={`/admin/content/${item.key}`}
+                                    href={admin(`/content/${item.key}`)}
                                     className={`block rounded-lg px-3 py-1.5 text-sm ${item.key === sectionKey ? 'bg-zinc-200/70 font-medium text-zinc-900' : 'text-zinc-600 hover:bg-zinc-100'}`}
                                 >
                                     {item.label}
@@ -110,7 +112,7 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
                             {locales.map((code) => (
                                 <Link
                                     key={code}
-                                    href={`/admin/content/${sectionKey}${code === defaultLocale ? '' : `?locale=${code}`}`}
+                                    href={admin(`/content/${sectionKey}${code === defaultLocale ? '' : `?locale=${code}`}`)}
                                     className={`rounded-full px-3 py-1 text-sm font-medium ${code === locale ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}
                                 >
                                     {languageNames[code] ?? code.toUpperCase()}

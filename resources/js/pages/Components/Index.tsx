@@ -26,7 +26,7 @@ export default function ComponentsIndex({ components }: { components: ComponentR
                     title="Components"
                     description="The building blocks of every page, shared by all schools and both frameworks. They live in generator/registry/components. Add a component to a page from a school’s Pages tab."
                 />
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
                     <div className="space-y-8">
                         {groups.map((group) => (
                             <section key={group.title}>

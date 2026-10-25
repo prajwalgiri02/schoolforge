@@ -12,10 +12,11 @@
         "resolveJsonModule": true,
         "types": ["vite/client"],
         "paths": {
+            "@/admin/*": ["./generator/targets/laravel-inertia-react/files/resources/js/admin/*"],
             "@/*": ["./resources/js/*"],
             "@admin/*": ["./generator/targets/laravel-inertia-react/files/resources/js/admin/*"],
             "@registry/*": ["./generator/registry/*"]
         }
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "generator/registry/**/*.ts", "generator/registry/**/*.tsx"]
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "generator/registry/**/*.ts", "generator/registry/**/*.tsx", "generator/targets/laravel-inertia-react/files/resources/js/pages/Admin/**/*.tsx"]
 }

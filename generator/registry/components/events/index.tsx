@@ -2,6 +2,7 @@
 
 import { CalendarPlus, ChevronLeft, ChevronRight, Clock, MapPin, Rss } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useFileHref } from '../../adapter';
 import { Container, Section, SectionHeading, cn, limitItems } from '../../runtime/ui';
 import { calendarMonth, formatSiteDate, isoDate, localizeDigits, siteDateParts, t, weekdayNames } from '../../runtime/i18n';
 import { EVENTS_FEED_PATH, eventIcsHref, type CalendarEvent } from '../../runtime/ics';
@@ -12,6 +13,7 @@ type EventsProps = SectionProps<{ subscribe?: boolean }>;
 const lastDay = (event: CalendarEvent) => (event.endDate && event.endDate > event.date ? event.endDate : event.date);
 
 export default function Events({ section, site }: EventsProps) {
+    const feedHref = useFileHref(EVENTS_FEED_PATH);
     const sorted = [...(site.content.events ?? [])].sort((a, b) => a.date.localeCompare(b.date));
 
     if (sorted.length === 0) {
@@ -25,7 +27,7 @@ export default function Events({ section, site }: EventsProps) {
                 {section.variant === 'calendar' ? <MonthCalendar site={site} events={sorted} /> : <EventList site={site} events={limitItems(sorted, section.limit)} />}
                 {section.subscribe !== false && (
                     <p className="mt-8 text-center">
-                        <a href={EVENTS_FEED_PATH} className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+                        <a href={feedHref} className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
                             <Rss className="h-4 w-4" aria-hidden="true" /> {t(site, 'subscribeCalendar')}
                         </a>
                     </p>

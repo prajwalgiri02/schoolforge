@@ -85,6 +85,18 @@ class ProjectContentTest extends TestCase
         $this->assertArrayNotHasKey('faqs', $this->project->fresh()->config);
     }
 
+    public function test_numbers_in_text_fields_save_unchanged(): void
+    {
+        $this->put("/projects/{$this->project->slug}/content/school", ['value' => ['name' => 'Riverside', 'established' => 1998]])->assertSessionHasNoErrors();
+        $this->put("/projects/{$this->project->slug}/content/achievements", ['value' => [['year' => 2026, 'title' => 'Olympiad gold']]])->assertSessionHasNoErrors();
+
+        $config = $this->project->fresh()->config;
+        $this->assertSame(1998, $config['school']['established']);
+        $this->assertSame(2026, $config['achievements'][0]['year']);
+
+        $this->put("/projects/{$this->project->slug}/content/school", ['value' => ['name' => 'Riverside', 'established' => ['1998']]])->assertSessionHasErrors('value.established');
+    }
+
     public function test_content_is_validated(): void
     {
         $this->put("/projects/{$this->project->slug}/content/events", ['value' => [['title' => '', 'date' => 'tomorrow']]])

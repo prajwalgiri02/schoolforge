@@ -2,6 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Palette, RotateCcw, Save } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { AdminLayout, buttonClass, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 type Page = { slug: string; title: string; navLabel: string; description: string; showInNav: boolean; edited: boolean };
 
@@ -12,6 +13,7 @@ const colorFields = [
 ] as const;
 
 export default function Website({ pages, colors }: { pages: Page[]; colors: Record<string, string> }) {
+    const admin = useAdminUrl();
     const pageForm = useForm({ pages });
     const designForm = useForm({ colors: { primary: colors.primary ?? '', secondary: colors.secondary ?? '', accent: colors.accent ?? '' } });
 
@@ -25,17 +27,17 @@ export default function Website({ pages, colors }: { pages: Page[]; colors: Reco
 
     const savePages = (event: FormEvent) => {
         event.preventDefault();
-        pageForm.put('/admin/website/pages', { preserveScroll: true });
+        pageForm.put(admin('/website/pages'), { preserveScroll: true });
     };
 
     const saveDesign = (event: FormEvent) => {
         event.preventDefault();
-        designForm.put('/admin/website/design', { preserveScroll: true });
+        designForm.put(admin('/website/design'), { preserveScroll: true });
     };
 
     return (
         <AdminLayout title="Website">
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
                 <form onSubmit={savePages} className="rounded-xl border border-zinc-200 bg-white shadow-sm">
                     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 p-5">
                         <div>
@@ -43,7 +45,7 @@ export default function Website({ pages, colors }: { pages: Page[]; colors: Reco
                             <p className="text-sm text-zinc-500">Rename pages, choose which appear in the menu and in what order.</p>
                         </div>
                         <div className="flex gap-2">
-                            <button type="button" onClick={() => window.confirm('Go back to the generated page titles and menu?') && router.delete('/admin/website/pages', { preserveScroll: true })} className={buttonClass.secondary}>
+                            <button type="button" onClick={() => window.confirm('Go back to the generated page titles and menu?') && router.delete(admin('/website/pages'), { preserveScroll: true })} className={buttonClass.secondary}>
                                 <RotateCcw className="h-4 w-4" /> Reset
                             </button>
                             <button type="submit" disabled={pageForm.processing} className={buttonClass.primary}>
@@ -110,7 +112,7 @@ export default function Website({ pages, colors }: { pages: Page[]; colors: Reco
                         <button type="submit" disabled={designForm.processing} className={buttonClass.primary}>
                             <Save className="h-4 w-4" /> Save colours
                         </button>
-                        <button type="button" onClick={() => router.put('/admin/website/design', { colors: {} }, { preserveScroll: true })} className={buttonClass.secondary}>
+                        <button type="button" onClick={() => router.put(admin('/website/design'), { colors: {} }, { preserveScroll: true })} className={buttonClass.secondary}>
                             Use theme colours
                         </button>
                     </div>

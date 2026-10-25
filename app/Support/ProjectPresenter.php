@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Invoice;
 use App\Models\Project;
 use App\Services\Generator;
 
@@ -31,7 +32,8 @@ class ProjectPresenter
             'isTemplate' => (bool) $project->is_template,
             'signedUpAt' => $project->signed_up_at?->toIso8601String(),
             'needsOnboarding' => $project->needsOnboarding(),
-            'needsPackage' => Billing::needsPackage($project),
+            'needsPackage' => $needsPackage = Billing::needsPackage($project),
+            'unpaidInvoice' => $needsPackage ? $project->invoices()->where('status', Invoice::STATUS_UNPAID)->latest('id')->value('number') : null,
             'trialEndsAt' => $project->trial_ends_at?->toIso8601String(),
         ];
     }

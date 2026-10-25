@@ -71,6 +71,26 @@ class AdminPanelTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_too_many_sign_in_attempts_show_a_message(): void
+    {
+        foreach (range(1, 5) as $attempt) {
+            $this->post('/admin/login', ['email' => 'admin@example.com', 'password' => 'wrong-password']);
+        }
+
+        $this->from('/admin/login')
+            ->post('/admin/login', ['email' => 'admin@example.com', 'password' => 'wrong-password'], ['X-Inertia' => 'true'])
+            ->assertRedirect('/admin/login')
+            ->assertSessionHasErrors(['email' => 'Too many attempts. Please wait 1 minute and try again.']);
+    }
+
+    public function test_numbers_in_text_fields_save_unchanged(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->put('/admin/content/school', ['value' => ['name' => 'Riverside', 'established' => 1998]])->assertSessionHasNoErrors();
+        $this->put('/admin/content/achievements', ['value' => [['year' => 2026, 'title' => 'Olympiad gold']]])->assertSessionHasNoErrors();
+    }
+
     public function test_dashboard_lists_every_content_section(): void
     {
         ContactMessage::factory()->count(2)->create();

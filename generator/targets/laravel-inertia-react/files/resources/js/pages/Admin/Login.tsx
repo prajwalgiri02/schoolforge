@@ -2,13 +2,15 @@ import { Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { AuthCard } from '@/admin/AuthCard';
 import { buttonClass, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 export default function Login({ schoolName }: { schoolName: string }) {
+    const admin = useAdminUrl();
     const form = useForm({ email: '', password: '', remember: false });
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
-        form.post('/admin/login', { onFinish: () => form.reset('password') });
+        form.post(admin('/login'), { onFinish: () => form.reset('password') });
     };
 
     return (
@@ -26,7 +28,7 @@ export default function Login({ schoolName }: { schoolName: string }) {
                         <label htmlFor="password" className="block text-sm font-medium">
                             Password
                         </label>
-                        <Link href="/admin/forgot-password" className="text-xs text-zinc-500 hover:text-zinc-900 hover:underline">
+                        <Link href={admin('/forgot-password')} className="text-xs text-zinc-500 hover:text-zinc-900 hover:underline">
                             Forgot your password?
                         </Link>
                     </div>

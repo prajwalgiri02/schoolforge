@@ -67,6 +67,15 @@ class ProjectPagesTest extends TestCase
         $this->put("/projects/{$project->slug}/pages", ['pages' => [['slug' => '/', 'title' => 'Home', 'sections' => [['type' => 'hero', 'variant' => 'sideways']]]]])
             ->assertSessionHasErrors('pages.0.sections.0.variant');
 
+        $project->update(['config' => [...$project->config, 'languages' => ['en', 'ne']]]);
+        $this->put("/projects/{$project->slug}/pages", ['pages' => [
+            ['slug' => '/', 'title' => 'Home', 'sections' => []],
+            ['slug' => '/admin', 'title' => 'Admin', 'sections' => []],
+            ['slug' => '/ne/about', 'title' => 'About', 'sections' => []],
+            ['slug' => '/administration', 'title' => 'Administration', 'sections' => []],
+        ]])->assertSessionHasErrors(['pages.1.slug' => 'The website already uses /admin. Choose another address.', 'pages.2.slug'])
+            ->assertSessionDoesntHaveErrors('pages.3.slug');
+
         $this->assertArrayNotHasKey('pages', $project->fresh()->config);
     }
 

@@ -2,6 +2,7 @@ import { Link, router, useForm } from '@inertiajs/react';
 import { Download, Mail, MailOpen, Reply, Send, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { AdminLayout, buttonClass, inputClass } from '@/admin/AdminLayout';
+import { useAdminUrl } from '@/admin/urls';
 
 type Message = { id: number; name: string; email: string; phone: string | null; subject: string; campus: string | null; message: string; reply: string | null; replied_at: string | null; read_at: string | null; created_at: string };
 
@@ -12,6 +13,7 @@ function pageLabel(label: string): string {
 }
 
 function ReplyBox({ message }: { message: Message }) {
+    const admin = useAdminUrl();
     const [open, setOpen] = useState(false);
     const form = useForm({ reply: '' });
 
@@ -36,7 +38,7 @@ function ReplyBox({ message }: { message: Message }) {
         <form
             onSubmit={(event) => {
                 event.preventDefault();
-                form.post(`/admin/messages/${message.id}/reply`, { preserveScroll: true, onSuccess: () => setOpen(false) });
+                form.post(admin(`/messages/${message.id}/reply`), { preserveScroll: true, onSuccess: () => setOpen(false) });
             }}
             className="mt-4 space-y-2"
         >
@@ -59,11 +61,12 @@ function formatDate(value: string): string {
 }
 
 export default function Messages({ messages }: { messages: Paginated<Message> }) {
-    const toggleRead = (message: Message) => router.patch(`/admin/messages/${message.id}`, {}, { preserveScroll: true });
+    const admin = useAdminUrl();
+    const toggleRead = (message: Message) => router.patch(admin(`/messages/${message.id}`), {}, { preserveScroll: true });
 
     const destroy = (message: Message) => {
         if (window.confirm(`Delete the message from ${message.name}?`)) {
-            router.delete(`/admin/messages/${message.id}`, { preserveScroll: true });
+            router.delete(admin(`/messages/${message.id}`), { preserveScroll: true });
         }
     };
 
@@ -71,7 +74,7 @@ export default function Messages({ messages }: { messages: Paginated<Message> })
         <AdminLayout title={`Messages (${messages.total})`}>
             {messages.total > 0 && (
                 <div className="mb-4 flex justify-end">
-                    <a href="/admin/messages/export.csv" className={buttonClass.secondary}>
+                    <a href={admin('/messages/export.csv')} className={buttonClass.secondary}>
                         <Download className="h-4 w-4" /> Export CSV
                     </a>
                 </div>

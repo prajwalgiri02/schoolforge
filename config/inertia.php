@@ -78,6 +78,7 @@ return [
         'paths' => [
 
             resource_path('js/pages'),
+            base_path('generator/targets/laravel-inertia-react/files/resources/js/pages'),
 
         ],
 
