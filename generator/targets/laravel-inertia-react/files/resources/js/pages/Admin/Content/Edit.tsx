@@ -1,11 +1,10 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { FileText, Plus, RotateCcw, Save } from 'lucide-react';
+import { Plus, RotateCcw, Save } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { AdminLayout, buttonClass } from '@/admin/AdminLayout';
-import { groupOf, sectionIcons } from '@/admin/contentGroups';
+import { groupOf } from '@/admin/contentGroups';
 import { FieldGroup, ItemList } from '@/admin/fields';
 import type { Item, SectionDefinition } from '@/admin/types';
-import { IconTile } from '@/admin/ui';
 import { useAdminUrl } from '@/admin/urls';
 
 type Props = {
@@ -106,66 +105,69 @@ function Editor({ sectionKey, section, value: initialValue, isEdited, locale, lo
     return (
         <AdminLayout
             title={tabs.length > 0 && group ? group.title : section.label}
-            description={tabs.length > 0 && group ? group.description : undefined}
-            actions={
-                <>
-                    {isEdited && (
-                        <button type="button" onClick={reset} className={buttonClass.secondary}>
-                            <RotateCcw className="h-4 w-4" /> Restore original
-                        </button>
-                    )}
-                    <button type="submit" form="content-form" disabled={processing || !isDirty} className={buttonClass.primary}>
-                        <Save className="h-4 w-4" /> {isDirty ? saveLabel : 'Saved'}
-                    </button>
-                </>
-            }
+            description={tabs.length > 0 && group ? group.description : section.description}
         >
-            <form id="content-form" onSubmit={submit} className="mx-auto max-w-4xl space-y-6">
-                {tabs.length > 0 && (
-                    <nav aria-label={`${group?.title} sections`} className="-mt-2 flex gap-1 overflow-x-auto border-b border-[var(--admin-border)]">
-                        {tabs.map((tab) => (
-                            <Link
-                                key={tab.key}
-                                href={admin(`/content/${tab.key}${query}`)}
-                                aria-current={tab.key === sectionKey ? 'page' : undefined}
-                                className={`-mb-px whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition ${tab.key === sectionKey ? 'border-[var(--admin-primary)] text-[var(--admin-primary)]' : 'border-transparent text-[var(--admin-muted)] hover:border-[var(--admin-border)] hover:text-[var(--admin-heading)]'}`}
-                            >
-                                {tab.label}
-                            </Link>
-                        ))}
-                    </nav>
-                )}
-
-                <div className="flex items-start gap-4">
-                    <IconTile icon={sectionIcons[sectionKey] ?? FileText} />
-                    <div className="min-w-0 pt-1">
-                        {tabs.length > 0 && <p className="text-lg font-semibold text-[var(--admin-heading)]">{section.label}</p>}
-                        <p className="text-base text-[var(--admin-heading)]">{section.description}</p>
-                        <p className="mt-1 text-sm text-[var(--admin-muted)]">{section.kind === 'list' ? 'Add, change, reorder or remove items, then save.' : 'Change any field, then save. Empty fields are hidden on the website.'}</p>
+            <form id="content-form" onSubmit={submit} className="space-y-5">
+                <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 shadow-[inset_0_-1px_0_var(--admin-border)]">
+                    {tabs.length > 0 ? (
+                        <nav aria-label={`${group?.title} sections`} className="flex min-w-0 max-w-full gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none]">
+                            {tabs.map((tab) => (
+                                <Link
+                                    key={tab.key}
+                                    href={admin(`/content/${tab.key}${query}`)}
+                                    aria-current={tab.key === sectionKey ? 'page' : undefined}
+                                    className={`whitespace-nowrap border-b-2 px-4 pb-3 pt-1 text-sm font-medium transition ${tab.key === sectionKey ? 'border-[var(--admin-primary)] text-[var(--admin-primary)]' : 'border-transparent text-[var(--admin-muted)] hover:border-[var(--admin-border)] hover:text-[var(--admin-heading)]'}`}
+                                >
+                                    {tab.label}
+                                </Link>
+                            ))}
+                        </nav>
+                    ) : (
+                        <span />
+                    )}
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                        {isEdited && (
+                            <button type="button" onClick={reset} className={buttonClass.secondary}>
+                                <RotateCcw className="h-4 w-4" /> Restore original
+                            </button>
+                        )}
+                        <button type="submit" disabled={processing || !isDirty} className={buttonClass.primary}>
+                            <Save className="h-4 w-4" /> {isDirty ? saveLabel : 'Saved'}
+                        </button>
                     </div>
                 </div>
 
-                {locales.length > 1 && (
-                    <div className="rounded-[16px] border border-[var(--admin-border)] bg-white p-4">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-sm font-medium text-[var(--admin-heading)]">You are editing in</span>
-                            <div className="inline-flex rounded-[12px] bg-[#eef0f3] p-1">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    {tabs.length > 0 ? (
+                        <p className="text-sm text-[var(--admin-muted)]">
+                            <span className="font-medium text-[var(--admin-heading)]">{section.label}: </span>
+                            {section.description}
+                        </p>
+                    ) : (
+                        <span />
+                    )}
+                    {locales.length > 1 && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-[var(--admin-muted)]">Language</span>
+                            <div className="inline-flex rounded-[10px] bg-[#eef0f3] p-0.5">
                                 {locales.map((code) => (
                                     <Link
                                         key={code}
                                         href={admin(`/content/${sectionKey}${code === defaultLocale ? '' : `?locale=${code}`}`)}
                                         aria-current={code === locale ? 'true' : undefined}
-                                        className={`min-h-9 rounded-[10px] px-4 py-1.5 text-sm font-medium transition ${code === locale ? 'bg-[var(--admin-primary)] text-[var(--admin-on-primary)] shadow-sm' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
+                                        className={`rounded-[8px] px-3 py-1.5 text-sm font-medium transition ${code === locale ? 'bg-[var(--admin-primary)] text-[var(--admin-on-primary)] shadow-sm' : 'text-[var(--admin-muted)] hover:text-[var(--admin-heading)]'}`}
                                     >
                                         {languageNames[code] ?? code.toUpperCase()}
                                     </Link>
                                 ))}
                             </div>
                         </div>
-                        {locale !== defaultLocale && (
-                            <p className="mt-2 text-sm text-[var(--admin-muted)]">Only fill in what you want translated. Anything you leave as it is keeps showing the {languageNames[defaultLocale] ?? defaultLocale} text.</p>
-                        )}
-                    </div>
+                    )}
+                </div>
+                {locale !== defaultLocale && (
+                    <p className="rounded-[12px] bg-[var(--admin-primary-soft)] px-4 py-2.5 text-sm text-[var(--admin-heading)]">
+                        Only fill in what you want translated. Anything you leave as it is keeps showing the {languageNames[defaultLocale] ?? defaultLocale} text.
+                    </p>
                 )}
 
                 {adding && isDirty && (

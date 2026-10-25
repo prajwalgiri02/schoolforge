@@ -381,7 +381,7 @@ export function ItemList({
     const iconButton = 'flex h-9 w-9 items-center justify-center rounded-md text-[var(--admin-muted,#71717a)] hover:bg-zinc-100 disabled:opacity-30';
 
     return (
-        <div className="space-y-3">
+        <div className={collapsible ? 'space-y-2' : 'space-y-3'}>
             {collapsible && (
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-sm text-[var(--admin-muted,#71717a)]">
@@ -401,7 +401,7 @@ export function ItemList({
                 const summary = fields.find((field) => field.type === 'date' && filled(field)) ?? fields.find((field) => field.type === 'text' && filled(field));
 
                 return (
-                    <div key={key} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-[var(--admin-border,#e4e4e7)]'} ${compact ? 'p-4' : collapsible ? 'p-2' : 'p-5 shadow-sm'}`}>
+                    <div key={key} className={`rounded-xl border bg-white ${hasError ? 'border-red-300' : 'border-[var(--admin-border,#e4e4e7)]'} ${compact ? 'p-4' : collapsible ? 'p-1.5' : 'p-5 shadow-sm'}`}>
                         <div className={`flex items-center justify-between gap-2 ${expanded && !collapsible ? 'mb-4' : ''}`}>
                             {collapsible ? (
                                 <button

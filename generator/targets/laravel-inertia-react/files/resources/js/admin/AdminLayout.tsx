@@ -112,7 +112,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
     const contentExpanded = contentOpen;
     const newCount = (inbox?.messages ?? 0) + (inbox?.submissions ?? 0);
     const narrow = collapsed && !menuOpen;
-    const itemClass = `flex min-h-11 w-full items-center gap-4 rounded-[10px] px-4 text-base transition ${narrow ? 'lg:justify-center lg:px-0' : ''}`;
+    const itemClass = `flex min-h-11 w-full items-center gap-4 rounded-[10px] px-4 text-base transition lg:min-h-10 ${narrow ? 'lg:justify-center lg:px-0' : ''}`;
 
     const contentMenu = narrow ? (
         <li>
@@ -140,7 +140,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                         <Link
                             href={contentBase}
                             aria-current={path === contentBase ? 'page' : undefined}
-                            className={`flex min-h-10 items-center rounded-[8px] px-3 text-sm transition ${path === contentBase ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
+                            className={`flex min-h-9 items-center rounded-[8px] px-3 text-sm transition lg:min-h-8 ${path === contentBase ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
                         >
                             Overview
                         </Link>
@@ -153,7 +153,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                                 <Link
                                     href={admin(`/content/${group.keys[0]}`)}
                                     aria-current={active ? 'page' : undefined}
-                                    className={`flex min-h-10 items-center rounded-[8px] px-3 text-sm transition ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
+                                    className={`flex min-h-9 items-center rounded-[8px] px-3 text-sm transition lg:min-h-8 ${active ? 'bg-[var(--admin-primary-soft)] font-medium text-[var(--admin-heading)]' : 'hover:bg-[var(--admin-hover)] hover:text-[var(--admin-heading)]'}`}
                                 >
                                     {group.title}
                                 </Link>
@@ -178,11 +178,11 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                     onClick={toggleCollapsed}
                     aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
                     title={collapsed ? 'Expand menu' : 'Collapse menu'}
-                    className="absolute -right-3 top-[33px] z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-[var(--admin-border)] bg-white text-[var(--admin-muted)] shadow-sm transition hover:text-[var(--admin-heading)] lg:flex"
+                    className="absolute -right-3 top-[29px] z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-[var(--admin-border)] bg-white text-[var(--admin-muted)] shadow-sm transition hover:text-[var(--admin-heading)] lg:flex"
                 >
                     <ChevronLeft className={`h-3.5 w-3.5 transition ${collapsed ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`flex shrink-0 items-center gap-3 px-6 pb-8 pt-7 ${narrow ? 'lg:justify-center lg:px-0' : ''}`}>
+                <div className={`flex shrink-0 items-center gap-3 px-6 pb-4 pt-5 ${narrow ? 'lg:justify-center lg:px-0' : ''}`}>
                     <Link href={admin()} className="flex min-w-0 items-center gap-3">
                         {schoolLogo ? (
                             <img src={schoolLogo} alt="" className="h-12 w-12 shrink-0 rounded-[10px] object-contain" />
@@ -198,8 +198,8 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                         <X className="h-5 w-5" />
                     </button>
                 </div>
-                <nav aria-label="Admin" className={`flex-1 overflow-y-auto px-5 pb-6 ${narrow ? 'lg:px-4' : ''}`}>
-                    <ul className="space-y-2">
+                <nav aria-label="Admin" className={`flex-1 overflow-y-auto px-5 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${narrow ? 'lg:px-4' : ''}`}>
+                    <ul className="space-y-1">
                         {items.map((item, index) => {
                             const active = isActive(item);
                             const Icon = item.icon;
@@ -280,7 +280,7 @@ export function AdminLayout({ title, description, actions, children }: { title: 
                         )}
                     </div>
                 </header>
-                <main className="flex-1 px-4 py-6 sm:px-6 lg:px-[30px] lg:py-8">
+                <main className="flex-1 px-4 py-5 sm:px-6 lg:px-[30px] lg:py-6">
                     {description && <p className="-mt-1 mb-5 text-sm text-[var(--admin-muted)] lg:hidden">{description}</p>}
                     {actions && <div className="mb-6 flex flex-wrap items-center justify-end gap-3">{actions}</div>}
                     {children}
