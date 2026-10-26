@@ -8,6 +8,7 @@ export const THEMES_DIR = path.join(REGISTRY_DIR, 'themes');
 export const RUNTIME_DIR = path.join(REGISTRY_DIR, 'runtime');
 export const PRESETS_DIR = path.join(REGISTRY_DIR, 'presets');
 export const TARGETS_DIR = path.join(ROOT, 'targets');
+export const SAMPLE_FILES_DIR = path.join(ROOT, 'examples', 'files');
 export const SCHEMA_FILE = path.join(ROOT, 'schema', 'school.schema.json');
 export const LOCK_FILE = '.schoolforge.json';
 export const PROJECT_CONFIG_FILE = 'school.config.json';

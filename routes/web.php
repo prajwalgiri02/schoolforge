@@ -18,6 +18,7 @@ use App\Http\Controllers\ProjectOnboardingController;
 use App\Http\Controllers\ProjectPackageController;
 use App\Http\Controllers\ProjectPagesController;
 use App\Http\Controllers\ProjectPublishController;
+use App\Http\Controllers\SampleFileController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\SiteStatusController;
 use App\Http\Controllers\ThemeController;
@@ -25,6 +26,8 @@ use App\Http\Controllers\ThemeTransferController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('files/{file}', SampleFileController::class)->name('sample-files.show');
 
 Route::get('hosting/certificate-check', CertificateCheckController::class)->middleware('throttle:120,1')->name('hosting.certificate-check');
 

@@ -50,6 +50,25 @@ describe('Next.js project lifecycle', () => {
         assert.ok(lock.components.includes('navbar'));
     });
 
+    it('ships the sample downloads the config links to', () => {
+        const samples = ['academic-calendar-2083.pdf', 'admission-form.pdf', 'prospectus-2027.pdf', 'uniform-prices.xlsx'];
+
+        for (const name of samples) {
+            assert.ok(fs.readFileSync(path.join(dir, 'public/files', name)).equals(fs.readFileSync(path.join(ROOT, 'examples/files', name))), `${name} is copied`);
+        }
+
+        assert.ok(readLock(dir).files['public/files/prospectus-2027.pdf']);
+
+        const config = readJson(dir, 'school.config.json');
+        config.downloads = config.downloads.filter((item) => item.file !== '/files/uniform-prices.xlsx');
+        fs.writeFileSync(path.join(dir, 'school.config.json'), JSON.stringify(config));
+
+        const result = sync({ projectDir: dir, log: quiet });
+        assert.ok(result.removed.includes('public/files/uniform-prices.xlsx'));
+        assert.ok(!fs.existsSync(path.join(dir, 'public/files/uniform-prices.xlsx')));
+        assert.ok(fs.existsSync(path.join(dir, 'public/files/prospectus-2027.pdf')));
+    });
+
     it('refuses to generate over an existing project', () => {
         assert.throws(() => createProject({ directory: dir, configFile, skipInstall: true, log: quiet }), /already a SchoolForge project/);
     });
@@ -189,6 +208,7 @@ describe('Laravel overlay', () => {
         assert.ok(pkg.devDependencies['@inertiajs/react']);
         assert.ok(pkg.devDependencies['lucide-react']);
         assert.equal(readJson(dir, 'resources/school/site.json').theme.name, 'elegant');
+        assert.ok(fs.existsSync(path.join(dir, 'public/files/admission-form.pdf')));
     });
 });
 

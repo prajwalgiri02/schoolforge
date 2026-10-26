@@ -7,6 +7,7 @@ use App\Models\SiteSubmission;
 use App\Support\Billing;
 use App\Support\FormSchema;
 use App\Support\HostedSites;
+use App\Support\SampleFiles;
 use App\Support\SchoolCalendar;
 use App\Support\SiteAnalytics;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class HostedSiteController extends Controller
         }
 
         $path = trim($request->path(), '/');
+        $sampleFile = str_starts_with($path, 'files/') ? SampleFiles::path(substr($path, 6)) : null;
 
         return match (true) {
             $request->isMethod('POST') && $path === '_school/contact' => $this->contact($request, $project),
@@ -42,6 +44,7 @@ class HostedSiteController extends Controller
             ! $request->isMethod('GET') && ! $request->isMethod('HEAD') => abort(405),
             $path === 'sitemap.xml' => $this->sitemap($project),
             $path === 'events.ics' => $this->calendar($project),
+            $sampleFile !== null => SampleFiles::response($sampleFile),
             $path === 'robots.txt' => response("User-agent: *\nAllow: /\n\nSitemap: ".$this->baseUrl($request)."/sitemap.xml\n", 200, ['Content-Type' => 'text/plain']),
             default => $this->page($request, $project, $path),
         };

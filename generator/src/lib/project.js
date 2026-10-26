@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildSites, buildThemeCss, RETIRED_COMPONENTS, slugify, usedComponents, validateConfig } from './config.js';
 import { exists, hashContents, hashFile, listFiles, readJson, removeFile, writeFile, writeJson } from './fsutil.js';
-import { LOCK_FILE, PROJECT_CONFIG_FILE, RUNTIME_DIR } from './paths.js';
+import { LOCK_FILE, PROJECT_CONFIG_FILE, RUNTIME_DIR, SAMPLE_FILES_DIR } from './paths.js';
 import { getComponent, getTheme, listComponents } from './registry.js';
 import { getTarget } from './targets/index.js';
 
@@ -133,6 +133,28 @@ function writeSiteFiles(projectDir, target, config, defaultLocale, sites) {
 }
 
 /**
+ * The example school's downloads (examples/files) that the config links to as /files/<name>.
+ */
+export function sampleFiles(config) {
+    const names = new Set();
+    const visit = (value) => {
+        if (typeof value === 'string') {
+            const match = /^\/files\/([A-Za-z0-9][A-Za-z0-9._-]*)$/.exec(value);
+
+            if (match && exists(path.join(SAMPLE_FILES_DIR, match[1]))) {
+                names.add(match[1]);
+            }
+        } else if (value && typeof value === 'object') {
+            Object.values(value).forEach(visit);
+        }
+    };
+
+    visit(config);
+
+    return [...names].sort();
+}
+
+/**
  * Brings a generated project in line with its school.config.json and the registry:
  * installs referenced components, applies theme overrides, regenerates theme.css,
  * site data and the component registry. Files the school edited locally are kept
@@ -191,6 +213,10 @@ export function syncProject(projectDir, { config, force = false, extraComponents
         }
     }
 
+    for (const name of sampleFiles(config)) {
+        managed.set(`public/files/${name}`, path.join(SAMPLE_FILES_DIR, name));
+    }
+
     const result = { written: [], unchanged: [], skipped: [], removed: [], warnings };
     const nextFiles = {};
 
@@ -232,7 +258,7 @@ export function syncProject(projectDir, { config, force = false, extraComponents
             result.removed.push(relative);
         } else {
             result.skipped.push(relative);
-            result.warnings.push(`${relative} was edited locally, so it was left in place although its component is no longer installed.`);
+            result.warnings.push(`${relative} was edited locally, so it was left in place although the site no longer uses it.`);
         }
     }
 

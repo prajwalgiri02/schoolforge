@@ -53,6 +53,7 @@ class RestrictSchoolStaff
         'projects.submissions.file',
         'preview',
         'preview.calendar',
+        'sample-files.show',
         'uploads.store',
         'media.library',
     ];

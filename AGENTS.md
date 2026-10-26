@@ -62,6 +62,7 @@ generator/
   targets/nextjs/           Next.js template + adapter
   targets/laravel-inertia-react/  Laravel overlay (admin panel, models, migrations, tests) + adapter
   examples/school.config.json     the example school "Riverside Heights School" (used for samples and tests)
+  examples/files/                 its sample downloads: copied to public/files of generated sites, served by Studio at /files/<name>
   schema/school.schema.json       JSON schema of the school config
 tests/Feature/              Studio PHPUnit tests (one file per area)
 compose.yaml, Dockerfile, Caddyfile   one-command production deployment of Studio

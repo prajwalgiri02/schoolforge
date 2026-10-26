@@ -76,6 +76,24 @@ class HostedSitesTest extends TestCase
             ->assertSee('SUMMARY:Annual Sports Week', false);
     }
 
+    public function test_the_sample_downloads_are_served(): void
+    {
+        $project = $this->publishedSchool();
+        $files = array_column($project->config['downloads'], 'file');
+        $this->assertCount(4, $files);
+
+        foreach ($files as $file) {
+            $this->get("http://riverside.edu.np{$file}")->assertOk();
+            $this->get("http://studio.test{$file}")->assertOk();
+        }
+
+        $this->get('http://riverside.edu.np/files/prospectus-2027.pdf')->assertHeader('Content-Type', 'application/pdf');
+        $this->get('http://studio.test/files/uniform-prices.xlsx')->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->get('http://riverside.edu.np/files/missing.pdf')->assertNotFound();
+        $this->get('http://riverside.edu.np/files/.gitignore')->assertNotFound();
+        $this->get('http://studio.test/files/missing.pdf')->assertNotFound();
+    }
+
     public function test_published_pages_are_rendered_to_html_for_search_engines(): void
     {
         $project = $this->publishedSchool();

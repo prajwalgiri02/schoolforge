@@ -40,6 +40,7 @@ class SchoolStaffTest extends TestCase
         $this->get("/projects/{$school->slug}/history")->assertOk();
         $this->get("/preview/{$school->slug}/about")->assertOk();
         $this->get("/preview/{$school->slug}/events.ics")->assertOk();
+        $this->get('/files/admission-form.pdf')->assertOk();
         $this->post("/projects/{$school->slug}/publish")->assertSessionHas('success');
         $this->assertNotNull($school->fresh()->published_at);
     }
